@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DukhSuno — Complete PRD v3.0</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F8F7F4;
+  --surface: #FFFFFF;
+  --s2: #F3F1EC;
+  --s3: #ECEAE3;
+  --accent: #BF4B2B;
+  --accent2: #D96B45;
+  --ac-soft: #FCF0EB;
+  --ac-border: #EDBBAA;
+  --text: #17160F;
+  --t2: #3D3C35;
+  --t3: #8A8880;
+  --border: #E5E3DC;
+  --green: #1A7A4A;
+  --gs: #EBF7F1;
+  --blue: #1A4F8A;
+  --bs: #EBF1FB;
+  --purple: #6B35A8;
+  --ps: #F3EBFB;
+  --yellow: #8A6500;
+  --ys: #FBF5E4;
+  --code: #141310;
+  --shadow: 0 1px 4px rgba(0,0,0,.06),0 0 0 1px rgba(0,0,0,.04);
+  --shadow-md: 0 4px 16px rgba(0,0,0,.09),0 0 0 1px rgba(0,0,0,.04);
+  --r: 14px;
+  --r-sm: 8px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;font-size:15px}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.65}
+
+/* ── LAYOUT ── */
+.layout{display:flex;min-height:100vh}
+
+/* ── SIDEBAR ── */
+.sb{width:252px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);position:sticky;top:0;height:100vh;overflow-y:auto;padding:0 0 32px}
+.sb-logo{padding:22px 22px 18px;border-bottom:1px solid var(--border)}
+.sb-logo-name{font-family:'Playfair Display',serif;font-size:22px;letter-spacing:-.3px}
+.sb-logo-name span{color:var(--accent)}
+.sb-badge{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--t3);margin-top:3px;display:block}
+.sb-label{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--t3);padding:16px 22px 5px}
+.sb-link{display:flex;align-items:center;gap:9px;padding:7px 22px;font-size:12.5px;color:var(--t2);text-decoration:none;font-weight:500;transition:.12s}
+.sb-link:hover{background:var(--s2);color:var(--text)}
+.sb-link.on{color:var(--accent);background:var(--ac-soft);font-weight:600}
+.sb-dot{width:5px;height:5px;border-radius:50%;background:var(--border);flex-shrink:0}
+.sb-link.on .sb-dot{background:var(--accent)}
+
+/* ── MAIN ── */
+.main{flex:1;min-width:0}
+
+/* ── HERO ── */
+.hero{background:var(--surface);border-bottom:1px solid var(--border);padding:60px 72px 52px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-100px;right:-100px;width:480px;height:480px;background:radial-gradient(circle,rgba(191,75,43,.07) 0%,transparent 65%);pointer-events:none}
+.hero-top{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;padding:4px 11px;border-radius:100px}
+.ca{background:var(--ac-soft);color:var(--accent);border:1px solid var(--ac-border)}
+.cg{background:var(--gs);color:var(--green)}
+.cb{background:var(--bs);color:var(--blue)}
+.cp{background:var(--ps);color:var(--purple)}
+.hero h1{font-family:'Playfair Display',serif;font-size:46px;line-height:1.16;letter-spacing:-.7px;max-width:640px;margin-bottom:14px}
+.hero h1 em{font-style:italic;color:var(--accent)}
+.hero-sub{font-size:15.5px;color:var(--t3);font-weight:300;max-width:540px;line-height:1.8;margin-bottom:36px}
+.hero-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;max-width:680px}
+.hs{background:var(--surface);padding:16px 18px}
+.hs-v{font-family:'Playfair Display',serif;font-size:24px;line-height:1;margin-bottom:3px}
+.hs-l{font-size:10.5px;color:var(--t3);font-weight:400;line-height:1.4}
+
+/* ── CONTENT ── */
+.page{padding:52px 72px;max-width:960px}
+.section{margin-bottom:68px;scroll-margin-top:28px}
+.sec-eye{font-size:10.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--accent);margin-bottom:11px;display:flex;align-items:center;gap:9px}
+.sec-eye::before{content:'';width:18px;height:2px;background:var(--accent);border-radius:2px;display:block}
+.sec-title{font-family:'Playfair Display',serif;font-size:30px;letter-spacing:-.4px;margin-bottom:6px;line-height:1.25}
+.sec-desc{font-size:13.5px;color:var(--t3);font-weight:300;max-width:560px;margin-bottom:28px;line-height:1.85}
+
+/* ── CARDS ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:22px 26px;margin-bottom:10px;box-shadow:var(--shadow)}
+.card-h{display:flex;align-items:center;gap:11px;margin-bottom:11px}
+.ci{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.ci-a{background:var(--ac-soft)} .ci-g{background:var(--gs)} .ci-b{background:var(--bs)} .ci-p{background:var(--ps)} .ci-y{background:var(--ys)}
+.card-title{font-size:14px;font-weight:700;color:var(--text)}
+.card-sub{font-size:11.5px;color:var(--t3);margin-top:1px}
+.card p,.body{font-size:13px;color:var(--t2);line-height:1.82;font-weight:300}
+.card p strong,.body strong{color:var(--text);font-weight:600}
+
+/* ── GRID ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+
+/* ── CODE ── */
+.code-wrap{background:var(--code);border-radius:var(--r);overflow:hidden;margin:10px 0}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:10px 18px;border-bottom:1px solid rgba(255,255,255,.06)}
+.code-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.35)}
+.code-lang{font-size:10px;color:rgba(255,255,255,.2);font-family:monospace}
+pre{font-family:'SF Mono','Fira Code',monospace;font-size:12px;color:#D8D4C8;line-height:1.78;padding:18px;overflow-x:auto;white-space:pre}
+code{font-family:'SF Mono','Fira Code',monospace;font-size:11.5px;background:var(--s2);color:var(--accent);padding:1px 6px;border-radius:4px}
+
+/* ── FLOW ── */
+.flow{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow)}
+.fs{display:flex;gap:16px;padding:18px 24px;border-bottom:1px solid var(--border);transition:.12s}
+.fs:last-child{border-bottom:none}
+.fs:hover{background:var(--s2)}
+.fn{width:26px;height:26px;background:var(--accent);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;margin-top:2px}
+.ft{font-size:13.5px;font-weight:700;color:var(--text);margin-bottom:3px}
+.fd{font-size:12.5px;color:var(--t3);font-weight:300;line-height:1.75}
+
+/* ── TABLE ── */
+.tbl{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;border-collapse:collapse;box-shadow:var(--shadow)}
+.tbl th{background:var(--s2);padding:11px 18px;text-align:left;font-size:10.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--t3);border-bottom:1px solid var(--border)}
+.tbl td{padding:12px 18px;font-size:12.5px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.6}
+.tbl tr:last-child td{border-bottom:none}
+.tbl td:first-child{font-weight:600;color:var(--text)}
+.tbl td.dim{color:var(--t3);font-weight:300}
+.tbl td.mono{font-family:monospace;font-size:11.5px;color:var(--accent)}
+
+/* ── SCREEN SPEC ── */
+.spec{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:12px;box-shadow:var(--shadow)}
+.spec-head{padding:14px 22px;background:var(--s2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.spec-name{font-size:13.5px;font-weight:700}
+.spec-route{font-family:monospace;font-size:10.5px;color:var(--t3);background:var(--s3);padding:3px 8px;border-radius:5px}
+.spec-body{padding:18px 22px}
+.sr{display:flex;gap:14px;margin-bottom:10px;font-size:12.5px}
+.sk{width:160px;flex-shrink:0;font-weight:600;color:var(--t2)}
+.sv{color:var(--t3);font-weight:300;line-height:1.7;flex:1}
+.sv strong{color:var(--text);font-weight:600}
+.sv code{font-size:11px}
+
+/* ── TAG ── */
+.tag{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:2px 8px;border-radius:5px;margin:2px}
+.ta{background:var(--ac-soft);color:var(--accent)}
+.tg{background:var(--gs);color:var(--green)}
+.tb{background:var(--bs);color:var(--blue)}
+.tp{background:var(--ps);color:var(--purple)}
+.ty{background:var(--ys);color:var(--yellow)}
+
+/* ── ALERT ── */
+.alert{display:flex;gap:12px;padding:14px 18px;border-radius:10px;margin:10px 0;font-size:13px;line-height:1.7}
+.ai{font-size:17px;flex-shrink:0;margin-top:1px}
+.ac strong{display:block;font-weight:700;font-size:13.5px;margin-bottom:2px}
+.a-warn{background:var(--ys);border:1px solid #EDD898}
+.a-info{background:var(--bs);border:1px solid #BACED4}
+.a-ok{background:var(--gs);border:1px solid #AADCC0}
+.a-err{background:#FEF0EE;border:1px solid #F0BABA}
+
+/* ── PRICE CARDS ── */
+.pc-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.pc{border:1px solid var(--border);border-radius:var(--r);padding:22px 20px;background:var(--surface);box-shadow:var(--shadow)}
+.pc.hot{border-color:var(--accent);background:linear-gradient(145deg,#BF4B2B,#D86040);color:#fff;box-shadow:0 8px 28px rgba(191,75,43,.25)}
+.pc-name{font-size:15px;font-weight:700}
+.pc-amount{font-family:'Playfair Display',serif;font-size:36px;line-height:1;margin:7px 0 3px}
+.pc-per{font-size:11.5px;opacity:.65;margin-bottom:14px;font-weight:400}
+.pc-desc{font-size:12.5px;opacity:.75;line-height:1.65;font-weight:300}
+
+/* ── UI MOCKUP ── */
+.mockup{background:var(--s2);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin:10px 0}
+.mock-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t3);margin-bottom:12px}
+.phone-frame{width:220px;background:#111;border-radius:28px;padding:10px;margin:0 auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.phone-screen{background:var(--surface);border-radius:20px;overflow:hidden;min-height:380px;position:relative}
+.phone-status{height:28px;background:#111;display:flex;align-items:center;justify-content:center}
+.phone-notch{width:80px;height:18px;background:#000;border-radius:0 0 12px 12px;margin:0 auto}
+
+/* ── DIVIDER ── */
+hr{border:none;border-top:1px solid var(--border);margin:0}
+
+/* ── FOOTER ── */
+footer{border-top:1px solid var(--border);background:var(--surface);padding:22px 72px;display:flex;align-items:center;justify-content:space-between}
+.fl{font-family:'Playfair Display',serif;font-size:17px}
+.fl span{color:var(--accent)}
+.fm{font-size:11.5px;color:var(--t3)}
+
+/* ── ANIM SPEC ── */
+.anim-item{display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:1px solid var(--border)}
+.anim-item:last-child{border-bottom:none}
+.anim-icon{width:36px;height:36px;border-radius:9px;background:var(--ac-soft);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.anim-name{font-size:13.5px;font-weight:700;margin-bottom:3px}
+.anim-desc{font-size:12.5px;color:var(--t3);font-weight:300;line-height:1.7}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .sb{display:none}
+  .main{margin-left:0}
+  .hero,.page{padding:28px 20px}
+  .g2,.g3,.pc-grid{grid-template-columns:1fr}
+  .hero-stats{grid-template-columns:1fr 1fr}
+  footer{padding:18px 20px;flex-direction:column;gap:6px;text-align:center}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- ── SIDEBAR ── -->
+<nav class="sb">
+  <div class="sb-logo">
+    <div class="sb-logo-name">Dukh<span>Suno</span></div>
+    <span class="sb-badge">PRD v3.0 · Vibe Coding Ready</span>
+  </div>
+
+  <div class="sb-label">Foundation</div>
+  <a href="#overview" class="sb-link on"><div class="sb-dot"></div>Overview & Vision</a>
+  <a href="#roles" class="sb-link"><div class="sb-dot"></div>Two Roles</a>
+  <a href="#login" class="sb-link"><div class="sb-dot"></div>Login & Role Select</a>
+  <a href="#onboarding" class="sb-link"><div class="sb-dot"></div>Onboarding Flows</a>
+
+  <div class="sb-label">User Panels</div>
+  <a href="#panel-sunane" class="sb-link"><div class="sb-dot"></div>Sunane Wala Panel</a>
+  <a href="#panel-sunne" class="sb-link"><div class="sb-dot"></div>Sunne Wala Panel</a>
+  <a href="#panel-switch" class="sb-link"><div class="sb-dot"></div>Dual Role & Switching</a>
+
+  <div class="sb-label">Core Features</div>
+  <a href="#browse" class="sb-link"><div class="sb-dot"></div>Browse & Filter</a>
+  <a href="#listener-profile" class="sb-link"><div class="sb-dot"></div>Listener Profile</a>
+  <a href="#credits" class="sb-link"><div class="sb-dot"></div>Credit System</a>
+  <a href="#callflow" class="sb-link"><div class="sb-dot"></div>Call Flow (Full)</a>
+  <a href="#share" class="sb-link"><div class="sb-dot"></div>Share & QR</a>
+
+  <div class="sb-label">Tech</div>
+  <a href="#techstack" class="sb-link"><div class="sb-dot"></div>Tech Stack</a>
+  <a href="#firebase" class="sb-link"><div class="sb-dot"></div>Firebase Schema</a>
+  <a href="#api" class="sb-link"><div class="sb-dot"></div>API Routes</a>
+  <a href="#calltech" class="sb-link"><div class="sb-dot"></div>WebRTC + Callkeep</a>
+  <a href="#payments" class="sb-link"><div class="sb-dot"></div>PayU + Credits</a>
+  <a href="#twilio" class="sb-link"><div class="sb-dot"></div>Twilio Wake-Up</a>
+
+  <div class="sb-label">Design</div>
+  <a href="#design" class="sb-link"><div class="sb-dot"></div>Design System</a>
+  <a href="#animations" class="sb-link"><div class="sb-dot"></div>Animations</a>
+  <a href="#screens" class="sb-link"><div class="sb-dot"></div>All Screens Spec</a>
+  <a href="#nav" class="sb-link"><div class="sb-dot"></div>Navigation Layout</a>
+
+  <div class="sb-label">Business</div>
+  <a href="#pricing" class="sb-link"><div class="sb-dot"></div>Pricing & Commission</a>
+  <a href="#verification" class="sb-link"><div class="sb-dot"></div>Verification Policy</a>
+  <a href="#env" class="sb-link"><div class="sb-dot"></div>Env Variables</a>
+</nav>
+
+<!-- ── MAIN ── -->
+<div class="main">
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-top">
+    <span class="chip ca">PRD v3.0</span>
+    <span class="chip cg">Vibe Coding Ready</span>
+    <span class="chip cb">Full Stack</span>
+    <span class="chip cp">Production</span>
+  </div>
+  <h1>DukhSuno — <em>Dil ki baat</em><br>sune koi apna</h1>
+  <p class="hero-sub">Anonymous emotional support marketplace. Sunane wale pay karke sune. Sunne wale earn karke sune. WebRTC P2P call. Google Login. iOS-level premium UI. No real identity ever shown.</p>
+  <div class="hero-stats">
+    <div class="hs"><div class="hs-v">₹0</div><div class="hs-l">Commission 6M</div></div>
+    <div class="hs"><div class="hs-v">15%</div><div class="hs-l">Cut after 6M</div></div>
+    <div class="hs"><div class="hs-v">2</div><div class="hs-l">User Roles</div></div>
+    <div class="hs"><div class="hs-v">P2P</div><div class="hs-l">WebRTC calls</div></div>
+    <div class="hs"><div class="hs-v">3+3</div><div class="hs-l">Platforms</div></div>
+  </div>
+</div>
+
+<div class="page">
+
+<!-- ══════════════════════════════════════════ -->
+<!-- 01. OVERVIEW -->
+<!-- ══════════════════════════════════════════ -->
+<div class="section" id="overview">
+  <div class="sec-eye">01 — Overview</div>
+  <h2 class="sec-title">Vision & Product Overview</h2>
+  <p class="sec-desc">DukhSuno ek aise jagah hai jahan koi apna dukh share kar sake — completely anonymously — aur dusra usse sun ke earn kar sake. Premium, safe, no real identity.</p>
+  <div class="g2">
+    <div class="card">
+      <div class="card-h"><div class="ci ci-a">🎯</div><div><div class="card-title">Core Idea</div></div></div>
+      <p>Har insaan ke paas koi na koi dukh hai. Therapist mehenga hai. Dost thak jaate hain. DukhSuno ek marketplace hai jahan <strong>trained sunne wale</strong> apna time bechte hain aur sunane wale safe jagah paate hain baat karne ke liye — bilkul anonymous, bilkul secure.</p>
+    </div>
+    <div class="card">
+      <div class="card-h"><div class="ci ci-g">📱</div><div><div class="card-title">Platforms</div></div></div>
+      <p><strong>Web App (Next.js):</strong> Full responsive website. PWA installable.<br><strong>Android App:</strong> Expo React Native. EAS cloud build.<br><strong>iOS App:</strong> Same Expo codebase. App Store.<br><br>Teeno ek hi Next.js backend se connected. Ek GitHub repo — Monorepo.</p>
+    </div>
+  </div>
+  <div class="alert a-info">
+    <div class="ai">ℹ️</div>
+    <div class="ac"><strong>Naming Convention in this PRD</strong> "Sunane Wala" = jo apna dukh share karna chahta hai (buyer). "Sunne Wala" = jo sun ke earn karta hai (seller/listener).</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- 02. ROLES -->
+<!-- ══════════════════════════════════════════ -->
+<div class="section" id="roles">
+  <div class="sec-eye">02 — User Roles</div>
+  <h2 class="sec-title">Two Roles — Two Panels</h2>
+  <div class="g2">
+    <div class="card">
+      <div class="card-h"><div class="ci ci-b">😔</div><div><div class="card-title">Sunane Wala</div><div class="card-sub">Jo apna dukh share karta hai</div></div></div>
+      <p>Browse karo sunne wale ko. Filter lagao. Profile dekho. Plan select karo. PayU ya credit se pay karo. Anonymous voice call karo. Baad mein rating do.<br><br><strong>Key feature:</strong> Credit wallet — pehle credits reload karo, phir kahi bhi use karo instantly.</p>
+    </div>
+    <div class="card">
+      <div class="card-h"><div class="ci ci-g">🎧</div><div><div class="card-title">Sunne Wala</div><div class="card-sub">Jo sun ke earn karta hai</div></div></div>
+      <p>YouTube jaisa profile banao. Tin alag plans set karo (apna price, minute, heading). DP lagao (apni ya random). Onboarding mein sab fill karo. Twilio ya FCM se call notification aae. Earn karo. Withdraw karo.<br><br><strong>Key feature:</strong> Apna profile link social media pe share karo.</p>
+    </div>
+  </div>
+  <div class="alert a-warn">
+    <div class="ai">⚠️</div>
+    <div class="ac"><strong>Dual Role possible!</strong> Ek user ke paas dono roles ho sakte hain. App dono ke liye alag panel dikhata hai. Header mein role switch button milta hai sirf tab jab dono roles hon.</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- 03. LOGIN & ROLE SELECT -->
+<!-- ══════════════════════════════════════════ -->
+<div class="section" id="login">
+  <div class="sec-eye">03 — Auth</div>
+  <h2 class="sec-title">Login & Role Selection</h2>
+
+  <div class="flow">
+    <div class="fs">
+      <div class="fn">1</div>
+      <div>
+        <div class="ft">App/Web khulne par — Splash Screen (1.5 sec)</div>
+        <div class="fd">DukhSuno logo center mein. Playfair Display font. Soft warm background #F8F7F4. Logo fade-in animation (0→1 opacity, 400ms ease). Tagline "Dil ki baat sune koi" neeche italic mein. Auto-advance to next screen.</div>
+      </div>
+    </div>
+    <div class="fs">
+      <div class="fn">2</div>
+      <div>
+        <div class="ft">Login Screen</div>
+        <div class="fd">Full screen. Center layout. Logo top. "Swagat hai aapka 🙏" heading. Ek hi button: <strong>"Google se continue karo"</strong> — white pill button, Google icon left, shadow. Firebase Google Auth trigger. Below: "Privacy Policy · Terms" text links.</div>
+      </div>
+    </div>
+    <div class="fs">
+      <div class="fn">3</div>
+      <div>
+        <div class="ft">First-time user → Role Selection Screen</div>
+        <div class="fd">Slide-up modal ya full screen. "Aap DukhSuno mein kya karna chahte hain?" heading. <strong>Do bade cards:</strong><br>Card 1: 😔 emoji, "Apna dukh sunana hai" — subtitle "Kisi ko apni baat kaho, feel better ho". Accent border on hover.<br>Card 2: 🎧 emoji, "Sun ke paise kamane hain" — subtitle "Apna waqt do, logo ki madad karo". Green border on hover.<br>Ek hi select ho sakta. "Aage badhein" button neeche activate hota hai selection ke baad.</div>
+      </div>
+    </div>
+    <div class="fs">
+      <div class="fn">4</div>
+      <div>
+        <div class="ft">Returning user → Direct to their panel</div>
+        <div class="fd">Agar sirf ek role hai → directly us role ke panel mein. Agar dono roles hain → Role chooser bottom sheet slide-up aata hai: "Aaj kis roop mein aana chahte hain? 😔 Sunana hai | 🎧 Sunna hai" — dono cards, tap karo jisme jaana ho.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- 04. ONBOARDING -->
+<!-- ══════════════════════════════════════════ -->
+<div class="section" id="onboarding">
+  <div class="sec-eye">04 — Onboarding</div>
+  <h2 class="sec-title">Onboarding Flows (Both Roles)</h2>
+
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-h"><div class="ci ci-b">😔</div><div class="card-title">Sunane Wala Onboarding (3 Steps)</div></div>
+    <div class="flow" style="margin-top:12px;border:none;box-shadow:none">
+      <div class="fs" style="padding:12px 0">
+        <div class="fn" style="background:var(--blue)">1</div>
+        <div><div class="ft">Display Name choose karo</div><div class="fd">Fake naam — real naam mat dena. Placeholder: "Ek dost", "Udaas mussafir". 20 char max. "Ye naam kisi ko nahi dikhega" note with lock icon.</div></div>
+      </div>
+      <div class="fs" style="padding:12px 0">
+        <div class="fn" style="background:var(--blue)">2</div>
+        <div><div class="ft">Avatar select karo</div><div class="fd">Grid of 24 color+emoji combos. Tap to select. Selected: accent ring. No real photo option for sunane wala — complete anonymity.</div></div>
+      </div>
+      <div class="fs" style="padding:12px 0;border:none">
+        <div class="fn" style="background:var(--blue)">3</div>
+        <div><div class="ft">Ek short mood tag select karo (optional)</div><div class="fd">Chips: "Relationship 💔", "Stress 😤", "Loneliness 🌧", "Family 👨‍👩‍👦", "Work 💼", "Grief 🕯", "Just venting 💬". Helps recommend listeners. Skippable.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-h"><div class="ci ci-g">🎧</div><div class="card-title">Sunne Wala Onboarding (7 Steps — Progress bar top)</div></div>
+    <div class="flow" style="margin-top:12px;border:none;box-shadow:none">
+      <div class="fs" style="padding:12px 0">
+        <div class="fn">1</div>
+        <div><div class="ft">DP Upload / Random choose</div><div class="fd">Two options shown as big cards: "Apni photo lagao" (camera/gallery icon) OR "Random avatar use karo" (shows 6 fun illustrated avatars grid). Selection required. Note: "Aap apni real photo laga sakte hain ya random bhi theek hai."</div></div>
+      </div>
+      <div class="fs" style="padding:12px 0">
+        <div class="fn">2</div>
+        <div><div class="ft">Display Name + Profile Headline</div><div class="fd">Name: max 30 chars. Headline: max 60 chars — e.g. "Aapka dost hu, sab sunta hu 💙". Both required.</div></div>
+      </div>
+      <div class="fs" style="padding:12px 0">
+        <div class="fn">3</div>
+        <div><div class="ft">Profile Description (Bio)</div><div class="fd">Textarea. Max 300 chars. Placeholder: "Mujhe batao aap kaisa mehsoos kar rahe hain. Main sunuunga bina judge kiye..." Counter shown. Markdown nahi — plain text only.</div></div>
+      </div>
+      <div class="fs" style="padding:12px 0">
+        <div class="fn">4</div>
+        <div><div class="ft">Specialties Select (Multi-select chips)</div><div class="fd">Relationship 💔, Stress 😤, Loneliness 🌧, Family 👨‍👩‍👦, Work 💼, Grief 🕯, Anxiety 😰, Motivation 🔥, General 💬. Select upto 4. Required at least 1.</div></div>
+      </div>
+      <div class="fs" style="padding:12px 0">
+        <div class="fn">5</div>
+        <div><div class="ft">Gender & Age (for filter)</div><div class="fd">Gender: Male / Female / Non-binary / Prefer not to say — pill radio buttons. Age: Number input 18–65. These show in listener card filters. Note shown: "Ye public profile mein dikhega."</div></div>
+      </div>
+      <div class="fs" style="padding:12px 0">
+        <div class="fn">6</div>
+        <div><div class="ft">Teen Plans Set Karo</div><div class="fd">Three plan cards — each has: Plan Heading (text input, e.g. "Sirf sunne ke liye"), Minutes dropdown (1–60 min, every 1 min step), Price input (₹ number, min ₹10), Optional plan description (50 chars). All 3 required. Can be edited later from profile. Default banner auto-generated from plan heading. Custom banner upload option also available.</div></div>
+      </div>
+      <div class="fs" style="padding:12px 0;border:none">
+        <div class="fn">7</div>
+        <div><div class="ft">Phone Number (Verification only)</div><div class="fd">Input with India +91 flag prefix. Large bold note: <strong>"🔒 Ye number 100% private hai. Kisi bhi condition mein kisi ko nahi bataya jaega — kabhi bhi. Ye sirf aapki verification aur incoming call ke liye hai."</strong> Firebase Phone Auth OTP (6-digit boxes). After verify → "Aapki profile 6 hours mein verify ho jaegi. Hum aapko ek call karenge." Screen shown.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert a-ok">
+    <div class="ai">✅</div>
+    <div class="ac"><strong>Onboarding ke baad — YouTube video popup</strong> Ek modal slide-up aata hai jisme embedded YouTube tutorial video hai: "DukhSuno use karna seekho". Below video: "App install karo aur live aao!" with Install button. Note: "App band mat karo — taki call aa sake PWA mein bhi." Skip button available.</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- 05. SUNANE WALA PANEL -->
+<!-- ══════════════════════════════════════════ -->
+<div class="section" id="panel-sunane">
+  <div class="sec-eye">05 — Sunane Wala Panel</div>
+  <h2 class="sec-title">Sunane Wala — Full Panel</h2>
+  <p class="sec-desc">Ye panel sirf unhe milta hai jinka Sunane Wala role hai. Ye browse, pay, call, history track karne ka panel hai.</p>
+
+  <div class="card">
+    <div class="card-h"><div class="ci ci-b">📱</div><div class="card-title">Bottom Navigation (4 tabs)</div></div>
+    <p>
+      <strong>Tab 1 — Ghar (Home icon):</strong> Browse listeners feed.<br>
+      <strong>Tab 2 — Khojo (Search/filter icon):</strong> Search by name + advanced filters.<br>
+      <strong>Tab 3 — Wallet (Coin icon):</strong> Credit balance, reload, transaction history.<br>
+      <strong>Tab 4 — Meri Profile (Person icon):</strong> Account settings, sessions history, manage roles.<br><br>
+      Active tab: accent color + subtle scale-up animation (1.0→1.1, spring). Inactive: muted gray. Tab bar: white, top border, safe area respected.
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card-h"><div class="ci ci-a">🏠</div><div class="card-title">Home Screen — Sunane Wala</div></div>
+    <p>
+      <strong>Header (sticky):</strong> Left: DukhSuno logo (small). Center: search bar tap to go to explore. Right: notification bell icon (badge if new) + credit pill "💰 ₹150" showing balance — tap to go to wallet. Install app button (PWA only — small outlined pill "Install karo ↓").<br><br>
+      <strong>Hero Section:</strong> Warm gradient card full-width. "Aaj kya chal raha hai?" heading. Mood selector — 5 emoji chips (😊😔😤😰💔). On select → filter listeners by relevant specialties automatically.<br><br>
+      <strong>Sort Tabs (horizontal scroll):</strong> "Sabke liye ⭐" | "Top Rated 🏆" | "Sabse Sasta 💸" | "Naaye Log 🌱" | "Online Now 🟢"<br><br>
+      <strong>Listener Cards Grid:</strong> 2-col mobile, 3-col desktop. Each card spec below in Browse section.
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card-h"><div class="ci ci-p">🔍</div><div class="card-title">Search & Filter Screen</div></div>
+    <p>
+      <strong>Search bar:</strong> Top, always visible. Searches by display name and bio.<br>
+      <strong>Filter Drawer:</strong> Tap filter icon → slide from right (mobile) or sidebar expand (desktop). Filters:<br>
+      — Rating: Star slider (1★ to 5★)<br>
+      — Gender: All / Male / Female / Non-binary<br>
+      — Price Range: ₹ min–max dual handle slider<br>
+      — Age Range: 18–65 dual handle slider<br>
+      — Specialty: Multi-select chips<br>
+      — Language: Hindi / English / Both (future)<br>
+      — Location: City dropdown (future)<br>
+      Active filter count badge shows on filter icon. "Reset" button at bottom. "Apply Karo" accent button.
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card-h"><div class="ci ci-y">💰</div><div class="card-title">Wallet Screen</div></div>
+    <p>
+      <strong>Top Card:</strong> Large balance display "₹ 340" in serif font. Below: "Add Credits" accent button. "Withdraw nahi hota — sirf calls mein use hota hai" note.<br>
+      <strong>Quick Add Buttons:</strong> ₹100 | ₹250 | ₹500 | Custom — tap → PayU payment.<br>
+      <strong>Transaction History list:</strong> Each row: icon, "Credits added ₹250" or "Plan booked — Meera Ji" with date, amount. Color: green for add, red/accent for spend.<br>
+      <strong>Refund History:</strong> "Missed calls ka refund" section with status chips.
+    </p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- 06. SUNNE WALA PANEL -->
+<!-- ══════════════════════════════════════════ -->
+<div class="section" id="panel-sunne">
+  <div class="sec-eye">06 — Sunne Wala Panel</div>
+  <h2 class="sec-title">Sunne Wala — Full Panel</h2>
+  <p class="sec-desc">Ye panel sirf unhe milta hai jinka Sunne Wala role hai. Earnings, profile manage, availability toggle, share — sab yahan.</p>
+
+  <div class="card">
+    <div class="card-h"><div class="ci ci-g">📱</div><div class="card-title">Bottom Navigation (5 tabs)</div></div>
+    <p>
+      <strong>Tab 1 — Dashboard (chart icon):</strong> Earnings overview, today's calls, balance.<br>
+      <strong>Tab 2 — Calls (phone icon):</strong> Call history, missed calls, ratings received.<br>
+      <strong>Tab 3 — Live Toggle (circle icon — green when live):</strong> Tap to go live / go offline. Center tab, slightly raised. When Live: pulsing green ring around icon.<br>
+      <strong>Tab 4 — Profile (person icon):</strong> Edit profile, plans, share link, QR.<br>
+      <strong>Tab 5 — Paise (wallet icon):</strong> Total earnings, available balance, withdrawal request.<br><br>
+      Tab bar same styling as Sunane Wala. Active tab accent.
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card-h"><div class="ci ci-g">📊</div><div class="card-title">Dashboard Screen — Sunne Wala</div></div>
+    <p>
+      <strong>Header:</strong> Left: "Namaskar, [Name] 👋" warm greeting. Right: notification bell + "Live Hai 🟢" or "Offline 🔴" status pill.<br><br>
+      <strong>Stats Row (3 cards):</strong><br>
+      Card 1: Aaj ki kamai "₹450" (today's earnings).<br>
+      Card 2: Aaj ki calls "3 calls".<br>
+      Card 3: Rating "4.8 ⭐".<br><br>
+      <strong>Earnings Chart:</strong> Line graph — last 7 days earnings. Smooth curve. Accent color. Tap point = daily detail tooltip.<br><br>
+      <strong>Recent Activity:</strong> Last 3 sessions list. Caller: "Ek dost", time, duration, earning. Tap → session detail.<br><br>
+      <strong>Pending Verification Banner:</strong> Yellow banner if not yet verified: "Aapki verification 6 hours mein hogi. Tab tak profile public nahi hogi."
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card-h"><div class="ci ci-a">✏️</div><div class="card-title">Profile Edit Screen — Sunne Wala</div></div>
+    <p>
+      <strong>DP Section:</strong> Large circular DP (120px). Tap → bottom sheet: "Camera se lo | Gallery se lo | Random avatar" options. Edit icon overlay on DP.<br>
+      <strong>Profile Banner:</strong> Wide banner image at top (like YouTube channel art). Default: auto-generated gradient with name. Tap → upload custom (16:9 crop). Max 2MB.<br>
+      <strong>Editable Fields:</strong> Display Name, Headline (60 chars), Bio (300 chars), Specialties (multi-chip), Gender, Age, Language.<br>
+      <strong>Plans Section:</strong> "Mere Plans" card. 3 plan editors stacked. Each: plan heading input, minutes dropdown (1–60), price input, optional description. "+ Plan banner upload" per plan.<br>
+      <strong>Save button:</strong> Sticky bottom, full-width accent pill.
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card-h"><div class="ci ci-y">💸</div><div class="card-title">Paise / Earnings Screen</div></div>
+    <p>
+      <strong>Balance Cards Row:</strong><br>
+      "Kul Kamai" — total ever earned (large serif number).<br>
+      "Available Balance" — withdrawable amount.<br>
+      "Is Mahine" — current month earnings.<br><br>
+      <strong>Withdrawal:</strong> "Paise Nikaalein" button. Minimum ₹100. Form: UPI ID input, amount. Confirmation modal. Status: Pending / Completed chips.<br><br>
+      <strong>Earnings History:</strong> Date, session duration, amount, caller (always "Ek dost"). Commission rate shown (0% ya 15%). Commission auto-applies based on registration date.
+    </p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- 07. DUAL ROLE & SWITCHING -->
+<!-- ══════════════════════════════════════════ -->
+<div class="section" id="panel-switch">
+  <div class="sec-eye">07 — Dual Role</div>
+  <h2 class="sec-title">Dual Role & Panel Switching</h2>
+
+  <div class="flow">
+    <div class="fs">
+      <div class="fn">A</div>
+      <div>
+        <div class="ft">Dusra Role Add Karna</div>
+        <div class="fd">Profile page mein jao (koi bhi panel). "Mere Roles" section. Current role chip (e.g. "😔 Sunane Wala ✅"). Below: "🎧 Sunne Wala — Enroll karo" card with "Shuru karo" button.<br>Tap → confirmation popup: <strong>"Kya aap Sunne Wala role bhi lena chahte hain? Aapko ek aur onboarding complete karni hogi."</strong> Yes/No. Yes → Sunne Wala onboarding flow start.</div>
+      </div>
+    </div>
+    <div class="fs">
+      <div class="fn">B</div>
+      <div>
+        <div class="ft">Dual Role — App Open Karne Par</div>
+        <div class="fd">Agar dono roles hain → app khulne par bottom sheet slide-up: "Aaj kaise aana hai?" with two large cards: "😔 Sunana hai" and "🎧 Sunna hai". Spring animation. Tap karo → respective panel khule. Dismiss swipe down bhi kaam kare.</div>
+      </div>
+    </div>
+    <div class="fs">
+      <div class="fn">C</div>
+      <div>
+        <div class="ft">Header mein Role Switch Button</div>
+        <div class="fd">Sirf tab dikhta hai jab dono roles hain. Header mein right side pe small pill button: "😔 Sunane Wala ↕" — tap karo → instant panel switch with slide animation (old panel slides left, new panel slides right). No re-login needed.</div>
+      </div>
+    </div>
+    <div class="fs">
+      <div class="fn">D</div>
+      <div>
+        <div class="ft">Kisi Sunne Wale ke profile link se aana</div>
+        <div class="fd">User pehle se Sunne Wala role mein logged in hai aur kisi aur ke profile link pe click karta hai → popup: "Aap pehle se Sunne Wala role mein logged in hain. Kya is profile ko Sunane Wale ke roop mein dekhna chahte hain?" Yes → Sunane Wala role auto-add (agar nahi hai to onboarding), profile open. No → nothing.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- 08. BROWSE & FILTER -->
+<!-- ══════════════════════════════════════════ -->
+<div class="section" id="browse">
+  <div class="sec-eye">08 — Browse</div>
+  <h2 class="sec-title">Browse & Listener Cards</h2>
+
+  <div class="card">
+    <div class="card-h"><div class="ci ci-b">🃏</div><div class="card-title">Listener Card (in Grid)</div></div>
+    <p>
+      <strong>Size:</strong> ~160px width (2-col mobile), ~200px (3-col desktop). Border-radius 16px. Shadow. White background.<br>
+      <strong>Top:</strong> DP image circular (64px) center top, overlapping card top edge. Online dot: bottom-right of DP — green 🟢 if available.<br>
+      <strong>Name:</strong> Display name, 14px bold, center.<br>
+      <strong>Rating:</strong> ⭐ 4.8 (count) — small, below name.<br>
+      <strong>Specialty chip:</strong> Smallest chip, 1 specialty shown (most popular).<br>
+      <strong>Price:</strong> Starting from "₹XX / 5 min" — cheapest plan.<br>
+      <strong>CTA Button:</strong> "Dekho Profile" — outlined accent pill, full width of card. On hover: filled accent.<br>
+      <strong>Card hover:</strong> Slight scale 1.0→1.02, shadow deepen, 150ms ease.
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card-h"><div class="ci ci-a">🔍</div><div class="card-title">Filter Behavior</div></div>
+    <p>
+      Filters apply in real-time (debounced 300ms). Filtered count shows: "12 sunne wale mile". If 0 results: illustration + "Koi nahi mila. Filter change karo." with Reset button.<br><br>
+      <strong>Sort options apply on top of filters.</strong> Filter state persists during session. On page refresh → filters reset to default.
+    </p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- 09. LISTENER PROFILE -->
+<!-- ══════════════════════════════════════════ -->
+<div class="section" id="listener-profile">
+  <div class="sec-eye">09 — Listener Profile</div>
+  <h2 class="sec-title">Listener Public Profile Page</h2>
+  <p class="sec-desc">YouTube/Instagram jaisa full profile. Sunane wale ko sab pata chal jae is ek page se.</p>
+
+  <div class="spec">
+    <div class="spec-head"><span class="spec-name">Listener Profile Screen</span><span class="spec-route">/listener/[username]</span></div>
+    <div class="spec-body">
+      <div class="sr"><div class="sk">Banner</div><div class="sv">Full-width banner image (200px height mobile, 260px desktop). Default: auto gradient with name initials. Custom: uploaded by listener. Parallax scroll effect (moves at 0.5x scroll speed).</div></div>
+      <div class="sr"><div class="sk">DP</div><div class="sv">120px circular, overlaps banner bottom by 50%. Accent ring border. Tap to view full image.</div></div>
+      <div class="sr"><div class="sk">Name & Headline</div><div class="sv">Bold display name 20px. Italic headline below in accent color. Verified badge if admin verified. "⭐ 4.8 · 142 sessions" stats row.</div></div>
+      <div class="sr"><div class="sk">Bio</div><div class="sv">Full bio text. "Aur padhein" expand if >100 chars. Smooth height animation on expand.</div></div>
+      <div class="sr"><div class="sk">Specialty chips</div><div class="sv">All specialties as colored chips in a wrap row. Scrollable on mobile.</div></div>
+      <div class="sr"><div class="sk">Gender & Age</div><div class="sv">Small info row: "👤 Male · 28 saal" — subtle, muted.</div></div>
+      <div class="sr"><div class="sk">3 Plans Section</div><div class="sv"><strong>"Mere Plans" heading.</strong> 3 cards in a row (horizontal scroll mobile). Each plan card: plan heading (bold), minutes + price ("5 min · ₹100"), optional description. Select karo → active state (accent border + checkmark). Only one selectable at a time. After select: "Aage badhein" sticky button appears at bottom.</div></div>
+      <div class="sr"><div class="sk">Reviews Section</div><div class="sv">"Logon ne kya kaha 💬" heading. Star average bar chart (5★ to 1★). Last 10 reviews: each row has stars, comment text, "Ek dost · 3 din pehle". If no reviews: "Abhi tak koi review nahi." illustration.</div></div>
+      <div class="sr"><div class="sk">Sticky Bottom CTA</div><div class="sv">Pulsing accent button 56px height: "📞 Call karo" with selected plan price. Pulse ring animation (box-shadow ripple, 1.5s loop). If no plan selected: "Pehle ek plan chunein" disabled state.</div></div>
+      <div class="sr"><div class="sk">Public Access</div><div class="sv">Profile visible without login. Plan select bhi. "Call karo" tap par → if not logged in → Google login bottom sheet slide-up. After login → back to profile with plan pre-selected.</div></div>
+    </div>
+  </div>
+
+  <div class="alert a-info">
+    <div class="ai">💡</div>
+    <div class="ac"><strong>Credit vs Direct Pay Logic on Profile</strong> Jab user plan select kare aur "Aage badhein" tap kare → system checks credit balance. If credits ≥ plan price → "Aapke paas ₹150 credits hain. Ye plan ₹100 ka hai. ₹100 credits use honge. Confirm karo?" If credits &lt; plan price → "Aapke paas ₹40 credits hain. ₹60 aur chahiye. Total ₹100 pay karo (₹40 credits + ₹60 PayU)." If 0 credits → Direct PayU payment. Credits hamesha pehle use hote hain.</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- 10. CREDIT SYSTEM -->
+<!-- ══════════════════════════════════════════ -->
+<div class="section" id="credits">
+  <div class="sec-eye">10 — Credits</div>
+  <h2 class="sec-title">Credit Wallet System</h2>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-h"><div class="ci ci-y">💰</div><div class="card-title">How Credits Work</div></div>
+      <p>Credits = prepaid balance in user's account. 1 Credit = ₹1.<br><br>User PayU se credits add karta hai (₹100/₹250/₹500/custom). Credits kisi bhi listener ke kisi bhi plan mein use ho sakte hain.<br><br><strong>Priority rule:</strong> Jab bhi payment hogi — available credits pehle use honge, baaki PayU se.<br><br>Credits non-refundable (except missed call auto-refund).</p>
+    </div>
+    <div class="card">
+      <div class="card-h"><div class="ci ci-a">🔄</div><div class="card-title">Missed Call Auto-Refund</div></div>
+      <p>Agar listener 60 seconds mein call accept nahi karta:<br><br>1. Session status → "missed"<br>2. <strong>Used credits auto-restore</strong> to user's wallet instantly.<br>3. If PayU payment was made (no credits) → refund initiate via PayU API (3-5 business days).<br>4. User ko notification: "Aapka ₹100 wapas aa gaya 💰"<br>5. Wallet transaction history mein "Refund — Missed call" entry.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- 11. CALL FLOW -->
+<!-- ══════════════════════════════════════════ -->
+<div class="section" id="callflow">
+  <div class="sec-eye">11 — Call Flow</div>
+  <h2 class="sec-title">Full Call Flow (End to End)</h2>
+
+  <div class="flow">
+    <div class="fs">
+      <div class="fn">1</div>
+      <div>
+        <div class="ft">User taps "Call karo" → Payment processing</div>
+        <div class="fd">Credits auto-apply. Remaining via PayU sheet (if needed). PayU hash generated server-side. Loading spinner on button during payment. On success → session doc created in Firestore: status = "waiting".</div>
+      </div>
+    </div>
+    <div class="fs">
+      <div class="fn">2</div>
+      <div>
+        <div class="ft">Calling screen shown to user</div>
+        <div class="fd">Full-screen dark overlay (#0F0E0A). Listener's DP large center (140px) with soft glow. "Connecting..." text. Animated ring pulse around DP (box-shadow ripple, 2s loop, accent color). Cancel button — circular red, bottom center. If listener doesn't respond in 60s → auto-cancel + refund.</div>
+      </div>
+    </div>
+    <div class="fs">
+      <div class="fn">3</div>
+      <div>
+        <div class="ft">Listener wake-up</div>
+        <div class="fd"><strong>App users (Android/iOS):</strong> FCM high-priority push → react-native-callkeep → full-screen native call UI. Ring tone plays. Works when app fully closed.<br><strong>Web users (Sunne Wala on browser + PWA open):</strong> Realtime Firestore listener triggers IncomingCallBanner (slide down from top). Sound plays via Web Audio API.<br><strong>Web users (PWA closed/browser closed):</strong> Twilio calls listener's registered phone. Voice: "DukhSuno app mein aapko call aa rahi hai. App kholen aur accept karo."</div>
+      </div>
+    </div>
+    <div class="fs">
+      <div class="fn">4</div>
+      <div>
+        <div class="ft">Listener accepts → WebRTC connects</div>
+        <div class="fd">Listener taps Accept. App navigates to call screen. createAnswer() called. SDP answer written to Firebase RTDB. ICE candidates exchange. P2P audio connects. Status updates to "active". User's calling screen transitions to Active Call screen.</div>
+      </div>
+    </div>
+    <div class="fs">
+      <div class="fn">5</div>
+      <div>
+        <div class="ft">Active Call Screen</div>
+        <div class="fd">Full dark screen. Listener DP center, glowing. Call timer HH:MM:SS live. Controls row bottom: Mute (mic-off circle), End Call (red circle 72px, phone-down), Speaker (speaker circle). Mute: tap → icon changes, animation. All 56px circular frosted glass buttons.</div>
+      </div>
+    </div>
+    <div class="fs">
+      <div class="fn">6</div>
+      <div>
+        <div class="ft">Call ends → Rating modal</div>
+        <div class="fd">Either side ends → call disconnects. Session updated: status "completed", duration, earnings calculated. User sees Rating Modal — bottom sheet slide-up. Listener sees "Call khatam — ₹XX mila" toast notification.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- 12. SHARE & QR -->
+<!-- ══════════════════════════════════════════ -->
+<div class="section" id="share">
+  <div class="sec-eye">12 — Share</div>
+  <h2 class="sec-title">Profile Share System (Sunne Wala)</h2>
+
+  <div class="spec">
+    <div class="spec-head"><span class="spec-name">Share Profile Screen</span><span class="spec-route">/dashboard/listener → Share tab</span></div>
+    <div class="spec-body">
+      <div class="sr"><div class="sk">Preview Card</div><div class="sv">Profile ka mini preview card dikh ta hai (DP, name, headline, rating). "Aapka profile aise dikhega" label above.</div></div>
+      <div class="sr"><div class="sk">Link Copy</div><div class="sv">"Aapka Link" label. URL shown: dukhsuno.app/[username]. "Copy" button right side — tap → clipboard copy + "Copied! ✓" toast. URL is unique per listener from onboarding username.</div></div>
+      <div class="sr"><div class="sk">Share Button</div><div class="sv">"Share karo" accent pill button. Triggers Web Share API (navigator.share) on web/PWA. Opens native share sheet — WhatsApp, Instagram, etc. all options appear.</div></div>
+      <div class="sr"><div class="sk">QR Code</div><div class="sv">Auto-generated QR code of profile URL. Scan karo → profile khule. "QR Download karo" button — saves as PNG. "QR Share karo" → shares QR image via Web Share API.</div></div>
+      <div class="sr"><div class="sk">Deep Link Behavior</div><div class="sv">dukhsuno.app/[username] khulne par → listener ka profile directly. Without login: full profile, plan select possible. "Call karo" tap → Google login bottom sheet slide-up → after login → back to profile auto.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- 13. TECH STACK -->
+<!-- ══════════════════════════════════════════ -->
+<div class="section" id="techstack">
+  <div class="sec-eye">13 — Tech Stack</div>
+  <h2 class="sec-title">Full Tech Stack</h2>
+
+  <table class="tbl">
+    <thead><tr><th>Layer</th><th>Tech</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Web + Backend</td><td><span class="tag tb">Next.js 15</span> App Router</td><td class="dim">Website + API routes. Vercel free. Server components.</td></tr>
+      <tr><td>Mobile App</td><td><span class="tag tg">Expo SDK 52</span></td><td class="dim">Android + iOS, one codebase. EAS cloud build. No local setup.</td></tr>
+      <tr><td>Auth</td><td><span class="tag ty">Firebase Auth</span></td><td class="dim">Google Sign-In + Phone OTP for listener verification.</td></tr>
+      <tr><td>Database</td><td><span class="tag ty">Firestore</span></td><td class="dim">Users, sessions, ratings, earnings, credits.</td></tr>
+      <tr><td>WebRTC Signaling</td><td><span class="tag ty">Firebase RTDB</span></td><td class="dim">SDP offer/answer + ICE candidates exchange.</td></tr>
+      <tr><td>P2P Voice</td><td><span class="tag tb">WebRTC</span></td><td class="dim">Anonymous, no SIM, no number. Direct audio.</td></tr>
+      <tr><td>Mobile Callkeep</td><td><span class="tag ta">react-native-callkeep</span></td><td class="dim">Full-screen call UI when app closed. iOS CallKit + Android.</td></tr>
+      <tr><td>Push Notifications</td><td><span class="tag ty">FCM + expo-notifications</span></td><td class="dim">High-priority push. Background wake.</td></tr>
+      <tr><td>Web Wake-up</td><td><span class="tag ta">Twilio Voice</span></td><td class="dim">Real phone call to listener when on web/offline.</td></tr>
+      <tr><td>Payments</td><td><span class="tag tg">PayU India</span></td><td class="dim">UPI, cards, net banking. Credit top-up + direct pay.</td></tr>
+      <tr><td>TURN Server</td><td><span class="tag tb">Metered.ca</span></td><td class="dim">Free TURN for WebRTC NAT traversal.</td></tr>
+      <tr><td>State</td><td><span class="tag tp">Zustand</span></td><td class="dim">Auth state, call state, role, panel.</td></tr>
+      <tr><td>UI (Web)</td><td><span class="tag tb">Tailwind + shadcn/ui</span></td><td class="dim">Utility CSS + accessible headless components.</td></tr>
+      <tr><td>QR Code</td><td><span class="tag tg">qrcode.react</span></td><td class="dim">Generate + download profile QR.</td></tr>
+      <tr><td>Charts</td><td><span class="tag tp">Recharts</span></td><td class="dim">Listener earnings chart.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- 14. FIREBASE SCHEMA -->
+<!-- ══════════════════════════════════════════ -->
+<div class="section" id="firebase">
+  <div class="sec-eye">14 — Database</div>
+  <h2 class="sec-title">Firestore Schema</h2>
+
+  <div class="code-wrap">
+    <div class="code-header"><span class="code-label">Collection: users/{userId}</span></div>
+    <pre>uid: string                     // Firebase UID
+email: string                   // Google email
+displayName: string             // Fake name only
+avatarUrl: string               // DP URL or emoji code
+bannerUrl: string               // Listener banner image URL
+roles: string[]                 // ["sunane_wala"] or ["sunne_wala"] or both
+activeRole: "sunane_wala" | "sunne_wala"
+createdAt: Timestamp
+
+// SUNANE WALA FIELDS
+creditBalance: number           // ₹ credits available
+totalCallMinutes: number
+
+// SUNNE WALA FIELDS
+headline: string                // max 60 chars
+bio: string                     // max 300 chars
+specialties: string[]
+gender: string
+age: number
+plans: Plan[]                   // 3 plans array
+  Plan {
+    id: string
+    heading: string
+    minutes: number             // 1-60
+    price: number               // ₹
+    description: string
+    bannerUrl: string | null
+  }
+ratingAvg: number
+ratingCount: number
+totalSessions: number
+totalEarnings: number
+availableBalance: number
+isAvailable: boolean            // online/offline toggle
+isVerified: boolean             // admin verified
+verificationStatus: "pending" | "verified" | "rejected"
+registeredAt: Timestamp         // for commission calc
+phoneVerified: boolean
+fcmToken: string                // mobile push token
+username: string                // unique URL slug
+twilioCryptedPhone: string      // AES encrypted - server only</pre>
+  </div>
+
+  <div class="code-wrap">
+    <div class="code-header"><span class="code-label">Collection: sessions/{sessionId}</span></div>
+    <pre>sessionId: string
+userId: string
+listenerId: string
+planId: string
+planMinutes: number
+planPrice: number
+creditsUsed: number
+payuAmount: number              // 0 if all credits
+payuTxnId: string | null
+status: "waiting" | "ringing" | "active" | "completed" | "missed" | "refunded"
+createdAt: Timestamp
+connectedAt: Timestamp | null
+endedAt: Timestamp | null
+durationSeconds: number
+commissionRate: number          // 0 or 0.15
+listenerEarned: number
+rating: number | null
+ratingComment: string | null</pre>
+  </div>
+
+  <div class="code-wrap">
+    <div class="code-header"><span class="code-label">Firebase RTDB: WebRTC Signaling</span></div>
+    <pre>calls/{sessionId}/
+  status: "offer" | "answered" | "ended"
+  offer: { type, sdp }
+  answer: { type, sdp }
+  callerCandidates/{id}: { candidate, sdpMid, sdpMLineIndex }
+  calleeCandidates/{id}: { candidate, sdpMid, sdpMLineIndex }</pre>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- 15. API ROUTES -->
+<!-- ══════════════════════════════════════════ -->
+<div class="section" id="api">
+  <div class="sec-eye">15 — API</div>
+  <h2 class="sec-title">Next.js API Routes</h2>
+
+  <table class="tbl">
+    <thead><tr><th>Method</th><th>Route</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td>POST</td><td class="mono">/api/sessions/create</td><td class="dim">Payment verified → create session, deduct credits, initiate wake-listener.</td></tr>
+      <tr><td>PATCH</td><td class="mono">/api/sessions/update</td><td class="dim">Update status, duration, earnings on call end.</td></tr>
+      <tr><td>POST</td><td class="mono">/api/sessions/missed</td><td class="dim">60s timeout → mark missed, trigger auto-refund.</td></tr>
+      <tr><td>POST</td><td class="mono">/api/payment/initiate</td><td class="dim">Generate PayU hash server-side. Return params.</td></tr>
+      <tr><td>POST</td><td class="mono">/api/payment/webhook</td><td class="dim">PayU callback. Verify hash. On success → add credits or create session.</td></tr>
+      <tr><td>POST</td><td class="mono">/api/payment/refund</td><td class="dim">Trigger PayU refund for missed sessions.</td></tr>
+      <tr><td>POST</td><td class="mono">/api/wake-listener</td><td class="dim">Trigger Twilio call to listener's phone.</td></tr>
+      <tr><td>POST</td><td class="mono">/api/fcm/push</td><td class="dim">Send FCM high-priority push to listener's FCM token.</td></tr>
+      <tr><td>POST</td><td class="mono">/api/rating/submit</td><td class="dim">Save rating. Recalculate listener ratingAvg.</td></tr>
+      <tr><td>GET</td><td class="mono">/api/listeners</td><td class="dim">Paginated + filtered listener list. Query: sort, gender, priceMin, priceMax, ratingMin, specialty, age.</td></tr>
+      <tr><td>POST</td><td class="mono">/api/credits/add</td><td class="dim">After PayU webhook for credit top-up → increment creditBalance.</td></tr>
+      <tr><td>POST</td><td class="mono">/api/withdraw/request</td><td class="dim">Listener withdraw request. Validates min ₹100.</td></tr>
+      <tr><td>POST</td><td class="mono">/api/verify/listener</td><td class="dim">Admin marks listener as verified after call verification.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- 16. WEBRTC + CALLKEEP -->
+<!-- ══════════════════════════════════════════ -->
+<div class="section" id="calltech">
+  <div class="sec-eye">16 — Call Tech</div>
+  <h2 class="sec-title">WebRTC + react-native-callkeep</h2>
+
+  <div class="code-wrap">
+    <div class="code-header"><span class="code-label">lib/webrtc.ts — Core (Web + Mobile)</span><span class="code-lang">TypeScript</span></div>
+    <pre>const ICE = [
+  { urls: 'stun:stun.l.google.com:19302' },
+  { urls: 'stun:stun1.l.google.com:19302' },
+  { urls: 'turn:relay.metered.ca:80',
+    username: process.env.NEXT_PUBLIC_METERED_USER,
+    credential: process.env.NEXT_PUBLIC_METERED_PASS },
+]
+
+// CALLER: Create offer, write to RTDB
+export async function startCall(sessionId: string): Promise&lt;RTCPeerConnection&gt; {
+  const pc = new RTCPeerConnection({ iceServers: ICE })
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+  stream.getTracks().forEach(t => pc.addTrack(t, stream))
+  pc.onicecandidate = e => {
+    if (e.candidate) push(ref(rtdb,`calls/${sessionId}/callerCandidates`), e.candidate.toJSON())
+  }
+  const offer = await pc.createOffer()
+  await pc.setLocalDescription(offer)
+  await set(ref(rtdb,`calls/${sessionId}/offer`), {type:offer.type,sdp:offer.sdp})
+  return pc
+}
+
+// CALLEE: Read offer, write answer
+export async function answerCall(sessionId: string): Promise&lt;RTCPeerConnection&gt; {
+  const pc = new RTCPeerConnection({ iceServers: ICE })
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+  stream.getTracks().forEach(t => pc.addTrack(t, stream))
+  const offerSnap = await get(ref(rtdb,`calls/${sessionId}/offer`))
+  await pc.setRemoteDescription(new RTCSessionDescription(offerSnap.val()))
+  const answer = await pc.createAnswer()
+  await pc.setLocalDescription(answer)
+  await set(ref(rtdb,`calls/${sessionId}/answer`), {type:answer.type,sdp:answer.sdp})
+  return pc
+}</pre>
+  </div>
+
+  <div class="code-wrap">
+    <div class="code-header"><span class="code-label">mobile/lib/callkeep.ts — Native Call Screen</span><span class="code-lang">TypeScript</span></div>
+    <pre>import RNCallKeep from 'react-native-callkeep'
+
+// Setup once in App.tsx useEffect
+export function setupCallKeep() {
+  RNCallKeep.setup({
+    ios: { appName: 'DukhSuno', supportsVideo: false },
+    android: {
+      alertTitle: 'Permission chahiye',
+      alertDescription: 'Incoming call ke liye phone manage karne do',
+      cancelButton: 'Cancel',
+      okButton: 'Allow',
+      foregroundService: {
+        channelId: 'dukhsuno.calls',
+        channelName: 'DukhSuno Calls',
+        notificationTitle: 'Call aa rahi hai...',
+      },
+    },
+  })
+}
+
+// Called from FCM background handler when call arrives
+export function showIncomingCall(callUUID: string, callerName: string) {
+  RNCallKeep.displayIncomingCall(callUUID, callerName, callerName, 'generic', false)
+}
+
+RNCallKeep.addEventListener('answerCall', ({ callUUID }) => {
+  // Navigate to call screen + run answerCall(sessionId)
+  router.push(`/call/${callUUID}`)
+})
+
+RNCallKeep.addEventListener('endCall', ({ callUUID }) => {
+  // End session in Firestore
+  endSession(callUUID)
+})</pre>
+  </div>
+
+  <div class="alert a-warn">
+    <div class="ai">⚠️</div>
+    <div class="ac"><strong>Expo Dev Build required!</strong> react-native-callkeep Expo Go mein kaam nahi karta. Ek baar <code>eas build --profile development</code> chalao — APK milegi jo real incoming call screen dikhati hai exactly like WhatsApp. Expo Go sirf basic testing ke liye use karo.</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- 17. PAYMENTS -->
+<!-- ══════════════════════════════════════════ -->
+<div class="section" id="payments">
+  <div class="sec-eye">17 — Payments</div>
+  <h2 class="sec-title">PayU Integration + Credit System</h2>
+
+  <div class="code-wrap">
+    <div class="code-header"><span class="code-label">api/payment/initiate/route.ts</span><span class="code-lang">TypeScript</span></div>
+    <pre>import crypto from 'crypto'
+
+export async function POST(req: Request) {
+  const { amount, userId, type, listenerId } = await req.json()
+  // type: "credit_reload" | "direct_session"
+  
+  const txnid = `DS_${Date.now()}_${userId.slice(0,6)}`
+  const key   = process.env.PAYU_KEY!
+  const salt  = process.env.PAYU_SALT!
+  
+  const hashStr = `${key}|${txnid}|${amount}|DukhSuno|User|anon@dukhsuno.app|||||||||||${salt}`
+  const hash = crypto.createHash('sha512').update(hashStr).digest('hex')
+  
+  return Response.json({
+    key, txnid, amount, hash,
+    productinfo: 'DukhSuno',
+    firstname: 'User',
+    email: 'anon@dukhsuno.app',
+    phone: '9999999999',
+    surl: `${process.env.NEXT_PUBLIC_URL}/api/payment/webhook`,
+    furl: `${process.env.NEXT_PUBLIC_URL}/api/payment/webhook`,
+    udf1: type,       // passed back in webhook
+    udf2: userId,
+    udf3: listenerId || '',
+  })
+}</pre>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- 18. TWILIO -->
+<!-- ══════════════════════════════════════════ -->
+<div class="section" id="twilio">
+  <div class="sec-eye">18 — Twilio</div>
+  <h2 class="sec-title">Twilio Wake-Up Call (Web Listeners)</h2>
+
+  <div class="code-wrap">
+    <div class="code-header"><span class="code-label">api/wake-listener/route.ts</span><span class="code-lang">TypeScript</span></div>
+    <pre>import twilio from 'twilio'
+import { decryptPhone } from '@/lib/crypto'   // AES decrypt stored phone
+
+export async function POST(req: Request) {
+  const { listenerEncryptedPhone, sessionId } = await req.json()
+  
+  const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_TOKEN)
+  const phone = decryptPhone(listenerEncryptedPhone)  // decrypt server-side only
+  
+  await client.calls.create({
+    to: phone,
+    from: process.env.TWILIO_NUMBER!,
+    twiml: `&lt;Response&gt;
+      &lt;Say voice="Polly.Aditi" language="hi-IN"&gt;
+        Namaskar! DukhSuno app mein aapko ek call aa rahi hai.
+        Kripya apna DukhSuno app kholen aur call accept karen.
+        Aapki kamai aapka intezaar kar rahi hai.
+      &lt;/Say&gt;
+    &lt;/Response&gt;`,
+  })
+  
+  return Response.json({ triggered: true })
+}
+// NOTE: listenerEncryptedPhone is stored AES-256 encrypted in Firestore
+// Only decrypted on server during wake-up. Never sent to client.</pre>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- 19. DESIGN SYSTEM -->
+<!-- ══════════════════════════════════════════ -->
+<div class="section" id="design">
+  <div class="sec-eye">19 — Design</div>
+  <h2 class="sec-title">Design System — iOS Premium Level</h2>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-h"><div class="ci ci-a">🎨</div><div class="card-title">Color Palette</div></div>
+      <p>
+        <code>#F8F7F4</code> — Background (warm off-white)<br>
+        <code>#FFFFFF</code> — Surface (cards, sheets)<br>
+        <code>#F3F1EC</code> — Surface 2 (hover, inputs bg)<br>
+        <code>#BF4B2B</code> — Accent (terracotta — CTA, active)<br>
+        <code>#D96B45</code> — Accent hover<br>
+        <code>#17160F</code> — Text primary (warm near-black)<br>
+        <code>#8A8880</code> — Text muted<br>
+        <code>#E5E3DC</code> — Border<br>
+        <code>#1A7A4A</code> — Success green<br>
+        <code>#1A4F8A</code> — Info blue<br>
+        <code>#6B35A8</code> — Purple (secondary role color)
+      </p>
+    </div>
+    <div class="card">
+      <div class="card-h"><div class="ci ci-b">✒️</div><div class="card-title">Typography Scale</div></div>
+      <p>
+        <strong>Display:</strong> Playfair Display — App name, hero headings, section titles. Serif emotional warmth.<br>
+        <strong>UI Font:</strong> Plus Jakarta Sans — All UI text. Friendly, modern, readable.<br>
+        <strong>Mono:</strong> SF Mono / Fira Code — Session IDs only.<br><br>
+        <strong>Sizes:</strong> 46px hero · 30px section · 20px card title · 15px body · 12px label/meta · 10px eyebrow<br>
+        <strong>Weights:</strong> 300 body text · 500 normal UI · 700 headings
+      </p>
+    </div>
+  </div>
+
+  <div class="g3">
+    <div class="card">
+      <div class="card-h"><div class="ci ci-g">📐</div><div class="card-title">Spacing</div></div>
+      <p>Base: 4px. Use 8, 12, 16, 20, 24, 32, 48, 64. Card padding: 22px 26px. Section gap: 68px. Bottom nav height: 64px + safe area.</p>
+    </div>
+    <div class="card">
+      <div class="card-h"><div class="ci ci-y">🟦</div><div class="card-title">Border Radius</div></div>
+      <p>Pill buttons: 100px. Cards: 16px. Inputs: 12px. Chips: 8px. Avatars: 50%. Call button: 50%.</p>
+    </div>
+    <div class="card">
+      <div class="card-h"><div class="ci ci-a">🌑</div><div class="card-title">Shadows</div></div>
+      <p>Card: <code>0 1px 4px rgba(0,0,0,.06)</code>. Elevated: <code>0 4px 16px rgba(0,0,0,.09)</code>. Call CTA: <code>0 8px 28px rgba(191,75,43,.25)</code></p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- 20. ANIMATIONS -->
+<!-- ══════════════════════════════════════════ -->
+<div class="section" id="animations">
+  <div class="sec-eye">20 — Animations</div>
+  <h2 class="sec-title">Animation Specs (All)</h2>
+
+  <div class="card">
+    <div class="anim-item">
+      <div class="anim-icon">📞</div>
+      <div>
+        <div class="anim-name">Call Button Pulse</div>
+        <div class="anim-desc">On listener profile "Call karo" button: box-shadow ripple ring expanding outward (0→20px), opacity 1→0, loop every 1.5s. Color: accent rgba(191,75,43,0.4). CSS @keyframes only.</div>
+      </div>
+    </div>
+    <div class="anim-item">
+      <div class="anim-icon">🎭</div>
+      <div>
+        <div class="anim-name">Calling Screen DP Pulse</div>
+        <div class="anim-desc">During ringing state: listener's DP has soft glow pulse (filter: drop-shadow 0→20px glow, scale 1.0→1.05). Smooth 1.2s ease-in-out infinite loop.</div>
+      </div>
+    </div>
+    <div class="anim-item">
+      <div class="anim-icon">⬆️</div>
+      <div>
+        <div class="anim-name">Bottom Sheet Slide-Up</div>
+        <div class="anim-desc">translateY(100%)→translateY(0) + opacity 0→1. Duration: 280ms cubic-bezier(0.16,1,0.3,1) (spring feel). Backdrop: fade-in rgba(0,0,0,0.4). Drag handle pill at top.</div>
+      </div>
+    </div>
+    <div class="anim-item">
+      <div class="anim-icon">🔀</div>
+      <div>
+        <div class="anim-name">Panel Switch (Role Switch)</div>
+        <div class="anim-desc">Old panel: translateX(0)→translateX(-100%) + opacity fade. New panel: translateX(100%)→translateX(0). Duration: 220ms ease. Simultaneous transition.</div>
+      </div>
+    </div>
+    <div class="anim-item">
+      <div class="anim-icon">🃏</div>
+      <div>
+        <div class="anim-name">Listener Card Hover</div>
+        <div class="anim-desc">scale(1.0)→scale(1.02), box-shadow deepen. Duration: 150ms ease. No transform on mobile (touch devices). Smooth return on mouse leave.</div>
+      </div>
+    </div>
+    <div class="anim-item">
+      <div class="anim-icon">⭐</div>
+      <div>
+        <div class="anim-name">Star Rating Tap</div>
+        <div class="anim-desc">Tapped star: scale 1.0→1.4→1.0 spring bounce, 300ms. Fill color transitions accent. Stars before it: fill left-to-right with 50ms stagger. SVG fill transition.</div>
+      </div>
+    </div>
+    <div class="anim-item">
+      <div class="anim-icon">🏠</div>
+      <div>
+        <div class="anim-name">Home Screen Load (Stagger)</div>
+        <div class="anim-desc">Header: immediately visible. Sort tabs: fade-in 100ms delay. Cards: stagger — card 1 at 150ms, card 2 at 200ms, card 3 at 250ms... (translateY 20px→0 + opacity 0→1). Max stagger 500ms.</div>
+      </div>
+    </div>
+    <div class="anim-item">
+      <div class="anim-icon">🟢</div>
+      <div>
+        <div class="anim-name">Live Toggle Tab (Sunne Wala)</div>
+        <div class="anim-desc">When active: pulsing green ring around tab icon (box-shadow 0→8px green glow, 2s loop). Toggle transition: spring scale 0.9→1.0. Color: green icon vs gray icon toggle.</div>
+      </div>
+    </div>
+    <div class="anim-item">
+      <div class="anim-icon">🔔</div>
+      <div>
+        <div class="anim-name">Incoming Call Banner (Web)</div>
+        <div class="anim-desc">Slides down from top: translateY(-100%)→translateY(0), 300ms spring. Red pulsing dot left. Ringtone via Web Audio API. Shake animation on banner: translateX(-3px)→translateX(3px) rapid 3x on arrive.</div>
+      </div>
+    </div>
+    <div class="anim-item" style="border:none">
+      <div class="anim-icon">📲</div>
+      <div>
+        <div class="anim-name">PWA Install Banner</div>
+        <div class="anim-desc">After 5s: slides up from bottom (translateY(100%)→translateY(0)), 350ms spring. Frosted glass (backdrop-filter: blur 12px). Auto-dismiss option with swipe-down gesture. On install tap: banner fades out (opacity 1→0, 200ms).</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- 21. ALL SCREENS SPEC -->
+<!-- ══════════════════════════════════════════ -->
+<div class="section" id="screens">
+  <div class="sec-eye">21 — Screens</div>
+  <h2 class="sec-title">All Screens — Complete UI Spec</h2>
+
+  <!-- SCREEN: SPLASH -->
+  <div class="spec">
+    <div class="spec-head"><span class="spec-name">S1. Splash Screen</span><span class="spec-route">Auto, 1.5s</span></div>
+    <div class="spec-body">
+      <div class="sr"><div class="sk">Background</div><div class="sv">Full screen #F8F7F4 warm. Center: logo in Playfair Display 36px. "Dukh<strong>Suno</strong>" — Suno in accent color. Below: tagline "Dil ki baat sune koi" italic 15px muted. All fade-in 0→1 opacity, 400ms stagger.</div></div>
+      <div class="sr"><div class="sk">Auto-advance</div><div class="sv">After 1.5s → check auth state → route accordingly.</div></div>
+    </div>
+  </div>
+
+  <!-- SCREEN: LOGIN -->
+  <div class="spec">
+    <div class="spec-head"><span class="spec-name">S2. Login Screen</span><span class="spec-route">/login</span></div>
+    <div class="spec-body">
+      <div class="sr"><div class="sk">Layout</div><div class="sv">Vertical center. Max 360px width, centered. Soft warm bg.</div></div>
+      <div class="sr"><div class="sk">Elements (top→bottom)</div><div class="sv">DukhSuno logo (serif, large). 40px gap. "Swagat hai 🙏" 28px serif heading. 12px gap. "Apni baat share karo ya sunao." muted subtitle. 40px gap. Google Login button: white, 48px, shadow, Google color icon left, "Google se continue karo" center. 24px gap. "Privacy Policy · Terms" 12px text links.</div></div>
+      <div class="sr"><div class="sk">On Google tap</div><div class="sv">Firebase Google Sign-In popup/redirect. Loading spinner replaces button text. On success → check user roles → route.</div></div>
+    </div>
+  </div>
+
+  <!-- SCREEN: ROLE SELECT -->
+  <div class="spec">
+    <div class="spec-head"><span class="spec-name">S3. Role Selection</span><span class="spec-route">First login only</span></div>
+    <div class="spec-body">
+      <div class="sr"><div class="sk">Layout</div><div class="sv">Full screen or slide-up modal. Title: "DukhSuno mein aapka swagat hai! 🙏" Subtitle: "Aap kya karna chahte hain?" Two large selection cards (full width, 100px each, rounded 20px).</div></div>
+      <div class="sr"><div class="sk">Card 1 — Sunane Wala</div><div class="sv">Left: 48px 😔 emoji. Right: "Apna dukh sunana hai" bold 16px + "Kisi ko baat kaho" muted 13px. Tap → accent border + right checkmark. Background: accent-soft.</div></div>
+      <div class="sr"><div class="sk">Card 2 — Sunne Wala</div><div class="sv">Left: 48px 🎧 emoji. Right: "Sun ke paise kamana hai" bold + "Apna waqt do" muted. Tap → green border + checkmark. Background: green-soft.</div></div>
+      <div class="sr"><div class="sk">CTA</div><div class="sv">Bottom: "Shuru karte hain →" accent pill button (disabled until selection). On tap → respective onboarding flow.</div></div>
+    </div>
+  </div>
+
+  <!-- SCREEN: HOME SUNANE -->
+  <div class="spec">
+    <div class="spec-head"><span class="spec-name">S4. Home — Sunane Wala</span><span class="spec-route">/ (active role: sunane_wala)</span></div>
+    <div class="spec-body">
+      <div class="sr"><div class="sk">Header (sticky, 56px)</div><div class="sv">Left: "DukhSuno" logo small serif. Right side: notification bell → credit pill "💰 ₹150" → avatar circle 32px. Install button: small outlined "⬇ Install" pill — only on web/PWA. Header bg: white, bottom border.</div></div>
+      <div class="sr"><div class="sk">Hero Mood Card</div><div class="sv">Warm gradient card (terracotta gradient soft). "Aaj kaisa mehsoos kar rahe hain?" serif heading. 5 emoji mood chips (scrollable): 😊 Theek | 😔 Udaas | 😤 Frustrated | 😰 Anxious | 💔 Heartbroken. Tap chip → filter listeners by relevant specialty. Selected chip: accent filled.</div></div>
+      <div class="sr"><div class="sk">Sort Tabs</div><div class="sv">Horizontal scroll row below hero. Pills: "Sabke liye" | "Top Rated 🏆" | "Sabse Sasta" | "Naaye" | "Online 🟢". Accent bg on active. Transition: 150ms.</div></div>
+      <div class="sr"><div class="sk">Card Grid</div><div class="sv">2 col mobile / 3 col desktop. 12px gap. Stagger load animation. Pull to refresh on mobile.</div></div>
+      <div class="sr"><div class="sk">Empty State</div><div class="sv">If no listeners match filter: warm illustration + "Koi nahi mila. Filter badlo ya baad mein aao." + Reset button.</div></div>
+    </div>
+  </div>
+
+  <!-- SCREEN: RATING MODAL -->
+  <div class="spec">
+    <div class="spec-head"><span class="spec-name">S5. Post-Call Rating Modal</span><span class="spec-route">Overlay — after call ends</span></div>
+    <div class="spec-body">
+      <div class="sr"><div class="sk">Trigger</div><div class="sv">Slides up from bottom (spring animation) immediately after call ends. Backdrop dim.</div></div>
+      <div class="sr"><div class="sk">Layout</div><div class="sv">White rounded card. Drag handle top. "Kaisi rahi baat? 💬" heading serif 22px. Listener DP + name small center. 5 large star icons (32px each, with 8px gap). Tap = spring scale bounce + fill. Below: textarea "Kuch kehna chahte hain?" (optional, 100 char limit). "Rating do" accent 48px button. "Skip karo" text link below.</div></div>
+    </div>
+  </div>
+
+  <!-- SCREEN: VERIFICATION PENDING -->
+  <div class="spec">
+    <div class="spec-head"><span class="spec-name">S6. Verification Pending Screen (Sunne Wala)</span><span class="spec-route">After onboarding complete</span></div>
+    <div class="spec-body">
+      <div class="sr"><div class="sk">Layout</div><div class="sv">Warm illustration (clock/phone). "Aapki verification chal rahi hai ⏳" heading. Body: "6 ghante mein aapko ek call aayega. Call attend karo — is call mein hum verify karenge. Iske baad aapka profile live ho jaega."<br>Timer countdown (if applicable). Home button below.</div></div>
+      <div class="sr"><div class="sk">Banner in app</div><div class="sv">Until verified: yellow banner top of dashboard: "⏳ Verification pending. Profile abhi public nahi hai." with "Kya hua?" tap → show verification screen again.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- 22. NAVIGATION LAYOUT -->
+<!-- ══════════════════════════════════════════ -->
+<div class="section" id="nav">
+  <div class="sec-eye">22 — Navigation</div>
+  <h2 class="sec-title">Navigation Architecture</h2>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-h"><div class="ci ci-b">📱</div><div class="card-title">Mobile Navigation</div></div>
+      <p>
+        <strong>Bottom Tab Bar:</strong> Fixed bottom, 64px height + safe area. White bg, top 1px border. 4-5 tabs. Active: accent icon + small accent dot below. Icon + label below (11px).<br><br>
+        <strong>Stack Navigation:</strong> Each tab has its own stack. Back button: iOS-style "&lt; Back" with panel name. Swipe-back gesture supported.<br><br>
+        <strong>Modals:</strong> Bottom sheet for: role chooser, rating, payment confirmation, profile QR. Full screen modal for: call screen, onboarding.
+      </p>
+    </div>
+    <div class="card">
+      <div class="card-h"><div class="ci ci-p">🖥️</div><div class="card-title">Desktop Navigation</div></div>
+      <p>
+        <strong>Left Sidebar:</strong> 240px. Logo top. Nav links grouped by section. Active link: accent left border + accent text.<br><br>
+        <strong>Top Header:</strong> Sticky. Breadcrumbs. Search bar (desktop). Notification + Avatar + Role switch pill right.<br><br>
+        <strong>Content:</strong> Max 960px centered. Grid layouts switch from 1→2→3 col at breakpoints.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- 23. PRICING & COMMISSION -->
+<!-- ══════════════════════════════════════════ -->
+<div class="section" id="pricing">
+  <div class="sec-eye">23 — Business</div>
+  <h2 class="sec-title">Pricing & Commission Policy</h2>
+
+  <div class="pc-grid">
+    <div class="pc">
+      <div class="pc-name">Sunane Wala — Credits</div>
+      <div class="pc-amount">₹1</div>
+      <div class="pc-per">= 1 Credit = ₹1 anywhere</div>
+      <div class="pc-desc">Reload: ₹100/₹250/₹500/Custom. Credits never expire. Auto-apply before PayU.</div>
+    </div>
+    <div class="pc hot">
+      <div class="pc-name">Monthly Plan</div>
+      <div class="pc-amount">₹299</div>
+      <div class="pc-per">Unlimited sessions — 1 month</div>
+      <div class="pc-desc">Best value. Har listener ke har plan mein use. Auto-renew optional.</div>
+    </div>
+    <div class="pc">
+      <div class="pc-name">Per Session</div>
+      <div class="pc-amount">₹50+</div>
+      <div class="pc-per">Listener sets their own rate</div>
+      <div class="pc-desc">Listener ke plans ke hisab se. Credits ya PayU direct.</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <div class="card-h"><div class="ci ci-a">📊</div><div class="card-title">Commission Policy</div></div>
+    <p>
+      <strong>0% Commission — pehle 6 mahine</strong> (listener ki <code>registeredAt</code> se calculate).<br>
+      <strong>15% Commission — 6 mahine ke baad</strong> automatically.<br><br>
+      <strong>Policy Note (PRD mein clearly likhna):</strong> "DukhSuno platform ki maintenance cost ke basis par commission period 3 mahine bhi ho sakta hai. Is change ka notification listeners ko 30 din pehle diya jaega. Current policy: 6 mahine 0%, uske baad 15%."<br><br>
+      <strong>Calculation:</strong> <code>listenerEarned = planPrice × (1 − commissionRate)</code><br>
+      Har session ke baad <code>availableBalance</code> Firestore mein increment hota hai.
+    </p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- 24. VERIFICATION POLICY -->
+<!-- ══════════════════════════════════════════ -->
+<div class="section" id="verification">
+  <div class="sec-eye">24 — Verification</div>
+  <h2 class="sec-title">Listener Verification Process</h2>
+
+  <div class="flow">
+    <div class="fs">
+      <div class="fn">1</div>
+      <div>
+        <div class="ft">Onboarding complete → Phone OTP (Firebase Phone Auth)</div>
+        <div class="fd">Listener enters phone number. OTP aata hai. 6-digit verify. After verify: <code>phoneVerified: true</code>. Phone stored AES-256 encrypted in Firestore. <strong>Kisi bhi condition mein frontend ko nahi diya jaata.</strong></div>
+      </div>
+    </div>
+    <div class="fs">
+      <div class="fn">2</div>
+      <div>
+        <div class="ft">App shows "6 hours mein verification hogi"</div>
+        <div class="fd">Screen + dashboard banner dikhata hai. Profile status: "Pending". Not shown in browse grid until verified.</div>
+      </div>
+    </div>
+    <div class="fs">
+      <div class="fn">3</div>
+      <div>
+        <div class="ft">Admin / Team calls listener via Twilio</div>
+        <div class="fd">Team Twilio se listener ke number pe actual call karta hai. Call mein: gender confirm karte hain, real person confirm karte hain, Twilio verified number add karte hain dashboard mein. Ye manual step hai — future mein automate ho sakta hai.</div>
+      </div>
+    </div>
+    <div class="fs">
+      <div class="fn">4</div>
+      <div>
+        <div class="ft">Admin marks verified</div>
+        <div class="fd"><code>POST /api/verify/listener</code> → <code>isVerified: true</code>, <code>verificationStatus: "verified"</code>. Listener ko notification: "Aapka profile ab live hai! 🎉". Profile appears in browse grid. Dashboard banner hata diya jaata hai.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- 25. ENV VARIABLES -->
+<!-- ══════════════════════════════════════════ -->
+<div class="section" id="env">
+  <div class="sec-eye">25 — Config</div>
+  <h2 class="sec-title">Environment Variables (.env.local)</h2>
+
+  <div class="code-wrap">
+    <div class="code-header"><span class="code-label">.env.local — Next.js (never commit)</span></div>
+    <pre># ─── Firebase (Client-side) ───────────────────────
+NEXT_PUBLIC_FIREBASE_API_KEY=
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
+NEXT_PUBLIC_FIREBASE_DATABASE_URL=
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
+NEXT_PUBLIC_FIREBASE_APP_ID=
+NEXT_PUBLIC_FIREBASE_VAPID_KEY=          # For FCM web push
+
+# ─── Firebase Admin (Server-side only) ────────────
+FIREBASE_SERVICE_ACCOUNT=                # Full JSON string (stringified)
+
+# ─── PayU ─────────────────────────────────────────
+PAYU_KEY=                                # Merchant key
+PAYU_SALT=                               # Never expose to client!
+PAYU_BASE_URL=https://secure.payu.in    # or test.payu.in
+
+# ─── Twilio ───────────────────────────────────────
+TWILIO_ACCOUNT_SID=
+TWILIO_AUTH_TOKEN=
+TWILIO_PHONE_NUMBER=                     # Purchased Indian number
+
+# ─── Encryption (Phone storage) ───────────────────
+PHONE_ENCRYPTION_KEY=                    # 32-char AES-256 key
+
+# ─── WebRTC TURN (Metered.ca free) ────────────────
+NEXT_PUBLIC_METERED_USER=
+NEXT_PUBLIC_METERED_PASS=
+
+# ─── App URLs ─────────────────────────────────────
+NEXT_PUBLIC_URL=https://dukhsuno.app
+NEXT_PUBLIC_TUTORIAL_VIDEO_ID=           # YouTube video ID for onboarding
+
+# ─── Expo Mobile ──────────────────────────────────
+# (apps/mobile/.env)
+EXPO_PUBLIC_API_URL=https://dukhsuno.app
+EXPO_PUBLIC_FIREBASE_API_KEY=
+EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=
+EXPO_PUBLIC_FIREBASE_DATABASE_URL=
+EXPO_PUBLIC_FIREBASE_PROJECT_ID=
+EXPO_PUBLIC_FIREBASE_APP_ID=</pre>
+  </div>
+
+  <div class="alert a-err">
+    <div class="ai">🚨</div>
+    <div class="ac"><strong>Security Critical</strong> PAYU_SALT, FIREBASE_SERVICE_ACCOUNT, TWILIO_AUTH_TOKEN, PHONE_ENCRYPTION_KEY — ye kisi bhi condition mein client-side code ya git repository mein nahi jaane chahiye. Sirf server-side API routes mein use karo. Vercel mein environment variables ke roop mein add karo.</div>
+  </div>
+</div>
+
+</div><!-- /page -->
+
+<footer>
+  <div class="fl">Dukh<span>Suno</span> PRD v3.0</div>
+  <div class="fm">Production Ready · Vibe Coding Optimized · All Screens Defined</div>
+</footer>
+
+</div><!-- /main -->
+</div><!-- /layout -->
+
+<script>
+const secs = document.querySelectorAll('.section[id]')
+const links = document.querySelectorAll('.sb-link')
+window.addEventListener('scroll', () => {
+  let cur = ''
+  secs.forEach(s => { if (window.scrollY >= s.offsetTop - 60) cur = s.id })
+  links.forEach(l => {
+    l.classList.remove('on')
+    if (l.getAttribute('href') === `#${cur}`) l.classList.add('on')
+  })
+}, { passive: true })
+</script>
+</body>
+</html>

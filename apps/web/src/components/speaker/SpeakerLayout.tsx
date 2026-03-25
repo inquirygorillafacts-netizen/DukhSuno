@@ -21,7 +21,7 @@ export default function SpeakerLayout({
 
                 {/* Main Content Area */}
                 <main className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-10 pb-32 md:pb-10">
-                    <div className="max-w-7xl mx-auto stagger-children">
+                    <div className="max-w-6xl mx-auto stagger-children">
                         {children}
                     </div>
                 </main>
