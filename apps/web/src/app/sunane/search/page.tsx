@@ -190,7 +190,7 @@ function ListenerSearchCard({ listener }: { listener: ListenerCard }) {
                 </div>
 
                 <Link 
-                    href={`/sunane/profile/${listener.username || listener.uid}`}
+                    href={`/sunane/listener/${listener.username || listener.uid}`}
                     className="w-full h-14 bg-slate-900 text-white rounded-2xl flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-[0.2em] group-hover:bg-rose-600 transition-colors shadow-xl active:scale-95"
                 >
                     <Zap size={14} className="group-hover:animate-pulse" /> Baat Karein

@@ -1,0 +1,9 @@
+node_modules/
+.next/
+.env
+.env.local
+*.log
+
+# ignore outside folders (CRITICAL)
+../mobile/
+../../
