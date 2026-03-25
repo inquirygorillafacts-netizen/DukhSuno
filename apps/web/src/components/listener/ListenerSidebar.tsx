@@ -15,7 +15,8 @@ import {
     PanelLeftOpen,
     Radio,
     Zap,
-    HeartPulse
+    HeartPulse,
+    Headphones
 } from "lucide-react";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
@@ -118,5 +119,3 @@ export default function ListenerSidebar() {
         </aside>
     );
 }
-
-import { Headphones } from "lucide-react";
