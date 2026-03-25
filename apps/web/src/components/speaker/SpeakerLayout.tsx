@@ -4,6 +4,7 @@ import React from "react";
 import SpeakerSidebar from "./SpeakerSidebar";
 import SpeakerHeader from "./SpeakerHeader";
 import SpeakerMobileNav from "./SpeakerMobileNav";
+import { IncomingCallBanner } from "@/components/call/IncomingCallBanner";
 
 export default function SpeakerLayout({
     children,
@@ -14,6 +15,8 @@ export default function SpeakerLayout({
         <div className="flex h-screen bg-slate-50 text-slate-900 overflow-hidden font-jakarta">
             {/* Desktop Sidebar */}
             <SpeakerSidebar />
+
+            <IncomingCallBanner />
 
             <div className="flex flex-col flex-1 min-w-0 h-full relative">
                 {/* Global Header */}
