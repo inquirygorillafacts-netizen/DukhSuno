@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "framework": "nextjs",
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "regions": ["bom1"],
+  "env": {
+    "NEXT_PUBLIC_BASE_URL": "https://dukhsuno.com"
+  }
+}
