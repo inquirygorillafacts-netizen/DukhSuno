@@ -1,0 +1,229 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { collection, query, onSnapshot, doc, updateDoc, getDocs, limit, orderBy } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import {
+    Search,
+    Filter,
+    MoreHorizontal,
+    UserPlus,
+    ShieldCheck,
+    Ban,
+    CheckCircle2,
+    Mail,
+    ChevronRight,
+    ArrowUpDown,
+    Clock
+} from 'lucide-react';
+import IdentityDrawer from '@/components/admin/IdentityDrawer';
+
+interface UserData {
+  uid: string;
+  displayName: string;
+  email: string;
+  phoneNumber?: string;
+  isVerified: boolean;
+  isBlocked?: boolean;
+  avatarUrl?: string;
+  roles?: string[];
+  owner?: boolean;
+  createdAt?: any;
+}
+
+export default function AdminUsersPage() {
+  const [users, setUsers] = useState<UserData[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [selectedUser, setSelectedUser] = useState<any | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  useEffect(() => {
+    const q = query(collection(db, 'users'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const list = snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() } as any));
+      setUsers(list);
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleInspectUser = async (user: any) => {
+      setSelectedUser(user);
+      setIsDrawerOpen(true);
+      
+      // Fetch deep data: Balance and Recent Sessions
+      try {
+          // 1. Fetch sessions
+          const sessionsQ = query(
+              collection(db, 'sessions'),
+              // where('listenerId', '==', user.uid), // This would need composite index, simplify for now
+              orderBy('createdAt', 'desc'),
+              limit(3)
+          );
+          
+          const sessionsSnap = await getDocs(sessionsQ);
+          const sessions = sessionsSnap.docs.map(d => d.data());
+          
+          setSelectedUser((prev: any) => ({
+              ...prev,
+              recentSessions: sessions,
+              balance: user.balance || "0.00", // Assuming balance is already on user doc or fetch from wallet
+              canWithdraw: true,
+              isVIP: user.roles?.includes('vip')
+          }));
+      } catch (err) {
+          console.error("Error fetching user details:", err);
+      }
+  };
+
+  const toggleBlock = async (uid: string, currentStatus: boolean) => {
+    try {
+      await updateDoc(doc(db, 'users', uid), { isBlocked: !currentStatus });
+    } catch (err) {
+      console.error('Failed to update status:', err);
+      alert('Action failed!');
+    }
+  };
+
+  const filteredUsers = users.filter(u => 
+    u.displayName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    u.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    u.phoneNumber?.includes(searchTerm)
+  );
+
+  if (loading) return <div className="p-10 font-bold animate-pulse">Loading users...</div>;
+
+  return (
+    <div className="space-y-8 animate-in fade-in duration-500">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+              <h1 className="text-2xl font-black text-slate-900 tracking-tight">Users Management</h1>
+              <p className="text-sm text-slate-500 font-medium tracking-tight">Total {users.length} registered users on DukhSuno.</p>
+          </div>
+          <div className="flex items-center gap-3">
+              <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                  <input
+                      type="text"
+                      placeholder="Search users..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary w-48 lg:w-64 transition-all"
+                  />
+              </div>
+              <button className="p-2.5 bg-white text-slate-500 rounded-xl border border-slate-200 hover:bg-slate-50 transition-all shadow-sm">
+                  <Filter size={18} />
+              </button>
+          </div>
+      </div>
+
+      <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                  <thead>
+                      <tr className="bg-slate-50/50">
+                          <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">User Profile</th>
+                          <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Account Status</th>
+                          <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Role</th>
+                          <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Verification</th>
+                          <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+                      </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-50">
+                      {filteredUsers.map((u) => (
+                          <tr key={u.uid} className="hover:bg-slate-50/30 transition-colors group">
+                              <td className="px-8 py-6">
+                                  <div className="flex items-center gap-4">
+                                      <div className={`w-11 h-11 rounded-2xl flex items-center justify-center text-sm font-black shadow-inner ${
+                                          u.isBlocked ? 'bg-slate-100 text-slate-400' : 'bg-primary/10 text-primary'
+                                      }`}>
+                                          {u.avatarUrl?.startsWith('avatar:') ? u.avatarUrl.split(':')[1] : (u.displayName?.charAt(0) || 'U')}
+                                      </div>
+                                      <div className="min-w-0">
+                                          <p className={`text-sm font-bold truncate ${u.isBlocked ? 'text-slate-400 line-through' : 'text-slate-900'}`}>
+                                              {u.displayName || 'Unnamed User'}
+                                          </p>
+                                          <div className="flex items-center gap-2 mt-0.5">
+                                              <Mail size={10} className="text-slate-300" />
+                                              <p className="text-[10px] text-slate-400 font-medium truncate">{u.email}</p>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </td>
+                              <td className="px-8 py-6">
+                                  {u.isBlocked ? (
+                                      <span className="px-2.5 py-1 bg-rose-50 text-rose-600 text-[10px] font-black rounded-lg uppercase border border-rose-100 flex items-center gap-1.5 w-fit">
+                                          <Ban size={10} /> Blocked
+                                      </span>
+                                  ) : (
+                                      <span className="px-2.5 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-black rounded-lg uppercase border border-emerald-100 flex items-center gap-1.5 w-fit">
+                                          <CheckCircle2 size={10} /> Active
+                                      </span>
+                                  )}
+                              </td>
+                              <td className="px-8 py-6">
+                                  <div className="flex flex-wrap gap-1">
+                                      {u.owner === true && (
+                                          <span className="px-2 py-0.5 bg-rose-100 text-rose-600 text-[9px] font-black rounded-md border border-rose-200 uppercase tracking-tighter">
+                                              Owner
+                                          </span>
+                                      )}
+                                      {u.roles?.map(role => (
+                                          <span key={role} className="px-2 py-0.5 bg-slate-100 text-slate-500 text-[9px] font-bold rounded-md border border-slate-200 uppercase tracking-tighter">
+                                              {role.replace('_', ' ')}
+                                          </span>
+                                      )) || <span className="text-[9px] text-slate-300 font-bold uppercase tracking-widest">Normal User</span>}
+                                  </div>
+                              </td>
+                              <td className="px-8 py-6">
+                                  {u.isVerified ? (
+                                      <div className="flex items-center gap-1.5 text-emerald-600 font-bold text-[11px]">
+                                          <ShieldCheck size={14} />
+                                          Verified
+                                      </div>
+                                  ) : (
+                                      <div className="flex items-center gap-1.5 text-slate-400 font-bold text-[11px]">
+                                          <Clock size={14} />
+                                          Pending
+                                      </div>
+                                  )}
+                              </td>
+                              <td className="px-8 py-6 text-right">
+                                  <div className="flex items-center justify-end gap-2">
+                                      <button 
+                                          onClick={() => toggleBlock(u.uid, u.isBlocked || false)}
+                                          className={`p-2 rounded-xl transition-all ${
+                                              u.isBlocked 
+                                              ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100' 
+                                              : 'bg-rose-50 text-rose-600 hover:bg-rose-100'
+                                          }`}
+                                          title={u.isBlocked ? 'Unblock User' : 'Block User'}
+                                      >
+                                          {u.isBlocked ? <CheckCircle2 size={16} /> : <Ban size={16} />}
+                                      </button>
+                                      <button 
+                                          onClick={() => handleInspectUser(u)}
+                                          className="p-2 hover:bg-slate-100 rounded-xl text-slate-400 hover:text-indigo-600 transition-colors"
+                                      >
+                                          <ChevronRight size={16} />
+                                      </button>
+                                  </div>
+                              </td>
+                          </tr>
+                      ))}
+                  </tbody>
+              </table>
+          </div>
+          
+          <div className="p-6 bg-slate-50/50 flex items-center justify-between">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Showing {filteredUsers.length} of {users.length} Users</p>
+              <div className="flex gap-2">
+                  <button className="px-4 py-2 bg-white border border-slate-200 rounded-lg text-[10px] font-black uppercase text-slate-400 hover:text-slate-900 shadow-sm transition-all shadow-slate-100">Previous</button>
+                  <button className="px-4 py-2 bg-white border border-slate-200 rounded-lg text-[10px] font-black uppercase text-slate-900 shadow-sm transition-all hover:bg-slate-50">Next Page</button>
+              </div>
+          </div>
+      </div>
+    </div>
+  );
+}
