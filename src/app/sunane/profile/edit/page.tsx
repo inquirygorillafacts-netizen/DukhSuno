@@ -97,14 +97,17 @@ export default function SunaneEditProfilePage() {
                 {/* Avatar Selection */}
                 <div className="glass bg-white p-8 rounded-[3rem] border border-white shadow-sm space-y-4">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">अवतार बदलें (Change Avatar)</label>
-                    <div className="grid grid-cols-4 gap-4">
+                    <div className="grid grid-cols-6 md:grid-cols-8 gap-3">
                         {AVATAR_OPTIONS.map((avatar, i) => (
                             <button
                                 key={i}
                                 onClick={() => setSelectedAvatar(i)}
-                                className={`aspect-square rounded-2xl flex items-center justify-center text-3xl transition-all ${
-                                    selectedAvatar === i ? 'bg-accent text-white scale-110 shadow-lg' : 'bg-slate-50 border border-slate-100 opacity-60'
+                                className={`aspect-square rounded-xl flex items-center justify-center text-xl transition-all ${
+                                    selectedAvatar === i 
+                                    ? 'ring-4 ring-accent/20 scale-110 shadow-lg z-10' 
+                                    : 'opacity-80 hover:opacity-100 hover:scale-105'
                                 }`}
+                                style={{ backgroundColor: avatar.bg }}
                             >
                                 {avatar.emoji}
                             </button>
@@ -116,10 +119,10 @@ export default function SunaneEditProfilePage() {
                 <div className="glass bg-white p-8 rounded-[3rem] border border-white shadow-sm relative overflow-hidden group">
                     <div className="flex items-center justify-between mb-6">
                         <div className="space-y-1">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">फ़ोन वेरिफिकेशन</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">फ़ोन नंबर</label>
                         </div>
                         {user?.isVerified ? (
-                            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-success/5 text-success rounded-xl text-[10px] font-black uppercase tracking-widest border border-success/10 shadow-sm">
+                            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-xl text-[10px] font-black uppercase tracking-widest border border-emerald-100 shadow-sm">
                                 <CheckCircle2 size={12} strokeWidth={3} /> वेरिफाइड
                             </div>
                         ) : (

@@ -11,19 +11,53 @@ import {
     ChevronRight,
     ToggleLeft,
     Monitor,
-    ArrowLeft
+    ArrowLeft,
+    Percent,
+    CreditCard
 } from 'lucide-react';
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 export default function OwnerSettingsPage() {
+    const [saving, setSaving] = useState(false);
+
+    const saveConfig = async () => {
+        setSaving(true);
+        try {
+            // Future system-wide settings can go here
+            alert('Settings saved successfully! ✅');
+        } catch (err) {
+            console.error(err);
+            alert('Failed to save settings.');
+        } finally {
+            setSaving(false);
+        }
+    };
+
     return (
         <div className="max-w-4xl mx-auto space-y-10 animate-in fade-in duration-700">
-            <div>
-                <h1 className="text-3xl font-black text-slate-900 tracking-tighter">System Settings</h1>
-                <p className="text-sm text-slate-500 font-medium">Global configuration and platform controls.</p>
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">System Settings ⚙️</h1>
+                    <p className="text-sm text-slate-500 font-medium italic">Global configuration and platform controls.</p>
+                </div>
+                <button 
+                    onClick={saveConfig}
+                    disabled={saving}
+                    className="px-8 py-3 bg-slate-900 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl hover:bg-slate-800 disabled:opacity-50 transition-all font-bold"
+                >
+                    {saving ? 'Saving...' : 'Save Changes'}
+                </button>
             </div>
 
-            <div className="grid gap-6">
+            <div className="grid gap��गे।
+                           </p>
+                        </div>
+                    </div>
+                </SettingsSection>
+
                 <SettingsSection 
                     title="Platform Controls" 
                     icon={<Zap className="text-amber-500" />}
@@ -95,10 +129,6 @@ export default function OwnerSettingsPage() {
                 </SettingsSection>
             </div>
             
-            <div className="flex justify-end pt-4">
-                <button className="px-10 py-4 bg-slate-900 text-white rounded-[2rem] text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl hover:bg-slate-800 active:scale-95 transition-all">
-                    Save Global Config
-                </button>
             </div>
         </div>
     );

@@ -46,6 +46,7 @@ export default function AdminSidebar() {
             links: [
                 { name: "User Base", href: "/admin/users", icon: Users },
                 { name: "Verification", href: "/admin/verification", icon: ShieldCheck },
+                { name: "Withdrawals", href: "/admin/wallet/requests", icon: Wallet },
                 { name: "Revenue", href: "/admin/payments", icon: Wallet },
             ]
         },

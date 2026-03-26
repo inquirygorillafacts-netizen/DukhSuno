@@ -4,17 +4,20 @@ import React, { useState, useEffect } from 'react';
 import { 
   LayoutGrid, Phone, User, Wallet, Heart, 
   Moon, Sun, Radio, ChevronRight, Search, 
-  History, Sparkles
+  History, Sparkles, Download
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuthStore } from '@/stores/auth-store';
+import PWAInstall from './shared/PWAInstall';
+import WelcomeTour from './shared/WelcomeTour';
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { user, activeRole } = useAuthStore();
   const [isLive, setIsLive] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [showWelcomeTour, setShowWelcomeTour] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -26,6 +29,24 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
       setIsLive(!!user?.isAvailable);
     }
   }, [user?.isAvailable, activeRole]);
+
+  // Check for Welcome Tour
+  useEffect(() => {
+    if (mounted && user && !isAuthPage && activeRole) {
+      const tourKey = `hasSeenWelcomeTour_${user.uid}_${activeRole}`;
+      const hasSeen = localStorage.getItem(tourKey);
+      if (!hasSeen) {
+        setShowWelcomeTour(true);
+      }
+    }
+  }, [mounted, user, isAuthPage, activeRole]);
+
+  const handleTourClose = () => {
+    if (user && activeRole) {
+      localStorage.setItem(`hasSeenWelcomeTour_${user.uid}_${activeRole}`, 'true');
+    }
+    setShowWelcomeTour(false);
+  };
 
   // Determine active tab based on pathname
   const getActiveTab = () => {
@@ -55,7 +76,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
   const navItems = activeRole === 'sunne_wala' ? [
     { id: 'home', label: 'Dashboard', href: '/sunne/dashboard', icon: <LayoutGrid /> },
     { id: 'history', label: 'Calls', href: '/sunne/calls', icon: <Phone /> },
-    { id: 'wallet', label: 'Earnings', href: '/sunne/earnings', icon: <Wallet /> },
+    { id: 'wallet', label: 'Wallet', href: '/sunne/wallet', icon: <Wallet /> },
     { id: 'profile', label: 'Profile', href: '/sunne/profile', icon: <User /> },
   ] : [
     { id: 'home', label: 'Home', href: '/sunane/home', icon: <Search /> },
@@ -98,6 +119,21 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
             </nav>
 
             <div className="mt-auto space-y-4">
+              <PWAInstall 
+                renderTrigger={(onClick: () => void, isVisible: boolean) => isVisible && (
+                  <button 
+                    onClick={onClick}
+                    className="w-full p-4 rounded-2xl bg-slate-900 text-white flex items-center justify-between group hover:scale-[1.02] transition-all shadow-xl shadow-slate-200"
+                  >
+                    <div className="flex items-center gap-3">
+                       <Download size={18} className="text-rose-400" />
+                       <span className="text-[10px] font-black uppercase tracking-widest">Install App</span>
+                    </div>
+                    <Sparkles size={14} className="text-rose-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </button>
+                )}
+              />
+
               <div className="w-full p-4 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-between">
                 <span className="text-[10px] font-black uppercase tracking-widest text-rose-400">Light Mode v3.0</span>
                 <Sun className="w-4 h-4 text-[#ff4d6d]" />
@@ -134,7 +170,10 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
                        </span>
                      </div>
                    )}
-                   <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-white flex items-center justify-center border border-slate-100 text-slate-900 font-black shadow-sm">
+                   <div 
+                      className="w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center border border-slate-100 text-slate-900 font-black shadow-sm overflow-hidden"
+                      style={{ backgroundColor: user?.avatarUrl?.split(':')[2] || '#ffffff' }}
+                   >
                       {user?.avatarUrl?.includes(':') ? user.avatarUrl.split(':')[1] : '😊'}
                    </div>
                 </div>
@@ -148,9 +187,18 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
 
           {/* मोबाइल नेविगेशन (Mobile Bottom Nav) */}
           <nav className="lg:hidden fixed bottom-0 left-0 w-full glass bg-white/95 border-t border-slate-100 px-6 pt-2 pb-5 flex justify-between items-center z-[100] backdrop-blur-xl">
-            {navItems.slice(0, 2).map(item => (
+            {navItems.slice(0, 1).map(item => (
               <NavIconButton key={item.id} href={item.href} active={activeTab === item.id} icon={item.icon} label={item.label} />
             ))}
+
+            <PWAInstall 
+              renderTrigger={(onClick: () => void, isVisible: boolean) => isVisible && (
+                <button onClick={onClick} className="flex flex-col items-center gap-1.5 text-slate-300 hover:text-rose-500 transition-all">
+                  <Download size={22} strokeWidth={2.5} />
+                  <span className="text-[10px] font-black uppercase tracking-widest leading-none">Install</span>
+                </button>
+              )}
+            />
             
             <div className="relative -translate-y-6">
               <button 
@@ -167,6 +215,13 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
             ))}
           </nav>
         </>
+      )}
+
+      {showWelcomeTour && activeRole && (
+        <WelcomeTour 
+          role={activeRole as 'sunne_wala' | 'sunane_wala'} 
+          onClose={handleTourClose} 
+        />
       )}
     </div>
   );

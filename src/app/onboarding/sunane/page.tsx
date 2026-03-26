@@ -23,50 +23,101 @@ export default function SunaneOnboarding() {
   const router = useRouter();
   const { user, setUser } = useAuthStore();
   const [step, setStep] = useState(1);
-  const totalSteps = 4;
+  const totalSteps = 2;
   const [displayName, setDisplayName] = useState('');
-  const [selectedAvatar, setSelectedAvatar] = useState<number | null>(null);
-  const [moodTag, setMoodTag] = useState<Specialty | null>(null);
-  const [phone, setPhone] = useState('');
+  
+  // Avatar State
+  const [dpMode, setDpMode] = useState<'upload' | 'skip' | null>(null);
+  const [customFile, setCustomFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [customUrl, setCustomUrl] = useState<string | null>(null);
+  const [uploadLoading, setUploadLoading] = useState(false);
+
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const handleCustomUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setCustomFile(file);
+    setPreviewUrl(URL.createObjectURL(file));
+    setCustomUrl(null);
+    setErrorMsg(null);
+  };
 
   const canProceed = () => {
     switch (step) {
       case 1: return displayName.length >= 2;
-      case 2: return selectedAvatar !== null;
-      case 3: return moodTag !== null;
-      case 4: return phone.length === 10;
+      case 2: return dpMode !== null && (dpMode === 'skip' || previewUrl !== null);
       default: return false;
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     setErrorMsg(null);
     if (!canProceed()) {
-      setErrorMsg('क्षमा करें! सभी जानकारी भरना अनिवार्य है।');
+      setErrorMsg('कृपया संबंधित जानकारी भरें।');
       return;
     }
+
+    if (step === 2 && dpMode === 'upload' && customFile && !customUrl) {
+      setUploadLoading(true);
+      try {
+        const url = await uploadToImgBB(customFile);
+        setCustomUrl(url);
+        // After upload, since it's the last step, complete it.
+        handleCompleteWithAvatar(url);
+      } catch (err) {
+        setErrorMsg('फोटो अपलोड विफल रहा। कृपया पुन: प्रयास करें।');
+      } finally {
+        setUploadLoading(false);
+      }
+      return;
+    }
+
     if (step < totalSteps) setStep(step + 1);
     else handleComplete();
+  };
+
+  const handleCompleteWithAvatar = async (avatarUrl: string) => {
+    if (!user) return;
+    setLoading(true);
+    try {
+      const updateData = {
+        displayName,
+        avatarUrl: avatarUrl,
+        activeRole: 'sunane_wala',
+        roles: arrayUnion('sunane_wala'),
+        isVerified: true,
+        verificationStatus: 'verified',
+        registeredAt: serverTimestamp(),
+      };
+      await updateDoc(doc(db, 'users', user.uid), updateData);
+      setUser({ ...user, ...updateData, roles: Array.isArray(user.roles) ? [...user.roles, 'sunane_wala'] : ['sunane_wala'] } as any);
+      router.push('/sunane/home');
+    } catch (error) {
+      console.error('Error:', error);
+      setErrorMsg('सबमिट करते समय त्रुटि हुई।');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleComplete = async () => {
     if (!user) return;
     setLoading(true);
     try {
-      const avatar = selectedAvatar !== null
-        ? `emoji:${AVATAR_OPTIONS[selectedAvatar].emoji}:${AVATAR_OPTIONS[selectedAvatar].bg}`
-        : 'emoji:😊:#FFE3E8';
+      const avatar = dpMode === 'upload' && customUrl 
+        ? customUrl 
+        : 'https://api.dicebear.com/7.x/avataaars/svg?seed=DukhSuno_Speaker'; // Premium Professional Default
 
       const updateData = {
         displayName,
         avatarUrl: avatar,
         activeRole: 'sunane_wala',
         roles: arrayUnion('sunane_wala'),
-        phoneNumber: phone ? `+91${phone}` : null,
-        verificationStatus: 'pending',
-        isVerified: false,
+        isVerified: true,
+        verificationStatus: 'verified',
         registeredAt: serverTimestamp(),
       };
 
@@ -99,136 +150,137 @@ export default function SunaneOnboarding() {
         ))}
       </div>
 
-      <div className="w-full max-w-[440px] glass-container rounded-main p-8 relative z-10">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent/10 text-accent text-[12px] font-black uppercase tracking-widest mb-8">
+      <div className="w-full max-w-[480px] glass-container rounded-[3rem] p-8 md:p-12 relative z-10 shadow-2xl border border-slate-50">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent/10 text-accent text-[11px] font-black uppercase tracking-widest mb-10">
            <Heart size={14} fill="currentColor" strokeWidth={0} />
-           चरण {step} / {totalSteps}
+           {step === 1 ? 'नाम (Name)' : 'पहचान (DP)'} — चरण {step} / {totalSteps}
         </div>
 
-        <div className="min-h-[380px] flex flex-col justify-start gap-8">
+        <div className="min-h-[440px] flex flex-col justify-start gap-8">
           {step === 1 && (
-            <div className="space-y-8">
+            <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
               <div className="space-y-3">
-                <h2 className="text-[36px] font-black text-gradient leading-tight tracking-tight">गुप्त नाम ✨</h2>
-                <p className="text-text-secondary text-[16px] font-medium leading-relaxed">अपनी पहचान छुपाएं, दुख सुनाएं। कोई अच्छा सा नाम चुनें!</p>
+                <h2 className="text-[40px] font-black text-gradient leading-tight tracking-tighter italic">Swagat Hai! ✨</h2>
+                <p className="text-text-secondary text-[16px] font-medium leading-relaxed italic">Dil ki baat sunaane ke liye bas ek gupt naam chunein.</p>
               </div>
-              <div className="space-y-3">
-                <label className="text-[12px] font-black text-slate-400 px-3 uppercase tracking-widest">आपका नाम</label>
-                <div className="relative">
-                  <User size={22} className="absolute left-5 top-1/2 -translate-y-1/2 text-accent/40" />
+
+              <div className="space-y-4">
+                <label className="text-[11px] font-black text-slate-400 px-3 uppercase tracking-[0.3em] font-bold">Aapka Gupt Naam</label>
+                <div className="relative group">
+                  <User size={22} className="absolute left-6 top-1/2 -translate-y-1/2 text-accent/40 group-focus-within:text-accent transition-colors" />
                   <input
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value.slice(0, 20))}
-                    placeholder="जैसे: कबीर..."
-                    className="w-full h-18 px-14 rounded-2xl bg-slate-50 border border-slate-100 text-[18px] font-bold focus:ring-4 focus:ring-accent/10 focus:outline-none"
+                    placeholder="Jaise: Kabir, Rahul..."
+                    className="w-full h-20 px-16 rounded-[2rem] bg-slate-50 border border-slate-100 text-[20px] font-black tracking-tight focus:ring-8 focus:ring-accent/5 focus:bg-white focus:border-accent/20 transition-all outline-none"
                   />
                 </div>
-              </div>
-              <div className="p-4 rounded-2xl bg-accent/5 border border-accent/10 flex items-start gap-3">
-                 <Sparkles size={18} className="text-accent shrink-0 mt-0.5" />
-                 <p className="text-[13px] text-accent/80 leading-relaxed font-bold">यह नाम आपकी सुरक्षा के लिए है। इसे कोई देख नहीं सकेगा।</p>
               </div>
             </div>
           )}
 
           {step === 2 && (
-            <div className="space-y-8">
+            <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
               <div className="space-y-3">
-                <h2 className="text-[36px] font-black text-gradient leading-tight tracking-tight">अवतार चुनें 🦋</h2>
-                <p className="text-text-secondary text-[16px] font-medium">असली फोटो की ज़रूरत नहीं, एक प्यारा सा इमोजी चुनें।</p>
+                <h2 className="text-[36px] font-black text-gradient leading-tight tracking-tight italic">Profile Photo 🦋</h2>
+                <p className="text-text-secondary text-[16px] font-medium leading-relaxed italic">Aap apni real photo laga sakte hain ya hamara professional avatar.</p>
               </div>
-              <div className="grid grid-cols-4 gap-4">
-                {AVATAR_OPTIONS.map((avatar, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setSelectedAvatar(i)}
-                    className={`aspect-square rounded-2xl flex items-center justify-center text-3xl transition-all ${
-                      selectedAvatar === i ? 'bg-accent text-white scale-110 shadow-lg' : 'bg-slate-50 border border-slate-100'
-                    }`}
-                  >
-                    {avatar.emoji}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
 
-          {step === 3 && (
-            <div className="space-y-8">
-              <div className="space-y-3">
-                <h2 className="text-[36px] font-black text-gradient leading-tight tracking-tight">आज का मूड? 🌈</h2>
-                <p className="text-text-secondary text-[16px] font-medium">ताकि हम आपको सही लिसनर से जोड़ सकें।</p>
-              </div>
-              <div className="flex flex-wrap gap-2.5">
-                {MOOD_CHIPS.map((chip) => (
-                  <button
-                    key={chip.id}
-                    onClick={() => setMoodTag(chip.id)}
-                    className={`px-5 py-3 rounded-xl text-[14px] font-bold transition-all ${
-                      moodTag === chip.id ? 'bg-accent text-white shadow-lg scale-105' : 'bg-slate-50 text-slate-500'
-                    }`}
-                  >
-                    {chip.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {step === 4 && (
-            <div className="space-y-6">
-              <div className="space-y-4 text-center">
-                 <div className="px-5 py-3 bg-rose-50 border border-rose-100 rounded-2xl text-rose-600 font-bold text-[14px] animate-pulse">
-                   यह जानकारी किसी को नहीं दिखाई जाएगी।
-                 </div>
-                 <h2 className="text-[32px] font-black text-gradient tracking-tight">वेरिफिकेशन 📞</h2>
-                 <p className="text-text-secondary text-[16px] font-medium">अंतिम चरण: सुरक्षित भविष्य के लिए।</p>
-              </div>
-              <div className="p-8 rounded-3xl bg-slate-50 border border-slate-100 space-y-6">
-                <div className="space-y-3">
-                  <label className="text-[12px] font-black text-slate-400 px-3 uppercase tracking-widest block">मोबाइल नंबर</label>
-                  <div className="flex gap-3">
-                    <div className="w-16 h-16 rounded-2xl bg-white border border-slate-200 flex items-center justify-center font-black text-accent">+91</div>
-                    <input
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                      placeholder="9876XXXXXX"
-                      className="flex-1 h-16 px-6 rounded-2xl bg-white border border-slate-200 text-[20px] font-black tracking-widest focus:ring-4 focus:ring-accent/10 focus:outline-none"
-                    />
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  onClick={() => setDpMode('upload')}
+                  className={`p-8 rounded-[2.5rem] border-2 flex flex-col items-center gap-4 transition-all shadow-sm ${
+                    dpMode === 'upload' ? 'border-accent bg-accent/5 scale-105' : 'border-slate-100 bg-slate-50 opacity-60'
+                  }`}
+                >
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${dpMode === 'upload' ? 'bg-accent text-white' : 'bg-white text-accent shadow-inner'}`}>
+                    <Upload size={28} />
                   </div>
-                </div>
+                  <p className="text-[14px] font-black text-slate-800 uppercase tracking-tighter">Photo Upload</p>
+                </button>
+
+                <button
+                  onClick={() => { setDpMode('skip'); setPreviewUrl(null); setCustomFile(null); }}
+                  className={`p-8 rounded-[2.5rem] border-2 flex flex-col items-center gap-4 transition-all shadow-sm ${
+                    dpMode === 'skip' ? 'border-accent bg-accent/5 scale-105' : 'border-slate-100 bg-slate-50 opacity-60'
+                  }`}
+                >
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${dpMode === 'skip' ? 'bg-accent text-white' : 'bg-white text-accent shadow-inner'}`}>
+                    <Smile size={28} />
+                  </div>
+                  <p className="text-[14px] font-black text-slate-800 uppercase tracking-tighter">Skip & Default</p>
+                </button>
               </div>
+
+              {dpMode === 'upload' && (
+                <div className="relative p-10 rounded-[2.5rem] border-2 border-dashed border-accent/20 bg-accent/5 flex flex-col items-center justify-center gap-4 animate-in zoom-in-95 duration-300">
+                  <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={handleCustomUpload} />
+                  {uploadLoading ? (
+                    <div className="flex flex-col items-center gap-3">
+                       <div className="w-10 h-10 border-4 border-accent border-t-transparent rounded-full animate-spin" />
+                       <p className="text-[11px] font-black text-accent uppercase tracking-widest animate-pulse">Photo Upload ho rahi hai...</p>
+                    </div>
+                  ) : previewUrl ? (
+                    <div className="relative">
+                        <img src={previewUrl} className="w-32 h-32 rounded-3xl object-cover border-4 border-white shadow-2xl" alt="Preview" />
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); setPreviewUrl(null); setCustomFile(null); setCustomUrl(null); }}
+                          className="absolute -top-3 -right-3 w-8 h-8 bg-rose-500 text-white rounded-full flex items-center justify-center shadow-lg"
+                        >
+                           <X size={16} />
+                        </button>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center text-accent/20 border border-accent/10 shadow-inner">
+                        <ImageIcon size={32} />
+                      </div>
+                      <p className="text-[14px] font-black text-accent/60 text-center uppercase tracking-tight">Tap to pick your best photo</p>
+                    </>
+                  )}
+                </div>
+              )}
+
+              {dpMode === 'skip' && (
+                 <div className="p-6 rounded-[2rem] bg-emerald-50 border border-emerald-100 flex items-start gap-4 animate-in zoom-in-95 duration-300">
+                    <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-emerald-500 shadow-sm shrink-0">
+                       <Heart size={24} fill="currentColor" strokeWidth={0} />
+                    </div>
+                    <div className="space-y-1">
+                       <p className="text-[14px] font-black text-emerald-900 leading-tight">Professional Default Settings</p>
+                       <p className="text-[12px] text-emerald-600 font-medium italic">Humne aapke liye ek professional avatar select kar liya hai. Aap isse baad mein badal sakte hain.</p>
+                    </div>
+                 </div>
+              )}
+            </div>
+          )}
+
             </div>
           )}
         </div>
 
-        <div className="mt-12 space-y-4">
-          {errorMsg && (
-            <div className="p-4 rounded-xl bg-rose-50 border border-rose-100 text-rose-500 text-[13px] font-bold animate-shake flex items-center gap-2">
-              <Info size={14} /> {errorMsg}
-            </div>
-          )}
-          <div className="flex gap-4">
-            {step > 1 && (
-              <button onClick={() => setStep(step - 1)} className="w-16 h-18 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:text-accent transition-all">
-                <ArrowLeft size={24} />
-              </button>
-            )}
-            <button
-              onClick={handleNext}
-              disabled={loading}
-              className="flex-1 h-18 bg-accent text-white rounded-2xl font-black text-[17px] shadow-xl shadow-accent/20 flex items-center justify-center gap-3 transition-transform active:scale-95"
-            >
-              {loading ? (
-                <div className="w-6 h-6 border-4 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : (
-                <>
-                  <span>{step === totalSteps ? 'शुरू करें ✨' : 'आगे बढ़ें'}</span>
-                  {step < totalSteps && <ArrowRight size={22} />}
-                </>
-              )}
+        <div className="mt-12 flex gap-4">
+          {step > 1 && (
+            <button onClick={() => setStep(step - 1)} className="w-18 h-20 rounded-[1.8rem] bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:text-accent transition-all active:scale-90">
+              <ArrowLeft size={28} />
             </button>
-          </div>
+          )}
+          <button
+            onClick={handleNext}
+            disabled={loading || uploadLoading}
+            className="flex-1 h-20 bg-accent text-white rounded-[2rem] font-black text-[18px] shadow-2xl shadow-accent/30 flex items-center justify-center gap-4 transition-all active:scale-95 hover:brightness-110 disabled:opacity-50"
+          >
+            {loading || uploadLoading ? (
+              <div className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : (
+              <>
+                <span className="uppercase tracking-widest leading-none">
+                    {step === totalSteps ? 'Finish Setting Up ✨' : 'Continue'}
+                </span>
+                {step < totalSteps && <ArrowRight size={24} />}
+              </>
+            )}
+          </button>
         </div>
       </div>
     </div>

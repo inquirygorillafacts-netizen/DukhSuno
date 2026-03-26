@@ -10,19 +10,34 @@ import {
   Sparkles,
   PhoneOff,
   History,
-  Radio
+  Radio,
+  Edit3,
+  QrCode,
+  HelpCircle,
+  MessageCircle,
+  ArrowRight,
+  User,
+  Settings,
+  Copy,
+  Check,
+  Share
 } from 'lucide-react';
 import Link from 'next/link';
 import { doc, updateDoc, onSnapshot, query, collection, where, limit, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Session } from '@/types';
 import React from 'react';
+import QRShareSheet from '@/components/shared/QRShareSheet';
+import SupportSheet from '@/components/shared/SupportSheet';
 
 export default function SunneDashboardPage() {
   const { user, setUser } = useAuthStore();
   const [isLive, setIsLive] = useState(user?.isAvailable || false);
   const [isToggling, setIsToggling] = useState(false);
   const [sessions, setSessions] = useState<Session[]>([]);
+  const [showQR, setShowQR] = useState(false);
+  const [showSupport, setShowSupport] = useState(false);
+  const [copied, setCopied] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -87,35 +102,76 @@ export default function SunneDashboardPage() {
   return (
     <div className="space-y-6 animate-in fade-in duration-700 slide-in-from-bottom-2">
       
-      {/* Live Toggle Section */}
-      <section className="p-6 md:p-10 glass bg-white rounded-3xl border border-white shadow-sm relative group overflow-hidden">
-        <div className={`absolute -right-20 -top-20 w-48 h-48 rounded-full blur-[100px] transition-colors duration-1000 ${isLive ? 'bg-green-500/10' : 'bg-slate-500/5'}`} />
+      {/* Live Toggle & Profile Actions Line */}
+      <section className="p-6 md:p-8 glass bg-white rounded-[2.5rem] border border-white shadow-sm relative overflow-hidden">
+        <div className={`absolute -right-20 -top-20 w-48 h-48 rounded-full blur-[100px] transition-colors duration-1000 ${isLive ? 'bg-emerald-500/10' : 'bg-rose-500/5'}`} />
         
-        <div className="flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
-          <div className="text-center md:text-left">
-            <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-1 shadow-rose-200">
-              {isLive ? 'Aap Online Hain' : 'Abhi Offline Hain'}
-            </h3>
-            <p className="text-[10px] md:text-sm text-slate-500 font-medium tracking-tight">
-              {isLive ? 'Taiyaar rahiye, koi bhi dost jud sakta hai.' : 'Calls pane ke liye online jayein.'}
-            </p>
+        <div className="flex flex-col gap-8 relative z-10">
+          <div className="flex items-center justify-between w-full">
+            <div className="flex items-center gap-4">
+               <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner ${isLive ? 'bg-emerald-50 text-emerald-500' : 'bg-slate-50 text-slate-300'}`}>
+                  <Radio size={28} className={isLive ? 'animate-pulse' : ''} />
+               </div>
+               <div>
+                  <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-1">
+                    {isLive ? 'Online ✨' : 'Offline 🌙'}
+                  </h3>
+                  <p className="text-[10px] md:text-xs text-slate-500 font-bold uppercase tracking-widest leading-none">
+                    Status: {isLive ? 'Ready for Calls' : 'Away from work'}
+                  </p>
+               </div>
+            </div>
+
+            <button 
+              onClick={toggleLive}
+              disabled={isToggling}
+              className={`relative w-16 h-8 md:w-20 md:h-10 rounded-full transition-all duration-500 p-1.5 ${isLive ? 'bg-emerald-500/20 ring-4 ring-emerald-500/10' : 'bg-slate-100'}`}
+            >
+              <div className={`w-5 h-5 md:w-7 md:h-7 rounded-full shadow-lg transform transition-all duration-500 flex items-center justify-center ${isLive ? 'translate-x-8 md:translate-x-10 bg-emerald-500' : 'translate-x-0 bg-white'}`}>
+                {isToggling ? (
+                  <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <Radio size={isLive ? 14 : 12} className={isLive ? 'text-white' : 'text-slate-300'} />
+                )}
+              </div>
+            </button>
           </div>
 
-          <button 
-            onClick={toggleLive}
-            disabled={isToggling}
-            className={`relative w-16 h-8 md:w-20 md:h-10 rounded-full transition-all duration-500 p-1.5 ${isLive ? 'bg-emerald-500/20 ring-4 ring-emerald-500/10' : 'bg-slate-100'}`}
-          >
-            <div className={`w-5 h-5 md:w-7 md:h-7 rounded-full shadow-lg transform transition-all duration-500 flex items-center justify-center ${isLive ? 'translate-x-8 md:translate-x-10 bg-emerald-500' : 'translate-x-0 bg-white'}`}>
-              {isToggling ? (
-                <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : (
-                <Radio size={isLive ? 14 : 12} className={isLive ? 'text-white' : 'text-slate-300'} />
-              )}
-            </div>
-          </button>
+          <div className="grid grid-cols-2 gap-3">
+             <Link href="/sunne/profile/edit" className="flex items-center justify-center gap-2 p-4 md:p-5 rounded-2xl bg-slate-900 text-white text-[10px] md:text-xs font-black uppercase tracking-[0.2em] shadow-xl shadow-slate-200 active:scale-95 transition-all group">
+                <User size={16} className="text-rose-400 group-hover:scale-110 transition-transform" />
+                Edit Profile
+             </Link>
+             <Link href="/sunne/profile/edit#plans" className="flex items-center justify-center gap-2 p-4 md:p-5 rounded-2xl bg-white border border-slate-100 text-slate-900 text-[10px] md:text-xs font-black uppercase tracking-[0.2em] shadow-sm active:scale-95 transition-all group">
+                <Settings size={16} className="text-rose-400 group-hover:rotate-45 transition-transform" />
+                Edit Plans
+             </Link>
+          </div>
         </div>
       </section>
+
+      {/* Quick Action Tools */}
+      <div className="grid grid-cols-2 gap-4">
+         <button 
+            onClick={() => setShowQR(true)}
+            className="p-6 rounded-[2rem] bg-indigo-50 border border-indigo-100 flex flex-col items-center gap-3 transition-all hover:shadow-xl hover:shadow-indigo-500/10 active:scale-95 group"
+         >
+            <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-indigo-500 shadow-sm group-hover:rotate-12 transition-transform">
+               <QrCode size={24} />
+            </div>
+            <span className="text-[10px] font-black uppercase tracking-widest text-indigo-600">Share QR Code</span>
+         </button>
+
+         <button 
+            onClick={() => setShowSupport(true)}
+            className="p-6 rounded-[2rem] bg-rose-50 border border-rose-100 flex flex-col items-center gap-3 transition-all hover:shadow-xl hover:shadow-rose-500/10 active:scale-95 group"
+         >
+            <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-rose-500 shadow-sm group-hover:rotate-12 transition-transform">
+               <HelpCircle size={24} />
+            </div>
+            <span className="text-[10px] font-black uppercase tracking-widest text-rose-600">Help Center</span>
+         </button>
+      </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8">
@@ -140,6 +196,35 @@ export default function SunneDashboardPage() {
           className="col-span-2 md:col-span-1"
         />
       </div>
+
+      {/* Referral & Sharing Section */}
+      <section className="space-y-4">
+         <div className="flex items-center gap-2 px-2">
+            <Share size={16} className="text-slate-400" />
+            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">Your Referral Link</span>
+         </div>
+         <div className="p-1 rounded-[2.5rem] bg-slate-50 border border-slate-100 flex items-center justify-between group">
+            <div className="px-6 py-4 overflow-hidden">
+               <p className="text-[13px] font-bold text-slate-500 truncate italic">
+                  {typeof window !== 'undefined' ? `${window.location.origin}/sunane/home?id=${user?.uid}` : 'https://dukhsuno.app/...'}
+               </p>
+            </div>
+            <button 
+               onClick={() => {
+                  const url = `${window.location.origin}/sunane/home?id=${user?.uid}`;
+                  navigator.clipboard.writeText(url);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
+               }}
+               className={`h-14 px-8 rounded-[2rem] flex items-center gap-2 transition-all active:scale-95 ${copied ? 'bg-emerald-500 text-white' : 'bg-slate-900 text-white'}`}
+            >
+               {copied ? <Check size={18} /> : <Copy size={18} />}
+               <span className="text-[10px] font-black uppercase tracking-widest leading-none">
+                  {copied ? 'Copied!' : 'Copy Link'}
+               </span>
+            </button>
+         </div>
+      </section>
 
       {/* Recent History Preview */}
       <section className="space-y-6">
@@ -186,18 +271,36 @@ export default function SunneDashboardPage() {
       </section>
 
       {/* Call to Action Banner */}
-      <div className="p-6 md:p-10 rounded-3xl bg-slate-900 text-white relative overflow-hidden group shadow-2xl">
-         <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500 rounded-full blur-[120px] opacity-20 group-hover:opacity-40 transition-opacity duration-1000" />
-         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div className="max-w-md">
-                <h4 className="text-lg md:text-xl font-black tracking-tighter uppercase mb-2">Aapka Support Zaruri Hai ❤️</h4>
-                <p className="text-[10px] md:text-sm text-slate-400 font-medium leading-relaxed">Koshish karein ki har call attend ho sake. Aapka support kisi ki life badal sakta hai.</p>
+      <div className="p-8 md:p-10 rounded-[2.5rem] bg-slate-900 text-white relative overflow-hidden group shadow-2xl">
+         <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500 rounded-full blur-[150px] opacity-20 group-hover:opacity-40 transition-opacity duration-1000" />
+         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
+            <div className="space-y-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full border border-white/10">
+                   <Users size={12} className="text-emerald-400" />
+                   <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400">Listener Community</span>
+                </div>
+                <h4 className="text-2xl md:text-3xl font-black tracking-tighter uppercase leading-none">Aapka Support Zaruri Hai ❤️</h4>
+                <p className="text-xs md:text-[15px] text-slate-400 font-medium leading-relaxed italic max-w-md">
+                   Koshish karein ki har call attend ho sake. Aapka support kisi ki life badal sakta hai. Aaj hi community join karein!
+                </p>
             </div>
-            <button onClick={() => alert('Community Guidelines are being updated! 📜')} className="bg-emerald-500 text-white px-6 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-400 transition-all shadow-xl active:scale-95">
-               Guidelines Padhein
-            </button>
+            
+            <div className="flex flex-col gap-3">
+               <button onClick={() => alert('Joining WhatsApp Community... 👥')} className="h-16 px-8 bg-emerald-500 text-white rounded-2xl text-[12px] font-black uppercase tracking-widest hover:bg-emerald-400 transition-all shadow-xl active:scale-95 flex items-center justify-center gap-3">
+                  <MessageCircle size={18} />
+                  Join Group
+               </button>
+               <button onClick={() => setShowSupport(true)} className="h-16 px-8 bg-white/5 border border-white/10 text-white rounded-2xl text-[12px] font-black uppercase tracking-widest hover:bg-white/10 transition-all active:scale-95">
+                  Helpline Support
+               </button>
+            </div>
          </div>
       </div>
+
+      {/* Sheets */}
+      {showQR && <QRShareSheet user={user} onClose={() => setShowQR(false)} />}
+      {showSupport && <SupportSheet onClose={() => setShowSupport(false)} />}
+    </div>
 
     </div>
   );

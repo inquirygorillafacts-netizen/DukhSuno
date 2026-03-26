@@ -44,7 +44,10 @@ export default function SunaneProfilePage() {
         <div className="glass bg-white p-5 md:p-8 rounded-3xl border border-white shadow-sm relative group overflow-hidden">
            <div className="absolute -right-10 -top-10 w-40 h-40 bg-rose-500/5 rounded-full blur-3xl animate-pulse" />
            <div className="flex items-center gap-4 relative z-10">
-              <div className="w-14 h-14 md:w-18 md:h-18 rounded-2xl bg-indigo-50 flex items-center justify-center text-3xl shadow-inner border border-white/50">
+              <div 
+                 className="w-14 h-14 md:w-18 md:h-18 rounded-2xl flex items-center justify-center text-3xl shadow-inner border border-white/50 overflow-hidden"
+                 style={{ backgroundColor: user?.avatarUrl?.split(':')[2] || '#f3f4f6' }}
+              >
                  {user?.avatarUrl?.includes(':') ? user.avatarUrl.split(':')[1] : '😊'}
               </div>
               <div className="flex-1">
