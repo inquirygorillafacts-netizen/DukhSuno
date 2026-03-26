@@ -14,7 +14,10 @@ import {
     Mail,
     ChevronRight,
     ArrowUpDown,
-    Clock
+    Clock,
+    ShieldAlert,
+    UserCog,
+    Crown
 } from 'lucide-react';
 import IdentityDrawer from '@/components/admin/IdentityDrawer';
 
@@ -34,6 +37,8 @@ interface UserData {
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<UserData[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  type FilterType = 'all' | 'owner' | 'admin' | 'listener' | 'speaker' | 'blocked';
+  const [filter, setFilter] = useState<FilterType>('all');
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState<any | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -86,11 +91,46 @@ export default function AdminUsersPage() {
     }
   };
 
-  const filteredUsers = users.filter(u => 
-    u.displayName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    u.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    u.phoneNumber?.includes(searchTerm)
-  );
+  const toggleRole = async (uid: string, currentRoles: string[] = []) => {
+    try {
+      const isCurrentlyAdmin = currentRoles.includes('admin');
+      const nextRoles = isCurrentlyAdmin 
+        ? currentRoles.filter(r => r !== 'admin')
+        : [...currentRoles, 'admin'];
+      
+      await updateDoc(doc(db, 'users', uid), { roles: nextRoles });
+    } catch (err) {
+      console.error('Failed to update role:', err);
+      alert('Role update failed!');
+    }
+  };
+
+  const toggleOwner = async (uid: string, currentStatus: boolean) => {
+    if (!confirm('Are you sure you want to change Owner status? Owners have absolute control.')) return;
+    try {
+      await updateDoc(doc(db, 'users', uid), { owner: !currentStatus });
+    } catch (err) {
+      console.error('Failed to update owner:', err);
+      alert('Owner update failed!');
+    }
+  };
+
+  const filteredUsers = users.filter(u => {
+    const matchesSearch = u.displayName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         u.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         u.phoneNumber?.includes(searchTerm);
+    
+    if (!matchesSearch) return false;
+
+    if (filter === 'all') return true;
+    if (filter === 'owner') return u.owner === true;
+    if (filter === 'admin') return u.roles?.includes('admin');
+    if (filter === 'listener') return u.roles?.includes('listener');
+    if (filter === 'speaker') return u.roles?.includes('speaker');
+    if (filter === 'blocked') return u.isBlocked === true;
+    
+    return true;
+  });
 
   if (loading) return <div className="p-10 font-bold animate-pulse">Loading users...</div>;
 
@@ -117,6 +157,35 @@ export default function AdminUsersPage() {
               </button>
           </div>
       </div>
+
+       {/* Filter Pills */}
+       <div className="flex flex-wrap gap-2">
+           {[
+               { id: 'all', label: 'All Users', count: users.length },
+               { id: 'owner', label: 'Owners', count: users.filter(u => u.owner).length },
+               { id: 'admin', label: 'Admins', count: users.filter(u => u.roles?.includes('admin')).length },
+               { id: 'listener', label: 'Sunne Wale', count: users.filter(u => u.roles?.includes('sunne_wala') || u.roles?.includes('listener')).length },
+               { id: 'speaker', label: 'Sunane Wale', count: users.filter(u => u.roles?.includes('sunane_wala') || u.roles?.includes('speaker')).length },
+               { id: 'blocked', label: 'Blocked', count: users.filter(u => u.isBlocked).length },
+           ].map((pill) => (
+               <button
+                   key={pill.id}
+                   onClick={() => setFilter(pill.id as FilterType)}
+                   className={`px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all flex items-center gap-2 ${
+                       filter === pill.id 
+                       ? 'bg-slate-900 border-slate-900 text-white shadow-lg shadow-slate-200' 
+                       : 'bg-white border-slate-200 text-slate-400 hover:border-slate-300 hover:text-slate-600'
+                   }`}
+               >
+                   {pill.label}
+                   <span className={`px-1.5 py-0.5 rounded-lg text-[8px] ${
+                       filter === pill.id ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
+                   }`}>
+                       {pill.count}
+                   </span>
+               </button>
+           ))}
+       </div>
 
       <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
@@ -202,6 +271,31 @@ export default function AdminUsersPage() {
                                       >
                                           {u.isBlocked ? <CheckCircle2 size={16} /> : <Ban size={16} />}
                                       </button>
+                                       
+                                      <button 
+                                          onClick={() => toggleRole(u.uid, u.roles || [])}
+                                          className={`p-2 rounded-xl transition-all ${
+                                              u.roles?.includes('admin') 
+                                              ? 'bg-amber-50 text-amber-600 hover:bg-amber-100' 
+                                              : 'bg-slate-50 text-slate-400 hover:bg-slate-100'
+                                          }`}
+                                          title={u.roles?.includes('admin') ? 'Remove Admin' : 'Make Admin'}
+                                      >
+                                          <ShieldAlert size={16} />
+                                      </button>
+
+                                      <button 
+                                          onClick={() => toggleOwner(u.uid, u.owner || false)}
+                                          className={`p-2 rounded-xl transition-all ${
+                                              u.owner 
+                                              ? 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100' 
+                                              : 'bg-slate-50 text-slate-400 hover:bg-slate-100'
+                                          }`}
+                                          title={u.owner ? 'Remove Owner' : 'Make Owner'}
+                                      >
+                                          <Crown size={16} />
+                                      </button>
+
                                       <button 
                                           onClick={() => handleInspectUser(u)}
                                           className="p-2 hover:bg-slate-100 rounded-xl text-slate-400 hover:text-indigo-600 transition-colors"

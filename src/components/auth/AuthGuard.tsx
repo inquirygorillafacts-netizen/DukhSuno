@@ -23,11 +23,18 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (!mounted) return;
       setLoading(true);
       if (firebaseUser) {
         try {
-          // If we already have the user in store, we can skip the fetch for speed
+          // If we already have the user in store, check if they are blocked
           if (user && user.uid === firebaseUser.uid) {
+            if (user.isBlocked && pathname !== '/blocked') {
+                router.push('/blocked');
+                setVerifying(false);
+                setLoading(false);
+                return;
+            }
             setVerifying(false);
             setLoading(false);
             return;
@@ -38,8 +45,16 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
             const userData = userDoc.data() as DukhSunoUser;
             setUser(userData);
             
+            // Blocking Check: If blocked, redirect to /blocked
+            if (userData.isBlocked && pathname !== '/blocked') {
+              router.push('/blocked');
+              setVerifying(false);
+              setLoading(false);
+              return;
+            }
+
             // Onboarding Check: If no roles, redirect to selection
-            if ((!userData.roles || userData.roles.length === 0) && pathname !== '/select-role' && !pathname.includes('onboarding')) {
+            if ((!userData.roles || userData.roles.length === 0) && pathname !== '/select-role' && !pathname.includes('onboarding') && pathname !== '/blocked') {
               router.push('/select-role');
             }
           } else {

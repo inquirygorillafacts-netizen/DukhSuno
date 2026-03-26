@@ -69,13 +69,25 @@ export default function OwnerSettingsPage() {
                         <ChevronRight size={18} className="text-slate-300" />
                     </div>
                     
-                    {/* Add ENV Control Link */}
+                    {/* Twilio Multi-Account Manager */}
+                    <Link href="/admin/settings/twilio-manager" className="p-6 flex items-center justify-between hover:bg-indigo-50/50 transition-colors group cursor-pointer border-t border-slate-50">
+                        <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-indigo-500 transition-all group-hover:bg-indigo-500 group-hover:text-white group-hover:shadow-lg group-hover:shadow-indigo-500/20"><Database size={20} /></div>
+                            <div>
+                                <p className="text-sm font-bold text-slate-800 tracking-tight">Twilio Account Manager</p>
+                                <p className="text-[10px] text-indigo-500 font-bold uppercase tracking-widest">Manage Multiple Twilio Instances & Names</p>
+                            </div>
+                        </div>
+                        <ChevronRight size={18} className="text-slate-300 group-hover:text-indigo-500 transition-all group-hover:translate-x-1" />
+                    </Link>
+
+                    {/* Dynamic ENV Control Link */}
                     <Link href="/admin/settings/env-control" className="p-6 flex items-center justify-between hover:bg-rose-50/50 transition-colors group cursor-pointer border-t border-slate-50">
                         <div className="flex items-center gap-4">
                             <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-rose-500 transition-all group-hover:bg-rose-500 group-hover:text-white group-hover:shadow-lg group-hover:shadow-rose-500/20"><Monitor size={20} /></div>
                             <div>
                                 <p className="text-sm font-bold text-slate-800 tracking-tight">Dynamic ENV Control</p>
-                                <p className="text-[10px] text-rose-500 font-bold uppercase tracking-widest">Manage Twilio & Payment Keys at Runtime</p>
+                                <p className="text-[10px] text-rose-500 font-bold uppercase tracking-widest">Manage Payment & Global Keys</p>
                             </div>
                         </div>
                         <ChevronRight size={18} className="text-slate-300 group-hover:text-rose-500 transition-all group-hover:translate-x-1" />

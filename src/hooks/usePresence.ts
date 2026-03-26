@@ -9,11 +9,13 @@ export function usePresence(platform: 'web' | 'mobile' = 'web') {
   const { user } = useAuthStore();
 
   useEffect(() => {
+    let isMounted = true;
     if (!user) return;
 
     const userRef = doc(db, 'users', user.uid);
 
     const updatePresence = async (isOnline: boolean) => {
+      if (!isMounted) return;
       try {
         await updateDoc(userRef, {
           isOnline,
@@ -56,6 +58,7 @@ export function usePresence(platform: 'web' | 'mobile' = 'web') {
     window.addEventListener('beforeunload', handleUnload);
 
     return () => {
+      isMounted = false;
       clearInterval(interval);
       window.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('beforeunload', handleUnload);

@@ -9,12 +9,25 @@ export async function POST(req: Request) {
     // 1. Create a unique session ID
     const sessionId = `session_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
-    // 2. Fetch Listener details for commission and phone number
-    const listenerDoc = await adminDb.collection('users').doc(listenerId).get();
-    if (!listenerDoc.exists) {
-      return NextResponse.json({ error: 'Listener not found' }, { status: 404 });
+    // 2. Fetch both users to check for blocks
+    const [callerDoc, listenerDoc] = await Promise.all([
+      adminDb.collection('users').doc(userId).get(),
+      adminDb.collection('users').doc(listenerId).get()
+    ]);
+
+    if (!callerDoc.exists || !listenerDoc.exists) {
+      return NextResponse.json({ error: 'User or Listener not found' }, { status: 404 });
     }
+
+    const callerData = callerDoc.data();
     const listenerData = listenerDoc.data();
+
+    // BLOCK CHECK: Prevent call if either side is blocked
+    if (callerData?.isBlocked || listenerData?.isBlocked) {
+      return NextResponse.json({ 
+        error: 'Account status restricted. Call cannot be completed.' 
+      }, { status: 403 });
+    }
 
     // 3. Calculate commission (0% for first 6 months)
     const registeredAt = listenerData?.registeredAt?.toDate() || new Date();

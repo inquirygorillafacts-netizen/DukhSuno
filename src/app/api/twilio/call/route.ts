@@ -1,20 +1,53 @@
 import { NextResponse } from 'next/server';
 import twilio from 'twilio';
-import { getAppConfig } from '@/lib/config';
+import { getAppConfig, getTwilioCredentials } from '@/lib/config';
+import { adminDb } from '@/lib/firebase-admin';
 
 export async function POST(req: Request) {
   try {
-    const config = await getAppConfig();
-    const accountSid = config.TWILIO_ACCOUNT_SID;
-    const authToken = config.TWILIO_AUTH_TOKEN;
-    const twilioNumber = config.TWILIO_PHONE_NUMBER;
+    const { phoneNumber, simulate = false, accountId: manualAccountId } = await req.json();
+
+    if (!phoneNumber) {
+      return NextResponse.json({ error: 'Phone number is required' }, { status: 400 });
+    }
+
+    let finalAccountId = manualAccountId;
+
+    // Smart Routing: If no accountId provided, look up the number in DB
+    if (!finalAccountId) {
+      const userSnap = await adminDb.collection('users')
+        .where('phoneNumber', '==', phoneNumber)
+        .limit(1)
+        .get();
+      
+      if (!userSnap.empty) {
+        const userData = userSnap.docs[0].data();
+        
+        // Block Check: If user is blocked, they cannot initiate calls
+        if (userData.isBlocked) {
+            console.error(`Blocked attempted call from number ${phoneNumber}`);
+            return NextResponse.json({ 
+                error: 'Hum kshama chahte hain, aapka account block kar diya gaya hai aur aap call nahi kar sakte.' 
+            }, { status: 403 });
+        }
+
+        finalAccountId = userData.twilioAccountId;
+        if (finalAccountId) {
+            console.log(`Smart Routing: Found existing account [${finalAccountId}] for number ${phoneNumber}`);
+        }
+      }
+    }
+
+    const { sid: accountSid, token: authToken, from: twilioNumber } = await getTwilioCredentials(finalAccountId);
+
+    if (!accountSid || !authToken) {
+      return NextResponse.json({ error: 'Twilio credentials not found for this account' }, { status: 401 });
+    }
 
     const client = twilio(accountSid, authToken);
     
     // Diagnostic Logging (Partial for safety)
-    console.log(`Twilio Debug: SID [${accountSid?.substring(0, 5)}...], Token [${authToken ? 'EXISTS' : 'MISSING'}], Lengths [${accountSid?.length || 0}/${authToken?.length || 0}]`);
-    
-    const { phoneNumber, simulate = false } = await req.json();
+    console.log(`Twilio Debug: Using Account [${finalAccountId || 'Default'}], SID [${accountSid?.substring(0, 5)}...], Token [${authToken ? 'EXISTS' : 'MISSING'}]`);
 
     if (!phoneNumber) {
       return NextResponse.json({ error: 'Phone number is required' }, { status: 400 });

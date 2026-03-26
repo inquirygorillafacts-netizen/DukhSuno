@@ -166,11 +166,13 @@ export default function SunaneHomePage() {
         );
 
         const snapshot = await getDocs(q);
-        const fetched = snapshot.docs.map(doc => ({
-          uid: doc.id,
-          ...doc.data(),
-          cheapestPlan: doc.data().plans?.sort((a: any, b: any) => a.price - b.price)[0] || null
-        } as ListenerCardType));
+        const fetched = snapshot.docs
+          .map(doc => ({
+            uid: doc.id,
+            ...doc.data(),
+            cheapestPlan: doc.data().plans?.sort((a: any, b: any) => a.price - b.price)[0] || null
+          } as ListenerCardType))
+          .filter(l => !l.isBlocked);
 
         setListeners(fetched);
       } catch (err) {
