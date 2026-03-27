@@ -42,9 +42,9 @@ function ListenerCard({ listener }: { listener: ListenerCardType }) {
           </div>
         </div>
 
-        <div className="space-y-0.5 mb-3">
-          <h3 className="text-sm font-black text-slate-800 truncate tracking-tighter uppercase">{listener.displayName}</h3>
-          <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest truncate">{listener.headline || "Aapki dost hu, sab sunti hu 💙"}</p>
+        <div className="space-y-1 mb-3">
+          <h3 className="text-base font-black text-slate-800 truncate tracking-tighter uppercase">{listener.displayName}</h3>
+          <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest truncate">{listener.headline || "Aapki dost hu, sab sunti hu 💙"}</p>
         </div>
 
         <div className="flex flex-wrap gap-1 mb-4">
@@ -189,11 +189,11 @@ export default function SunaneHomePage() {
       
       {/* Hero Section */}
       <section className="space-y-4 pt-2">
-        <div className="space-y-0.5">
-          <h2 className="text-2xl md:text-3xl font-black text-slate-900 leading-tight tracking-tighter">
+        <div className="space-y-1">
+          <h2 className="text-3xl md:text-4xl font-black text-slate-900 leading-tight tracking-tighter">
             Kaisa mehsoos kar rahe ho? ✨
           </h2>
-          <p className="text-[11px] text-slate-500 font-medium italic">Hum aapke liye hi yahan hain — bina kisi judge ke.</p>
+          <p className="text-xs md:text-sm text-slate-500 font-bold italic">Hum aapke liye hi yahan hain — bina kisi judge ke.</p>
         </div>
 
         {/* Search Bar */}

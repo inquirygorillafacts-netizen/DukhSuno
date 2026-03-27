@@ -11,12 +11,15 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.png",
   },
-  themeColor: "#FFFFFF",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
     title: "BigSuno",
   },
+};
+
+export const viewport = {
+  themeColor: "#FFFFFF",
 };
 
 import { PresenceProvider } from "@/components/PresenceProvider";

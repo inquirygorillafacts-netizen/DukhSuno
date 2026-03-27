@@ -62,7 +62,7 @@ export default function RoleSelectionDrawer({ isOpen, onClose, roles }: RoleSele
     { 
       id: 'sunane_wala' as Role,
       name: "Speaker", 
-      subtitle: "I need to talk",
+      subtitle: "Hum Sunayenge",
       icon: Heart, 
       color: "text-rose-600", 
       bg: "bg-rose-50",
@@ -71,7 +71,7 @@ export default function RoleSelectionDrawer({ isOpen, onClose, roles }: RoleSele
     { 
       id: 'sunne_wala' as Role,
       name: "Listener", 
-      subtitle: "I want to listen",
+      subtitle: "Hum Sunenge",
       icon: Phone, 
       color: "text-emerald-600", 
       bg: "bg-emerald-50",
@@ -103,15 +103,15 @@ export default function RoleSelectionDrawer({ isOpen, onClose, roles }: RoleSele
 
       {/* Drawer */}
       <div 
-        className={`relative w-full max-w-[500px] bg-white rounded-t-[3rem] shadow-2xl p-8 pb-10 transform transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] ${isOpen ? 'translate-y-0' : 'translate-y-full'}`}
+        className={`relative w-full max-w-[500px] bg-white rounded-t-[3.5rem] shadow-2xl p-8 pb-16 transform transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] ${isOpen ? 'translate-y-0' : 'translate-y-full'}`}
       >
         {/* Handle */}
         <div className="absolute top-4 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-slate-200 rounded-full" />
         
         <div className="flex items-center justify-between mb-8 mt-4">
           <div>
-            <h2 className="text-2xl font-black tracking-tight text-slate-900">Switch Role</h2>
-            <p className="text-sm text-slate-500 font-medium">Choose your destination</p>
+            <h2 className="text-3xl font-black tracking-tight text-slate-900">Hum Kahan Chalein?</h2>
+            <p className="text-base text-slate-500 font-medium tracking-tight">Apna rasta chuniye ✨</p>
           </div>
           <button 
             onClick={onClose}
@@ -127,7 +127,7 @@ export default function RoleSelectionDrawer({ isOpen, onClose, roles }: RoleSele
               <button
                 key={option.id}
                 onClick={() => handleChoose(option.id)}
-                className={`w-full group relative flex items-center gap-5 p-5 rounded-[2.5rem] border transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] bg-white ${option.border} hover:shadow-xl`}
+                className={`w-full group relative flex items-center gap-6 p-6 rounded-[2.5rem] border transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] bg-white ${option.border} hover:shadow-xl`}
               >
                 <div className={`w-14 h-14 rounded-2xl ${option.bg} flex items-center justify-center ${option.color} transition-transform group-hover:scale-110 shadow-sm`}>
                   <option.icon size={24} strokeWidth={2.5} />

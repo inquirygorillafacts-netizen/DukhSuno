@@ -11,6 +11,7 @@ import { usePathname } from 'next/navigation';
 import { useAuthStore } from '@/stores/auth-store';
 import PWAInstall from './shared/PWAInstall';
 import WelcomeTour from './shared/WelcomeTour';
+import { Spinner } from './ui/spinner';
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -24,10 +25,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
                     path === '/select-role' || 
                     path === '/choose-role' || 
                     path === '/blocked' ||
-                    path.includes('onboarding') ||
-                    path.startsWith('/admin') ||
-                    path.startsWith('/sunne') ||
-                    path.startsWith('/sunane');
+                    path.includes('onboarding');
 
   useEffect(() => {
     setMounted(true);
@@ -90,29 +88,18 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
       <AuroraBackground />
       
       {!mounted ? (
-         <main className="flex-1 flex flex-col items-center justify-center h-screen w-full bg-white relative z-[2000]">
-            <div className="relative w-24 h-24 mb-6 flex items-center justify-center">
-               <div className="absolute inset-0 bg-rose-100 rounded-full animate-ping opacity-20" />
-               <div className="relative w-16 h-16 bg-white shadow-xl rounded-2xl flex items-center justify-center animate-heartbeat">
-                  <Heart className="text-[#ff4d6d] fill-current w-8 h-8" />
-               </div>
-            </div>
-            <div className="space-y-2 text-center">
-               <h2 className="text-2xl font-black text-slate-900 tracking-tighter uppercase leading-none">Dukh<span className="text-[#ff4d6d] italic">Suno</span></h2>
-               <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] animate-pulse">Sabar Rakhein...</p>
-            </div>
-         </main>
+        <main className="flex-1 flex items-center justify-center h-screen w-full bg-white relative z-[2000]">
+          <Spinner size="md" />
+        </main>
       ) : isFullPage ? (
-        <main className="min-h-screen relative z-[1000] bg-white w-full">{children}</main>
-      ) : (
         <>
           {/* डेस्कटॉप साइडबार (Sidebar - Desktop Only) */}
           <aside className="hidden lg:flex flex-col w-72 h-screen sticky top-0 border-r border-slate-100 p-8 z-50 bg-white/40 backdrop-blur-md">
             <Link href="/" className="flex items-center gap-3 mb-12">
-              <div className="w-10 h-10 bg-[#ff4d6d] rounded-xl flex items-center justify-center shadow-lg shadow-rose-200">
+              <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center shadow-lg shadow-slate-100">
                 <Heart className="text-white fill-current w-5 h-5" />
               </div>
-              <h1 className="text-2xl font-black tracking-tighter">Dukh<span className="text-[#ff4d6d] italic font-serif">Suno</span></h1>
+              <h1 className="text-2xl font-black tracking-tighter">Big<span className="text-primary italic font-serif">Suno</span></h1>
             </Link>
 
             <nav className="flex-1 space-y-1">
@@ -224,6 +211,8 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
             ))}
           </nav>
         </>
+      ) : (
+        <>{children}</>
       )}
 
       {/* Global Welcome Tour - Rendered outside conditional layouts for proper z-index */}

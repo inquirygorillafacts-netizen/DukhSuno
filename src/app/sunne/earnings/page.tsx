@@ -12,15 +12,6 @@ export default function SunneEarningsPage() {
 
   React.useEffect(() => {
     if (!user) return;
-    const q = React.useMemo(() => ({
-      path: 'sessions',
-      where: [
-        ['listenerId', '==', user.uid],
-        ['status', '==', 'completed']
-      ],
-      orderBy: [['createdAt', 'desc']],
-      limit: 20
-    }), [user.uid]);
 
     // Simplified for this task, I'll use the standard onSnapshot
     const { query, collection, where, orderBy, limit, onSnapshot } = require('firebase/firestore');

@@ -9,6 +9,7 @@ import { useAuthStore } from '@/stores/auth-store';
 import type { BigSunoUser } from '@/types';
 import Image from 'next/image';
 import { Heart } from 'lucide-react';
+import { Spinner } from '../ui/spinner';
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -140,7 +141,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
         className="fixed inset-0 bg-white z-[9999] flex flex-col items-center justify-center font-jakarta"
         suppressHydrationWarning
       >
-        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] animate-pulse">BigSuno...</p>
+        <Spinner size="md" />
       </div>
     );
   }
@@ -148,15 +149,8 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   // Only show the full-page guard if we LITERALLY have no user data yet and are still verifying/loading
   if ((verifying || isLoading) && !user) {
     return (
-      <div className="fixed inset-0 bg-white z-[9999] flex flex-col items-center justify-center">
-        <div className="relative w-24 h-24 flex items-center justify-center mb-8">
-           <div className="absolute inset-0 rounded-full bg-accent/20 animate-ripple" />
-           <div className="absolute inset-0 rounded-full bg-accent/10 animate-ripple" style={{ animationDelay: '1s' }} />
-           <div className="relative w-16 h-16 bg-white shadow-xl rounded-[1.5rem] flex items-center justify-center animate-heartbeat">
-              <Heart className="text-accent fill-current w-8 h-8" />
-           </div>
-        </div>
-        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] animate-pulse">Suraksha Jaanch...</p>
+      <div className="fixed inset-0 bg-white z-[9999] flex items-center justify-center">
+        <Spinner size="md" />
       </div>
     );
   }

@@ -121,8 +121,8 @@ export default function SunneDashboardPage() {
              <Clock className="w-8 h-8 animate-spin-slow" />
           </div>
           <div className="flex-1 text-center md:text-left">
-             <h4 className="text-lg font-black text-amber-900 tracking-tighter uppercase leading-none mb-1">Verification Pending ⏳</h4>
-             <p className="text-[11px] text-amber-700 font-bold leading-relaxed max-w-md italic">
+             <h4 className="text-xl font-black text-amber-900 tracking-tighter uppercase leading-none mb-1">Verification Pending ⏳</h4>
+             <p className="text-xs md:text-sm text-amber-700 font-bold leading-relaxed max-w-md italic">
                 Aapka profile abhi verification processing mein hai. Humne Twilio update trigger kar diya hai, jald hi aap calls attend kar payenge!
              </p>
           </div>
@@ -144,10 +144,10 @@ export default function SunneDashboardPage() {
                   <Radio size={28} className={isLive ? 'animate-pulse' : ''} />
                </div>
                <div>
-                  <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-1">
+                  <h3 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-1">
                     {isLive ? 'Online ✨' : 'Offline 🌙'}
                   </h3>
-                  <p className="text-[10px] md:text-xs text-slate-500 font-bold uppercase tracking-widest leading-none">
+                  <p className="text-xs md:text-sm text-slate-500 font-black uppercase tracking-widest leading-none">
                     Status: {isLive ? 'Ready for Calls' : 'Away from work'}
                   </p>
                </div>
@@ -354,10 +354,10 @@ function StatBox({ label, value, icon, color, trend, className = "" }: any) {
       <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl flex items-center justify-center mb-4 shadow-inner ${colorMap[color]}`}>
         {React.cloneElement(icon, { size: 20, strokeWidth: 2.5 })}
       </div>
-      <div className="space-y-0.5">
-        <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">{label}</p>
+      <div className="space-y-1">
+        <p className="text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-[0.2em]">{label}</p>
         <div className="flex items-end gap-1.5">
-           <h4 className="text-xl md:text-2xl font-black text-slate-800 tracking-tighter leading-none">{value}</h4>
+           <h4 className="text-2xl md:text-3xl font-black text-slate-800 tracking-tighter leading-none">{value}</h4>
            {trend && <span className="text-[9px] font-black text-green-500 mb-0.5 leading-none">{trend}</span>}
         </div>
       </div>

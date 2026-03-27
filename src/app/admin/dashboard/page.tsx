@@ -37,7 +37,7 @@ export default function AdminDashboard() {
     const isOwner = user?.owner === true;
 
     return (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-32 md:pb-10">
             {/* Owner Master Control (Conditional) */}
             {isOwner && (
                 <div className="p-1 w-full rounded-[2.5rem] bg-gradient-to-br from-amber-400 to-rose-400 shadow-xl shadow-amber-200/50 mb-10 overflow-hidden">
@@ -68,8 +68,8 @@ export default function AdminDashboard() {
             {/* Page Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-black text-slate-900 tracking-tight">{isOwner ? "Owner Command Center" : "Admin Panel Overview"}</h1>
-                    <p className="text-sm text-slate-500 font-medium tracking-tight">Welcome back, {isOwner ? "System Master" : "Admin"}. Here's what's happening today.</p>
+                    <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter leading-none mb-1">{isOwner ? "Command Center" : "Admin Panel Overview"}</h1>
+                    <p className="text-sm md:text-base text-slate-500 font-bold tracking-tight italic">"Sistem ki sehat ab achhi hai..."</p>
                 </div>
                 <div className="flex items-center gap-3">
                     <button className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-[11px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-50 transition-all shadow-sm flex items-center gap-2">
@@ -114,11 +114,11 @@ export default function AdminDashboard() {
                                 </div>
                             </div>
 
-                            <div className="space-y-1">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{stat.name}</p>
-                                <div className="flex items-baseline gap-1">
-                                    <h3 className="text-3xl font-black text-slate-900 tracking-tighter">{stat.value}</h3>
-                                </div>
+                             <div className="space-y-1">
+                                 <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">{stat.name}</p>
+                                 <div className="flex items-baseline gap-1">
+                                     <h3 className="text-4xl font-black text-primary tracking-tighter leading-none">{stat.value}</h3>
+                                 </div>
                             </div>
                         </div>
                     </div>

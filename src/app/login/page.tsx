@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { signInWithPopup } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
@@ -12,10 +12,26 @@ import { Heart, ShieldCheck } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { setUser } = useAuthStore();
+  const { setUser, user: currentUser } = useAuthStore();
   const [loading, setLoading] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [userRoles, setUserRoles] = useState<Role[]>([]);
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (currentUser && currentUser.uid) {
+      if (!currentUser.roles || currentUser.roles.length === 0) {
+        router.push('/select-role');
+      } else if (currentUser.roles.length === 1) {
+        const role = currentUser.roles[0];
+        if (role === 'sunne_wala') router.push('/sunne/dashboard');
+        else if (role === 'sunane_wala') router.push('/sunane/home');
+        else if (role === 'admin') router.push('/admin/dashboard');
+      } else {
+        setIsDrawerOpen(true);
+      }
+    }
+  }, [currentUser, router]);
 
   const handleGoogleLogin = async () => {
     setLoading(true);
@@ -84,7 +100,7 @@ export default function LoginPage() {
         </div>
         
         <h1 className="text-4xl font-black tracking-tighter mb-2">
-          Dukh<span className="text-[#ff4d6d] italic font-serif" style={{ fontFamily: 'var(--font-branding)' }}>Suno</span>
+          Big<span className="text-[#ff4d6d] italic font-serif" style={{ fontFamily: 'var(--font-branding)' }}>Suno</span>
         </h1>
         
         <p className="text-slate-500 text-sm font-medium leading-relaxed max-w-[280px] mx-auto italic">

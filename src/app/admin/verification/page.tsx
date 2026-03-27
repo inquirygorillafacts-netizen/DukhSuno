@@ -203,104 +203,111 @@ export default function AdminVerificationPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50/50">
-      {/* Sidebar Dialer */}
-      <aside className="w-80 border-r border-slate-200 bg-white p-8 flex flex-col gap-8 sticky top-0 h-screen">
-        <div className="space-y-4">
-           <div className="flex items-center gap-2 text-indigo-600">
-             <Hash size={20} />
-             <h2 className="font-black uppercase tracking-widest text-xs">Quick Dialer</h2>
-           </div>
-           <p className="text-[11px] text-slate-400 font-bold leading-snug">Type any number to verify directly via Twilio Call.</p>
-           
-           {/* Global Account Selector for Dialer */}
-           <div className="pt-4 space-y-2">
-              <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-1">Call via Account:</label>
-              <select 
-                value={selectedAccountId}
-                onChange={(e) => setSelectedAccountId(e.target.value)}
-                className="w-full h-12 px-4 rounded-xl bg-slate-50 border border-slate-100 font-bold text-[11px] text-slate-700 outline-none focus:border-indigo-200 transition-all appearance-none cursor-pointer"
-              >
-                <option value="">✨ Auto-Detect (Smart)</option>
-                {twilioAccounts.map(acc => (
-                  <option key={acc.id} value={acc.id}>📞 {acc.name}</option>
-                ))}
-              </select>
-           </div>
-        </div>
-
-        <div className="space-y-6">
-           <input 
-             value={dialerNumber}
-             onChange={(e) => setDialerNumber(e.target.value)}
-             placeholder="+919876XXXXXX"
-             className="w-full h-14 px-5 rounded-2xl bg-slate-50 border border-slate-100 font-black text-sm tracking-widest focus:ring-4 focus:ring-indigo-500/10 focus:outline-none transition-all"
-           />
-           <button 
-             onClick={() => handleTwilioCall(dialerNumber)}
-              disabled={!dialerNumber || dialerStatus?.status === 'Calling...'}
-              className={`w-full h-14 rounded-2xl font-black uppercase text-[11px] tracking-widest flex items-center justify-center gap-3 transition-all shadow-xl ${
-                !dialerNumber || dialerStatus?.status === 'Calling...' 
-                ? 'bg-slate-100 text-slate-300 cursor-not-allowed shadow-none' 
-                : 'bg-slate-900 text-white hover:scale-105 active:scale-95 shadow-slate-200'
-              }`}
-           >
-             Make Call <PhoneCall size={18} />
-           </button>
-
-            {dialerStatus && (
-              <div className={`p-6 rounded-[2rem] border-2 shadow-sm animate-in slide-in-from-top-2 ${dialerStatus.error ? 'bg-rose-50 border-rose-100 text-rose-500' : 'bg-indigo-50 border-indigo-100 text-indigo-600'}`}>
-                <div className="flex items-center gap-3 mb-3">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${dialerStatus.error ? 'bg-rose-100' : 'bg-indigo-100 text-indigo-600'}`}>
-                    {dialerStatus.error ? <AlertCircle size={16} /> : <PhoneCall size={16} className="animate-pulse" />}
-                  </div>
-                  <p className="text-[10px] font-black uppercase tracking-widest">{dialerStatus.status}</p>
-                </div>
-                
-                {dialerStatus.error ? (
-                  <p className="text-[11px] font-bold leading-relaxed">{dialerStatus.error} (Status Code: {dialerStatus.code})</p>
-                ) : (
-                  <div className="space-y-2">
-                    <p className="text-[11px] font-medium opacity-80 italic">"नमस्ते! आपको दुख सुनो ऐप पर किसी ने कॉल किया है..."</p>
-                    <div className="pt-2 flex items-center gap-2">
-                       <span className="w-2 h-2 rounded-full bg-indigo-500 animate-ping" />
-                       <span className="text-[9px] font-black uppercase tracking-widest opacity-60">Voice Notification Sent</span>
-                    </div>
-                  </div>
-                )}
+    <div className="space-y-10 animate-in fade-in duration-700 pb-20 md:pb-0">
+      {/* Top Header & Dialer Section */}
+      <div className="flex flex-col lg:flex-row gap-8 items-start">
+        
+        {/* Dialer Section */}
+        <section className="w-full lg:w-80 glass bg-white p-6 md:p-8 rounded-[2.5rem] border border-white shadow-sm flex flex-col gap-6">
+           <div className="space-y-4">
+              <div className="flex items-center gap-2 text-indigo-600">
+                <Hash size={20} />
+                <h2 className="font-black uppercase tracking-widest text-xs">Quick Dialer</h2>
               </div>
-            )}
-        </div>
-      </aside>
+              <p className="text-[11px] text-slate-400 font-bold leading-snug">Type any number to verify directly via Twilio Call.</p>
+              
+              {/* Global Account Selector for Dialer */}
+              <div className="pt-2 space-y-2">
+                 <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-1">Call via Account:</label>
+                 <select 
+                   value={selectedAccountId}
+                   onChange={(e) => setSelectedAccountId(e.target.value)}
+                   className="w-full h-12 px-4 rounded-xl bg-slate-50 border border-slate-100 font-bold text-[11px] text-slate-700 outline-none focus:border-indigo-200 transition-all appearance-none cursor-pointer"
+                 >
+                   <option value="">✨ Auto-Detect (Smart)</option>
+                   {twilioAccounts.map(acc => (
+                     <option key={acc.id} value={acc.id}>📞 {acc.name}</option>
+                   ))}
+                 </select>
+              </div>
+           </div>
 
-      {/* Main Content */}
-      <main className="flex-1 p-12 max-w-6xl mx-auto space-y-12">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
-           <div className="space-y-3">
-              <h1 className="text-[48px] font-black text-slate-900 tracking-tighter leading-none">Admin Control Room</h1>
-              <p className="text-slate-400 font-medium">Verify pending users or test already verified connections.</p>
-           </div>
-           
-           {/* Tab Switcher */}
-           <div className="flex items-center gap-2 p-1.5 bg-white border border-slate-200 rounded-[1.5rem] shadow-sm">
+           <div className="space-y-4">
+              <input 
+                value={dialerNumber}
+                onChange={(e) => setDialerNumber(e.target.value)}
+                placeholder="+919876XXXXXX"
+                className="w-full h-14 px-5 rounded-2xl bg-slate-50 border border-slate-100 font-black text-sm tracking-widest focus:ring-4 focus:ring-indigo-500/10 focus:outline-none transition-all"
+              />
               <button 
-                onClick={() => setActiveTab('pending')}
-                className={`px-6 py-2.5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${
-                  activeTab === 'pending' ? 'bg-rose-500 text-white shadow-lg shadow-rose-200' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'
+                onClick={() => handleTwilioCall(dialerNumber)}
+                disabled={!dialerNumber || dialerStatus?.status === 'Calling...'}
+                className={`w-full h-14 rounded-2xl font-black uppercase text-[11px] tracking-widest flex items-center justify-center gap-3 transition-all shadow-xl ${
+                  !dialerNumber || dialerStatus?.status === 'Calling...' 
+                  ? 'bg-slate-100 text-slate-300 cursor-not-allowed shadow-none' 
+                  : 'bg-slate-900 text-white hover:scale-105 active:scale-95 shadow-slate-200'
                 }`}
               >
-                पेंडिंग (Pending)
+                Make Call <PhoneCall size={18} />
               </button>
-              <button 
-                onClick={() => setActiveTab('verified')}
-                className={`px-6 py-2.5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${
-                  activeTab === 'verified' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'
-                }`}
-              >
-                वेरिफाइड (Verified)
-              </button>
+
+              {dialerStatus && (
+                <div className={`p-6 rounded-[2rem] border-2 shadow-sm animate-in slide-in-from-top-2 ${dialerStatus.error ? 'bg-rose-50 border-rose-100 text-rose-500' : 'bg-indigo-50 border-indigo-100 text-indigo-600'}`}>
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${dialerStatus.error ? 'bg-rose-100' : 'bg-indigo-100 text-indigo-600'}`}>
+                      {dialerStatus.error ? <AlertCircle size={16} /> : <PhoneCall size={16} className="animate-pulse" />}
+                    </div>
+                    <p className="text-[10px] font-black uppercase tracking-widest">{dialerStatus.status}</p>
+                  </div>
+                  
+                  {dialerStatus.error ? (
+                    <p className="text-[11px] font-bold leading-relaxed">{dialerStatus.error}</p>
+                  ) : (
+                    <div className="space-y-2">
+                      <p className="text-[11px] font-medium opacity-80 italic">"नमस्ते! आप बिगसुनो पर कॉल कर रहे हैं..."</p>
+                      <div className="pt-2 flex items-center gap-2">
+                         <span className="w-2 h-2 rounded-full bg-indigo-500 animate-ping" />
+                         <span className="text-[9px] font-black uppercase tracking-widest opacity-60">Notification Sent</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
            </div>
-        </div>
+        </section>
+        
+        <div className="flex-1 space-y-8 w-full">
+           <div className="space-y-2 text-center lg:text-left">
+              <h1 className="text-4xl md:text-6xl font-black text-slate-900 tracking-tighter leading-none">Verification Room</h1>
+              <p className="text-sm md:text-base text-slate-400 font-bold italic tracking-tight">"Naye doston ki jaanch karein aur unhe connect karein..."</p>
+           </div>
+
+           {/* Tab Switcher Area */}
+           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-2 bg-white border border-slate-100 rounded-[2.5rem] shadow-sm overflow-hidden">
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                 <button 
+                   onClick={() => setActiveTab('pending')}
+                   className={`flex-1 sm:flex-none px-8 py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${
+                     activeTab === 'pending' ? 'bg-rose-500 text-white shadow-lg shadow-rose-200' : 'text-slate-400 hover:bg-slate-50'
+                   }`}
+                 >
+                   PENDING ⏳
+                 </button>
+                 <button 
+                   onClick={() => setActiveTab('verified')}
+                   className={`flex-1 sm:flex-none px-8 py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${
+                     activeTab === 'verified' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : 'text-slate-400 hover:bg-slate-50'
+                   }`}
+                 >
+                   VERIFIED ✅
+                 </button>
+              </div>
+              
+              <div className="hidden md:flex px-4 py-2 bg-slate-50 rounded-xl text-[10px] font-black text-slate-400 uppercase tracking-widest items-center gap-2">
+                 <RefreshCw size={12} className={loading ? 'animate-spin' : ''} />
+                 Live Updates On
+              </div>
+           </div>
 
         {loading ? (
           <div className="flex justify-center py-20"><RefreshCw className="animate-spin text-slate-300" size={32} /></div>
@@ -380,15 +387,17 @@ export default function AdminVerificationPage() {
                                </button>
                             </div>
 
-                            <button 
-                              onClick={() => approveUser(user.uid)}
-                              disabled={!isReady || processingId === user.uid}
-                              className={`h-14 px-10 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all shadow-xl ${
-                                isReady ? 'bg-slate-900 text-white hover:scale-105 active:scale-95 shadow-indigo-100' : 'bg-slate-50 text-slate-200 cursor-not-allowed border border-slate-100'
-                              }`}
-                            >
-                              {processingId === user.uid ? 'Working...' : 'Approve User'}
-                            </button>
+                                 <button 
+                                   onClick={() => approveUser(user.uid)}
+                                   disabled={!isReady || processingId === user.uid}
+                                   className={`h-14 px-10 rounded-2xl font-black text-[12px] uppercase tracking-widest transition-all shadow-xl shadow-slate-200 border-2 ${
+                                     isReady 
+                                     ? 'bg-slate-900 text-white border-slate-900 hover:scale-[1.02] active:scale-95' 
+                                     : 'bg-slate-900 text-white/30 border-slate-900 opacity-70 cursor-not-allowed'
+                                   }`}
+                                 >
+                                   {processingId === user.uid ? 'Working...' : 'Approve User ✨'}
+                                 </button>
                           </>
                         ) : (
                           <div className="flex flex-wrap items-center justify-end gap-3">
@@ -421,7 +430,8 @@ export default function AdminVerificationPage() {
             })}
           </div>
         )}
-      </main>
+      </div>
     </div>
+  </div>
   );
 }
