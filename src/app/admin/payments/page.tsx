@@ -15,7 +15,8 @@ import {
     Search,
     CheckCircle2,
     Clock,
-    User
+    User,
+    QrCode
 } from 'lucide-react';
 
 const stats = [
@@ -27,56 +28,93 @@ const stats = [
 export default function AdminPaymentsPage() {
     const [transactions, setTransactions] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const [pendingPayouts, setPendingPayouts] = useState<any[]>([]);
+    const [pendingWithdrawals, setPendingWithdrawals] = useState<any[]>([]);
+    const [stats, setStats] = useState([
+        { name: "Total Revenue", value: "₹0", icon: IndianRupee, change: "Live", trend: "up", color: "indigo" },
+        { name: "Pending Withdrawals", value: "₹0", icon: Clock, change: "0 requests", trend: "neutral", color: "amber" },
+        { name: "Total Paid Out", value: "₹0", icon: CheckCircle2, change: "Verified", trend: "up", color: "emerald" },
+    ]);
 
     useEffect(() => {
-        // Fetch real pending payouts
-        const pendingQ = query(collection(db, 'payouts'), where('status', '==', 'pending'));
-        const unsubscribePending = onSnapshot(pendingQ, (snapshot) => {
-            const list = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            setPendingPayouts(list);
+        // 1. Listen to Real-time Stats from Sessions
+        const qSessions = query(collection(db, 'sessions'));
+        const unsubscribeStats = onSnapshot(qSessions, (snapshot) => {
+            let totalRevenue = 0;
+            snapshot.docs.forEach(doc => {
+                totalRevenue += (doc.data().planPrice || 0);
+            });
+
+            // 2. Listen to Real-time Withdrawals for stats
+            const qWithdrawals = query(collection(db, 'withdrawals'));
+            const unsubscribeWithdrawals = onSnapshot(qWithdrawals, (wSnap) => {
+                let pendingAmount = 0;
+                let paidAmount = 0;
+                let pendingCount = 0;
+                const pendingList: any[] = [];
+
+                wSnap.docs.forEach(doc => {
+                    const data = doc.data();
+                    if (data.status === 'pending') {
+                        pendingAmount += (data.netAmount || 0);
+                        pendingCount++;
+                        pendingList.push({ id: doc.id, ...data });
+                    } else if (data.status === 'completed') {
+                        paidAmount += (data.netAmount || 0);
+                    }
+                });
+
+                setPendingWithdrawals(pendingList);
+                setStats([
+                    { name: "Total Revenue", value: `₹${totalRevenue.toLocaleString()}`, icon: IndianRupee, change: "Total Platform", trend: "up", color: "indigo" },
+                    { name: "Pending Withdrawals", value: `₹${pendingAmount.toLocaleString()}`, icon: Clock, change: `${pendingCount} requests`, trend: "neutral", color: "amber" },
+                    { name: "Total Paid Out", value: `₹${paidAmount.toLocaleString()}`, icon: CheckCircle2, change: "To Listeners", trend: "up", color: "emerald" },
+                ]);
+            });
+
+            return () => unsubscribeWithdrawals();
         });
 
-        const q = query(
+        // 3. Recent Transactions List
+        const qRecent = query(
             collection(db, 'sessions'), 
             orderBy('createdAt', 'desc'),
             limit(20)
         );
 
-        const unsubscribeTx = onSnapshot(q, (snapshot) => {
+        const unsubscribeTx = onSnapshot(qRecent, (snapshot) => {
             const list = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             setTransactions(list);
             setLoading(false);
         });
 
         return () => {
-            unsubscribePending();
+            unsubscribeStats();
             unsubscribeTx();
         };
     }, []);
 
     const handleApprove = async (id: string) => {
         try {
-            await updateDoc(doc(db, 'payouts', id), {
+            await updateDoc(doc(db, 'withdrawals', id), {
                 status: 'completed',
                 processedAt: new Date(),
                 updatedAt: new Date()
             });
-            alert('Payout approved and processed!');
+            alert('Withdrawal approved and processed!');
         } catch (err) {
-            console.error("Payout approval failed:", err);
+            console.error("Approval failed:", err);
         }
     };
 
-    const handleReject = async (id: string) => {
-        if(confirm('Are you sure you want to reject this payout?')) {
+    const handleReject = async (id: string, userId: string, netAmount: number) => {
+        if(confirm('Are you sure you want to reject this withdrawal? funds will NOT be automatically returned to user balance in this basic version.')) {
             try {
-                await updateDoc(doc(db, 'payouts', id), {
+                await updateDoc(doc(db, 'withdrawals', id), {
                     status: 'rejected',
                     updatedAt: new Date()
                 });
             } catch (err) {
-                console.error("Payout rejection failed:", err);
+                console.error("Rejection failed:", err);
             }
         }
     };
@@ -87,59 +125,61 @@ export default function AdminPaymentsPage() {
         <div className="space-y-8 animate-in fade-in duration-700">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-black text-slate-900 tracking-tight text-gradient">Payments & Revenue</h1>
-                    <p className="text-sm text-slate-500 font-medium tracking-tight">Monitor platform earnings and listener payouts.</p>
+                    <h1 className="text-2xl font-black text-slate-900 tracking-tight text-gradient uppercase italic">BigSuno Finance</h1>
+                    <p className="text-sm text-slate-500 font-medium tracking-tight italic">Monitor platform earnings and listener payouts.</p>
                 </div>
                 <div className="flex items-center gap-3">
                     <button className="px-5 py-2.5 bg-slate-100 text-slate-600 rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all flex items-center gap-2 active:scale-95">
                         <Download size={14} />
                         Export Ledger
                     </button>
-                    <button className="px-5 py-2.5 bg-indigo-600 text-white rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg flex items-center gap-2 active:scale-95">
+                    <div className="px-5 py-2.5 bg-emerald-500 text-white rounded-xl text-[11px] font-black uppercase tracking-widest shadow-lg flex items-center gap-2">
                         <CreditCard size={14} />
-                        Payout Hub
-                    </button>
+                        Live Ledger
+                    </div>
                 </div>
             </div>
 
-            {/* NEW: Pending Payouts Queue */}
-            {pendingPayouts.length > 0 && (
-                <div className="bg-indigo-900 p-8 rounded-[40px] border border-indigo-800 shadow-2xl relative overflow-hidden group">
-                    <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000" />
+            {/* NEW: Pending Withdrawals Queue */}
+            {pendingWithdrawals.length > 0 && (
+                <div className="bg-slate-900 p-8 rounded-[40px] border border-slate-800 shadow-2xl relative overflow-hidden group">
+                    <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-rose-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000" />
                     
                     <div className="relative z-10 space-y-6">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                                <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></div>
-                                <h3 className="text-[10px] font-black text-indigo-300 uppercase tracking-widest leading-none">Approvals Needed</h3>
+                                <div className="w-2 h-2 rounded-full bg-rose-400 animate-pulse"></div>
+                                <h3 className="text-[10px] font-black text-rose-300 uppercase tracking-widest leading-none">Withdrawals Pending</h3>
                             </div>
-                            <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Total Pending: ₹{pendingPayouts.reduce((a, b) => a + b.amount, 0)}</span>
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Payout Queue</span>
                         </div>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {pendingPayouts.map((p) => (
-                                <div key={p.id} className="p-5 rounded-[2rem] bg-indigo-950/50 border border-indigo-800 flex items-center justify-between group/payout">
+                            {pendingWithdrawals.map((p) => (
+                                <div key={p.id} className="p-5 rounded-[2rem] bg-slate-950/50 border border-slate-800 flex items-center justify-between group/payout">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-xl bg-indigo-900 flex items-center justify-center text-indigo-400 group-hover/payout:text-white transition-colors border border-indigo-800">
-                                            <User size={18} />
+                                        <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center text-rose-400 group-hover/payout:text-white transition-colors border border-slate-800">
+                                            <a href={p.qrUrl} target="_blank" rel="noopener noreferrer">
+                                                <QrCode size={18} />
+                                            </a>
                                         </div>
                                         <div>
-                                            <p className="text-xs font-bold text-white tracking-tight">{p.userName || p.user || 'Unknown'}</p>
-                                            <p className="text-[9px] text-indigo-400 font-black uppercase tracking-widest">₹{p.amount || 0} • {p.createdAt?.toDate ? p.createdAt.toDate().toLocaleDateString() : 'Recent'}</p>
+                                            <p className="text-xs font-bold text-white tracking-tight">{p.userName || 'Unknown'}</p>
+                                            <p className="text-[9px] text-emerald-400 font-black uppercase tracking-widest">Pay: ₹{p.netAmount || 0} <span className="text-slate-500 ml-1">Fee: ₹{p.platformFee || 0}</span></p>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <button 
-                                            onClick={() => handleReject(p.id)}
-                                            className="p-2 text-indigo-600 hover:bg-rose-500/10 hover:text-rose-400 rounded-lg transition-all"
+                                            onClick={() => handleReject(p.id, p.userId, p.netAmount)}
+                                            className="p-2 text-slate-600 hover:bg-rose-500/10 hover:text-rose-400 rounded-lg transition-all"
                                         >
                                             <X size={16} />
                                         </button>
                                         <button 
                                             onClick={() => handleApprove(p.id)}
-                                            className="px-4 py-2 bg-indigo-500 text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-indigo-400 active:scale-95 transition-all shadow-lg shadow-indigo-500/20"
+                                            className="px-4 py-2 bg-rose-500 text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-rose-400 active:scale-95 transition-all shadow-lg shadow-rose-500/20"
                                         >
-                                            Approve
+                                            Mark Paid
                                         </button>
                                     </div>
                                 </div>
@@ -224,11 +264,14 @@ export default function AdminPaymentsPage() {
                                         <p className="text-sm font-black text-slate-900 italic">₹{tx.amount || 0}</p>
                                     </td>
                                     <td className="px-8 py-6">
-                                        <p className="text-[11px] font-bold text-slate-400 tracking-widest">₹{((tx.amount || 0) * 0.2).toFixed(2)}</p>
+                                        <p className="text-[11px] font-bold text-slate-400 tracking-widest">₹{tx.planPrice - (tx.listenerEarned || tx.planPrice * 0.98)}</p>
                                     </td>
                                     <td className="px-8 py-6">
-                                        <span className="px-2.5 py-1 bg-emerald-50 text-emerald-600 text-[9px] font-black rounded-lg uppercase tracking-widest border border-emerald-100">
-                                            Success
+                                        <span className={`px-2.5 py-1 text-[9px] font-black rounded-lg uppercase tracking-widest border ${
+                                            tx.status === 'completed' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 
+                                            tx.status === 'missed' ? 'bg-rose-50 text-rose-600 border-rose-100' : 'bg-slate-50 text-slate-400 border-slate-100'
+                                        }`}>
+                                            {tx.status || 'Ongoing'}
                                         </span>
                                     </td>
                                 </tr>

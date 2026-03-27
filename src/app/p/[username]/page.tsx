@@ -4,11 +4,11 @@ import { useState, useEffect, use } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { PublicProfileView } from '@/components/profile/PublicProfileView';
-import type { DukhSunoUser } from '@/types';
+import type { BigSunoUser } from '@/types';
 
 export default function PublicProfilePage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = use(params);
-  const [provider, setProvider] = useState<DukhSunoUser | null>(null);
+  const [provider, setProvider] = useState<BigSunoUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -21,7 +21,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
         );
         const snapshot = await getDocs(q);
         if (!snapshot.empty) {
-          setProvider(snapshot.docs[0].data() as DukhSunoUser);
+          setProvider(snapshot.docs[0].data() as BigSunoUser);
         }
       } catch (err) {
         console.error('Error fetching provider:', err);

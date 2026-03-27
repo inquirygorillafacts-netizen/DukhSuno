@@ -87,7 +87,7 @@ export default function SplashPage() {
             className="text-[54px] font-black tracking-tighter leading-none text-gradient"
             style={{ fontFamily: 'var(--font-display)' }}
           >
-            DukhSuno
+            BigSuno
           </h1>
           <p
             className="text-text-secondary text-[18px] font-medium tracking-wide italic"

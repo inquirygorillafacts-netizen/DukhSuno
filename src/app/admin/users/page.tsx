@@ -139,7 +139,7 @@ export default function AdminUsersPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
               <h1 className="text-2xl font-black text-slate-900 tracking-tight">Users Management</h1>
-              <p className="text-sm text-slate-500 font-medium tracking-tight">Total {users.length} registered users on DukhSuno.</p>
+              <p className="text-sm text-slate-500 font-medium tracking-tight italic">Total {users.length} registered users on BigSuno.</p>
           </div>
           <div className="flex items-center gap-3">
               <div className="relative">

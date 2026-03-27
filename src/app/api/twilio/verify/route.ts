@@ -33,7 +33,11 @@ export async function POST(req: Request) {
     }
 
     // SIMULATION MODE: If in development or simulate is true, bypass real Twilio call
-    if (process.env.NODE_ENV === 'development' || simulate) {
+    // PRODUCTION MODE: Disable simulation for real OTP
+    // const SIMULATION_MODE = true; 
+    const SIMULATION_MODE = false; 
+
+    if (SIMULATION_MODE) {
       console.log('SIMULATION MODE: Generating dummy validation code for', phoneNumber);
       return NextResponse.json({ 
          validationCode: Math.floor(100000 + Math.random() * 900000).toString().substring(0, 6),

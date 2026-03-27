@@ -79,7 +79,7 @@ export default function AdminHeadRoom() {
                         <h2 className="text-[10px] font-black text-rose-500 uppercase tracking-widest">Live Command Center</h2>
                     </div>
                     <h1 className="text-4xl font-black text-slate-900 tracking-tighter">Head Room</h1>
-                    <p className="text-sm text-slate-500 font-medium">Absolute control and real-time pulse of DukhSuno.</p>
+                    <p className="text-sm text-slate-500 font-medium italic">Absolute control and real-time pulse of BigSuno.</p>
                 </div>
                 
                 <div className="flex items-center gap-4">

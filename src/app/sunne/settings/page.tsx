@@ -65,7 +65,7 @@ export default function SunneSettingsPage() {
           onClick={handleLogout}
           className="w-full p-5 rounded-[1.5rem] bg-rose-50 text-rose-600 font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-3 border border-rose-100 hover:bg-rose-100 transition-all active:scale-95 shadow-sm"
         >
-          <LogOut size={16} /> DukhSuno से लॉगआउट करें
+          <LogOut size={16} /> BigSuno से लॉगआउट करें
         </button>
       </div>
     </div>
