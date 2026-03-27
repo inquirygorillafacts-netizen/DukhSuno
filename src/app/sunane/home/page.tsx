@@ -163,24 +163,16 @@ export default function SunaneHomePage() {
     const fetchListeners = async () => {
       setLoading(true);
       try {
-        let q = query(
-          collection(db, 'users'),
-          where('roles', 'array-contains', 'sunne_wala'),
-          where('isVerified', '==', true),
-          limit(20)
-        );
-
-        const snapshot = await getDocs(q);
-        const fetched = snapshot.docs
-          .map(doc => ({
-            uid: doc.id,
-            ...doc.data(),
-            cheapestPlan: doc.data().plans?.sort((a: any, b: any) => a.price - b.price)[0] || null,
-            isBlocked: doc.data().isBlocked || false
-          } as ListenerCardType))
-          .filter(l => !l.isBlocked);
-
-        setListeners(fetched);
+        const params = new URLSearchParams();
+        if (selectedMood) params.append('specialty', selectedMood);
+        if (searchQuery) params.append('query', searchQuery);
+        
+        const resp = await fetch(`/api/listeners?${params.toString()}`);
+        const data = await resp.json();
+        
+        if (data.listeners) {
+          setListeners(data.listeners);
+        }
       } catch (err) {
         console.error('Error fetching listeners:', err);
       } finally {
@@ -188,13 +180,9 @@ export default function SunaneHomePage() {
       }
     };
     fetchListeners();
-  }, []);
+  }, [selectedMood, searchQuery]); // Re-fetch on mood or search change
 
-  const filteredListeners = listeners.filter(l => {
-    const matchesMood = selectedMood ? l.specialties.includes(selectedMood) : true;
-    const matchesSearch = searchQuery ? l.displayName.toLowerCase().includes(searchQuery.toLowerCase()) : true;
-    return matchesMood && matchesSearch;
-  });
+  const filteredListeners = listeners; // Backend already filtered them
 
   return (
     <div className="space-y-6 animate-in fade-in duration-700 slide-in-from-bottom-2 pb-24" suppressHydrationWarning>

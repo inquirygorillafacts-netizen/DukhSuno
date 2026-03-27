@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { adminDb } from '@/lib/firebase-admin';
+import { logActivity } from '@/lib/audit';
 
 export async function POST(req: Request) {
   try {
@@ -48,7 +49,14 @@ export async function POST(req: Request) {
       });
     });
 
-    console.log(`PRODUCTION LOG: Rating updated for listener ${listenerId}. New Count: ${sessionId}`);
+    // 3. Log Activity
+    await logActivity({
+      event: 'Listener Rated',
+      user: 'Speaker',
+      target: listenerId,
+      type: 'success',
+      metadata: { sessionId, rating, comment }
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {

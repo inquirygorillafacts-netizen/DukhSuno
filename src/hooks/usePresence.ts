@@ -5,7 +5,7 @@ import { db } from '@/lib/firebase';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { useAuthStore } from '@/stores/auth-store';
 
-export function usePresence(platform: 'web' | 'mobile' = 'web') {
+export function usePresence(platform: 'web' | 'mobile' = 'web', fcmToken?: string) {
   const { user } = useAuthStore();
 
   useEffect(() => {
@@ -17,11 +17,14 @@ export function usePresence(platform: 'web' | 'mobile' = 'web') {
     const updatePresence = async (isOnline: boolean) => {
       if (!isMounted) return;
       try {
-        await updateDoc(userRef, {
+        const payload: any = {
           isOnline,
           lastActive: serverTimestamp(),
           platform,
-        });
+        };
+        if (fcmToken) payload.fcmToken = fcmToken;
+        
+        await updateDoc(userRef, payload);
       } catch (err) {
         console.error('Presence update failed:', err);
       }

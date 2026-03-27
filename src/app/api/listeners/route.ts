@@ -1,43 +1,77 @@
 import { NextResponse } from 'next/server';
+import { adminDb } from '@/lib/firebase-admin';
 
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const sortBy = searchParams.get('sort') || 'all';
     const gender = searchParams.get('gender');
-    const priceMin = searchParams.get('priceMin');
-    const priceMax = searchParams.get('priceMax');
-    const ratingMin = searchParams.get('ratingMin');
     const specialty = searchParams.get('specialty');
-    const ageMin = searchParams.get('ageMin');
-    const ageMax = searchParams.get('ageMax');
     const page = parseInt(searchParams.get('page') || '1');
     const pageSize = parseInt(searchParams.get('pageSize') || '20');
 
-    // TODO: Query Firestore with filters
-    // const q = query(
-    //   collection(db, 'users'),
-    //   where('roles', 'array-contains', 'sunne_wala'),
-    //   where('isVerified', '==', true),
-    //   ...(gender ? [where('gender', '==', gender)] : []),
-    //   ...(specialty ? [where('specialties', 'array-contains', specialty)] : []),
-    //   orderBy(sortBy === 'top_rated' ? 'ratingAvg' : sortBy === 'cheapest' ? 'plans' : 'createdAt', 'desc'),
-    //   limit(pageSize)
-    // );
+    // Base query: All verified listeners who are not blocked
+    let colRef = adminDb.collection('users');
+    let query: any = colRef
+      .where('roles', 'array-contains', 'sunne_wala')
+      .where('isVerified', '==', true)
+      .where('isBlocked', '==', false);
 
-    // Demo response
-    const demoListeners = [
-      { uid: '1', displayName: 'Meera Ji', avatarUrl: 'avatar:👩‍💼', headline: 'Aapka dost hu', specialties: ['relationship'], ratingAvg: 4.8, ratingCount: 142, totalSessions: 200, isAvailable: true, isVerified: true, gender: 'female', age: 28, cheapestPlan: { price: 50, minutes: 5 }, username: 'meera-ji' },
-      { uid: '2', displayName: 'Ravi Bhai', avatarUrl: 'avatar:🧑‍💼', headline: 'Sab sunta hu', specialties: ['stress'], ratingAvg: 4.6, ratingCount: 89, totalSessions: 120, isAvailable: true, isVerified: true, gender: 'male', age: 32, cheapestPlan: { price: 80, minutes: 10 }, username: 'ravi-bhai' },
-    ];
+    // Apply Filters
+    if (gender && gender !== 'all') {
+      query = query.where('gender', '==', gender);
+    }
+    if (specialty && specialty !== 'all') {
+      query = query.where('specialties', 'array-contains', specialty);
+    }
+
+    // Apply Sorting
+    if (sortBy === 'top_rated') {
+      query = query.orderBy('ratingAvg', 'desc');
+    } else if (sortBy === 'cheapest') {
+      query = query.orderBy('createdAt', 'desc');
+    } else if (sortBy === 'newest') {
+      query = query.orderBy('createdAt', 'desc');
+    } else {
+      query = query.orderBy('lastActive', 'desc');
+    }
+
+    // Pagination
+    const snapshot = await query.limit(pageSize).get();
+    
+    const listeners = snapshot.docs.map((doc: any) => {
+      const data = doc.data();
+      // Calculate cheapest plan for easy UI consumption
+      const plans = data.plans || [];
+      const cheapestPlan = plans.length > 0 ? [...plans].sort((a: any, b: any) => a.price - b.price)[0] : null;
+
+      return {
+        uid: doc.id,
+        displayName: data.displayName,
+        avatarUrl: data.avatarUrl,
+        headline: data.headline,
+        specialties: data.specialties || [],
+        ratingAvg: data.ratingAvg || 0,
+        ratingCount: data.ratingCount || 0,
+        totalSessions: data.totalSessions || 0,
+        isAvailable: data.isAvailable || false,
+        isVerified: data.isVerified || false,
+        gender: data.gender,
+        age: data.age,
+        cheapestPlan: cheapestPlan,
+        username: data.username,
+        isBlocked: data.isBlocked || false
+      };
+    });
 
     return NextResponse.json({
-      listeners: demoListeners,
-      total: demoListeners.length,
+      listeners,
+      total: listeners.length,
       page,
       pageSize,
     });
   } catch (error) {
+    console.error('Fetch Listeners Error:', error);
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }

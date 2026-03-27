@@ -95,27 +95,40 @@ export default function AdminPaymentsPage() {
 
     const handleApprove = async (id: string) => {
         try {
-            await updateDoc(doc(db, 'withdrawals', id), {
-                status: 'completed',
-                processedAt: new Date(),
-                updatedAt: new Date()
+            const resp = await fetch('/api/admin/actions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'mark_paid', id })
             });
-            alert('Withdrawal approved and processed!');
+            if (resp.ok) {
+                alert('Withdrawal approved and processed!');
+            } else {
+                throw new Error('Failed to approve');
+            }
         } catch (err) {
             console.error("Approval failed:", err);
+            alert('Error: Approval failed');
         }
     };
 
     const handleReject = async (id: string, userId: string, netAmount: number) => {
-        if(confirm('Are you sure you want to reject this withdrawal? funds will NOT be automatically returned to user balance in this basic version.')) {
-            try {
-                await updateDoc(doc(db, 'withdrawals', id), {
-                    status: 'rejected',
-                    updatedAt: new Date()
-                });
-            } catch (err) {
-                console.error("Rejection failed:", err);
+        const reason = prompt('Reason for rejection:');
+        if (reason === null) return;
+
+        try {
+            const resp = await fetch('/api/admin/actions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'reject_withdrawal', id, metadata: { reason } })
+            });
+            if (resp.ok) {
+                alert('Withdrawal rejected.');
+            } else {
+                throw new Error('Failed to reject');
             }
+        } catch (err) {
+            console.error("Rejection failed:", err);
+            alert('Error: Rejection failed');
         }
     };
 

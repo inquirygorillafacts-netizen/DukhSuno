@@ -2,8 +2,6 @@ import { ref, push, set, onValue, off, onChildAdded, remove } from 'firebase/dat
 import { rtdb } from './firebase';
 import { useAuthStore } from '@/stores/auth-store';
 
-const ICE_SERVERS = [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }];
-
 export interface WebRTCHandler {
   pc: RTCPeerConnection;
   dataChannel?: RTCDataChannel;
@@ -24,14 +22,27 @@ export const VIDEO_CONSTRAINTS = {
   facingMode: 'user',
 };
 
+const DEFAULT_ICE = [{ urls: 'stun:stun.l.google.com:19302' }];
+
+export async function getProductionIceServers() {
+  try {
+    const resp = await fetch('/api/webrtc/ice-servers');
+    const data = await resp.json();
+    return data.iceServers || DEFAULT_ICE;
+  } catch (err) {
+    return DEFAULT_ICE;
+  }
+}
+
 // ─── Initialize Peer Connection ───
 function createPeerConnection(
   sessionId: string, 
   isCaller: boolean, 
+  iceServers: any[],
   onEmojiReceived: (emoji: string) => void,
   onConnected: () => void
 ): WebRTCHandler {
-  const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
+  const pc = new RTCPeerConnection({ iceServers });
   const localStream = new MediaStream();
   const remoteStream = new MediaStream();
   let dataChannel: RTCDataChannel | undefined;
@@ -56,7 +67,7 @@ function createPeerConnection(
     }
   };
 
-  // DataChannel for Emojis (No Storage)
+  // DataChannel for Emojis
   if (isCaller) {
     dataChannel = pc.createDataChannel('emojis');
     setupDataChannel(dataChannel, onEmojiReceived);
@@ -85,33 +96,29 @@ export async function startCall(
   onEmojiReceived: (emoji: string) => void,
   onConnected: () => void
 ): Promise<WebRTCHandler> {
-  // 0. Authorization Check
   const currentUser = useAuthStore.getState().user;
   if (!currentUser) throw new Error('Unauthorized');
 
-  const handler = createPeerConnection(sessionId, true, onEmojiReceived, onConnected);
+  const iceServers = await getProductionIceServers();
+  const handler = createPeerConnection(sessionId, true, iceServers, onEmojiReceived, onConnected);
   const { pc } = handler;
 
-  // 1. Get Audio Stream
   const stream = await navigator.mediaDevices.getUserMedia({ audio: AUDIO_CONSTRAINTS });
   stream.getTracks().forEach((track) => {
     pc.addTrack(track, stream);
     handler.localStream.addTrack(track);
   });
 
-  // 2. Create Offer
   const offer = await pc.createOffer();
   await pc.setLocalDescription(offer);
   await set(ref(rtdb, `sessions/${sessionId}/signaling/offer`), { type: offer.type, sdp: offer.sdp });
 
-  // 3. Listen for Answer
   onValue(ref(rtdb, `sessions/${sessionId}/signaling/answer`), async (snapshot) => {
     if (snapshot.exists() && !pc.remoteDescription) {
       await pc.setRemoteDescription(new RTCSessionDescription(snapshot.val()));
     }
   });
 
-  // 4. Listen for Callee Candidates
   onChildAdded(ref(rtdb, `sessions/${sessionId}/signaling/calleeCandidates`), (snapshot) => {
     if (snapshot.exists()) {
       pc.addIceCandidate(new RTCIceCandidate(snapshot.val()));
@@ -127,21 +134,19 @@ export async function answerCall(
   onEmojiReceived: (emoji: string) => void,
   onConnected: () => void
 ): Promise<WebRTCHandler> {
-  // 0. Authorization Check
   const currentUser = useAuthStore.getState().user;
   if (!currentUser) throw new Error('Unauthorized');
 
-  const handler = createPeerConnection(sessionId, false, onEmojiReceived, onConnected);
+  const iceServers = await getProductionIceServers();
+  const handler = createPeerConnection(sessionId, false, iceServers, onEmojiReceived, onConnected);
   const { pc } = handler;
 
-  // 1. Get Audio Stream
   const stream = await navigator.mediaDevices.getUserMedia({ audio: AUDIO_CONSTRAINTS });
   stream.getTracks().forEach((track) => {
     pc.addTrack(track, stream);
     handler.localStream.addTrack(track);
   });
 
-  // 2. Set Remote Offer & Create Answer
   onValue(ref(rtdb, `sessions/${sessionId}/signaling/offer`), async (snapshot) => {
     if (snapshot.exists() && !pc.remoteDescription) {
       await pc.setRemoteDescription(new RTCSessionDescription(snapshot.val()));
@@ -151,7 +156,6 @@ export async function answerCall(
     }
   }, { onlyOnce: true });
 
-  // 3. Listen for Caller Candidates
   onChildAdded(ref(rtdb, `sessions/${sessionId}/signaling/callerCandidates`), (snapshot) => {
     if (snapshot.exists()) {
       pc.addIceCandidate(new RTCIceCandidate(snapshot.val()));
@@ -161,36 +165,27 @@ export async function answerCall(
   return handler;
 }
 
-// ─── Add Video Track (For Mid-call Upgrade) ───
 export async function upgradeToVideo(sessionId: string, handler: WebRTCHandler, isCaller: boolean): Promise<void> {
   const { pc, localStream } = handler;
-
-  // 1. Get Video Stream
   const videoStream = await navigator.mediaDevices.getUserMedia({ video: VIDEO_CONSTRAINTS });
   const videoTrack = videoStream.getVideoTracks()[0];
   
-  // 2. Add Track to RTCPeerConnection and Local Stream
   pc.addTrack(videoTrack, videoStream);
   localStream.addTrack(videoTrack);
 
-  // 3. Start Renegotiation
   if (isCaller) {
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
     await set(ref(rtdb, `sessions/${sessionId}/signaling/upgradeOffer`), { type: offer.type, sdp: offer.sdp });
 
-    // Listen for Upgrade Answer
     onValue(ref(rtdb, `sessions/${sessionId}/signaling/upgradeAnswer`), async (snapshot) => {
       if (snapshot.exists() && pc.signalingState === 'have-local-offer') {
         await pc.setRemoteDescription(new RTCSessionDescription(snapshot.val()));
       }
     }, { onlyOnce: true });
-  } else {
-    // Callee waits for Upgrade Offer (this is handled in the main listener setup)
   }
 }
 
-// ─── Listen for Renegotiation (Add to createPeerConnection or export) ───
 export function setupUpgradeListener(sessionId: string, handler: WebRTCHandler, isCaller: boolean) {
   if (!isCaller) {
     onValue(ref(rtdb, `sessions/${sessionId}/signaling/upgradeOffer`), async (snapshot) => {
@@ -198,7 +193,6 @@ export function setupUpgradeListener(sessionId: string, handler: WebRTCHandler, 
         const offer = snapshot.val();
         await handler.pc.setRemoteDescription(new RTCSessionDescription(offer));
 
-        // Add local video track before answering if not already added
         if (handler.localStream.getVideoTracks().length === 0) {
            const videoStream = await navigator.mediaDevices.getUserMedia({ video: VIDEO_CONSTRAINTS });
            const videoTrack = videoStream.getVideoTracks()[0];
@@ -219,13 +213,9 @@ export async function endCall(sessionId: string, handler: WebRTCHandler | null) 
     handler.localStream.getTracks().forEach((t) => t.stop());
     handler.pc.close();
   }
-  // 1. Unsubscribe from RTDB events
   off(ref(rtdb, `sessions/${sessionId}/signaling`));
-
-  // 2. Explicitly remove signaling data to keep DB clean
   try {
     await remove(ref(rtdb, `sessions/${sessionId}`));
-    console.log(`RTDB Session ${sessionId} cleaned up.`);
   } catch (err) {
     console.error('Error cleaning up signaling data:', err);
   }
