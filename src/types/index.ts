@@ -59,6 +59,16 @@ export interface Plan {
   bannerUrl: string | null;
 }
 
+// ─── Provider Types ───
+export type ProviderType = 'influencer' | 'mentor' | 'listener' | 'coach';
+
+export const PROVIDER_TYPE_LABELS: Record<ProviderType, string> = {
+  influencer: 'Influencer ✨',
+  mentor: 'Mentor 🎓',
+  coach: 'Coach 🏅',
+  listener: 'Listener 👂',
+};
+
 // ─── User (Firestore users/{userId}) ───
 export interface BigSunoUser {
   uid: string;
@@ -68,6 +78,7 @@ export interface BigSunoUser {
   bannerUrl: string;
   roles: Role[];
   activeRole: Role;
+  providerType?: ProviderType; // New: Categorization for unified feed
   createdAt: Date;
 
   // Sunane Wala fields

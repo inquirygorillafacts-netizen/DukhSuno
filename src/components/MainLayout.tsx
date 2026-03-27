@@ -22,8 +22,6 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
   const path = pathname || '';
   const isFullPage = path === '/' ||
                     path === '/login' || 
-                    path === '/select-role' || 
-                    path === '/choose-role' || 
                     path === '/blocked' ||
                     path.includes('onboarding');
 
@@ -31,56 +29,23 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
     setMounted(true);
   }, []);
 
-  // Sync isLive with user.isAvailable if they are a sunne_wala
-  useEffect(() => {
-    if (activeRole === 'sunne_wala') {
-      setIsLive(!!user?.isAvailable);
-    }
-  }, [user?.isAvailable, activeRole]);
-
-  // Check for Welcome Tour
-  useEffect(() => {
-    if (mounted && user && !isFullPage && activeRole) {
-      const tourKey = `hasSeenWelcomeTour_${user.uid}_${activeRole}`;
-      const hasSeen = localStorage.getItem(tourKey);
-      if (!hasSeen) {
-        setShowTour(true);
-      }
-    }
-  }, [mounted, user, isFullPage, activeRole, setShowTour]);
-
-  const handleTourClose = () => {
-    if (user && activeRole) {
-      localStorage.setItem(`hasSeenWelcomeTour_${user.uid}_${activeRole}`, 'true');
-    }
-    setShowTour(false);
-  };
-
   // Determine active tab based on pathname
   const getActiveTab = () => {
-    if (pathname.includes('calls') || pathname.includes('history')) return 'history';
-    if (pathname.includes('profile')) return 'profile';
-    if (pathname.includes('wallet') || pathname.includes('earning')) return 'wallet';
-    if (pathname.includes('search') || (activeRole === 'sunane_wala' && pathname.includes('home'))) return 'home';
+    if (path.includes('/history')) return 'history';
+    if (path.includes('/me')) return 'me';
+    if (path.includes('/wallet')) return 'wallet';
+    if (path.includes('/home')) return 'home';
     return 'home';
   };
 
   const activeTab = getActiveTab();
 
-  // Navigation items logic remains same...
-  
-
-  // Define navigation based on activeRole
-  const navItems = activeRole === 'sunne_wala' ? [
-    { id: 'home', label: 'Dashboard', href: '/sunne/dashboard', icon: <LayoutGrid /> },
-    { id: 'history', label: 'Calls', href: '/sunne/calls', icon: <Phone /> },
-    { id: 'wallet', label: 'Wallet', href: '/sunne/wallet', icon: <Wallet /> },
-    { id: 'profile', label: 'Profile', href: '/sunne/profile', icon: <User /> },
-  ] : [
-    { id: 'home', label: 'Home', href: '/sunane/home', icon: <Search /> },
-    { id: 'history', label: 'History', href: '/sunane/home', icon: <History /> }, // Or a specific history page if available
-    { id: 'wallet', label: 'Wallet', href: '/sunane/wallet', icon: <Wallet /> },
-    { id: 'profile', label: 'Profile', href: '/sunane/profile', icon: <User /> },
+  // Unified Navigation Items (YouTube Style)
+  const navItems = [
+    { id: 'home', label: 'Home', href: '/home', icon: <Search /> },
+    { id: 'history', label: 'Call', href: '/history', icon: <History /> },
+    { id: 'wallet', label: 'Wallet', href: '/wallet', icon: <Wallet /> },
+    { id: 'me', label: 'Me', href: '/me', icon: <User /> },
   ];
 
   return (
@@ -92,10 +57,12 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
           <Spinner size="md" />
         </main>
       ) : isFullPage ? (
+        <>{children}</>
+      ) : (
         <>
           {/* डेस्कटॉप साइडबार (Sidebar - Desktop Only) */}
           <aside className="hidden lg:flex flex-col w-72 h-screen sticky top-0 border-r border-slate-100 p-8 z-50 bg-white/40 backdrop-blur-md">
-            <Link href="/" className="flex items-center gap-3 mb-12">
+            <Link href="/home" className="flex items-center gap-3 mb-12">
               <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center shadow-lg shadow-slate-100">
                 <Heart className="text-white fill-current w-5 h-5" />
               </div>
@@ -143,29 +110,20 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
               <header className="flex justify-between items-center mb-6 px-2 lg:px-0">
                 <div>
                   <h2 className="text-lg md:text-xl font-black text-slate-900 tracking-tighter uppercase leading-none">
-                    {activeTab === 'home' && (activeRole === 'sunne_wala' ? "Listener Hub" : "Dhundhein Dost")}
-                    {activeTab === 'history' && "Calls History"}
-                    {activeTab === 'profile' && "Meri Profile"}
-                    {activeTab === 'wallet' && (activeRole === 'sunne_wala' ? "Earnings" : "My Wallet")}
+                    {activeTab === 'home' && "Home"}
+                    {activeTab === 'history' && "Call History"}
+                    {activeTab === 'wallet' && "My Wallet"}
+                    {activeTab === 'me' && "Me"}
                   </h2>
                   <div className="flex items-center gap-2 mt-2">
                      <div className="h-1 w-8 bg-[#ff4d6d] rounded-full" />
                      <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em]">
-                       {activeRole === 'sunne_wala' ? "Safe Space Listener" : "Safe Space Speaker"}
+                       BigSuno Unified Space
                      </p>
                   </div>
                 </div>
                 
-                {/* Status indicator / Role switch shortcut */}
                 <div className="flex items-center gap-4">
-                   {activeRole === 'sunne_wala' && (
-                     <div className="hidden md:flex items-center gap-2 bg-white p-1.5 pr-4 rounded-full border border-slate-100 shadow-sm">
-                       <div className={`w-2 h-2 rounded-full ${isLive ? 'bg-green-500 animate-pulse' : 'bg-slate-300'}`} />
-                       <span className={`text-[10px] font-black uppercase tracking-widest ${isLive ? 'text-green-500' : 'text-slate-400'}`}>
-                         {isLive ? 'Abhi Online' : 'Offline'}
-                       </span>
-                     </div>
-                   )}
                    <div 
                       className="w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center border border-slate-100 text-slate-900 font-black shadow-sm overflow-hidden"
                       style={{ backgroundColor: user?.avatarUrl?.split(':')[2] || '#ffffff' }}
@@ -183,42 +141,17 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
 
           {/* मोबाइल नेविगेशन (Mobile Bottom Nav) */}
           <nav className="lg:hidden fixed bottom-0 left-0 w-full glass bg-white/95 border-t border-slate-100 px-6 pt-2 pb-5 flex justify-between items-center z-[100] backdrop-blur-xl">
-            {navItems.slice(0, 1).map(item => (
-              <NavIconButton key={item.id} href={item.href} active={activeTab === item.id} icon={item.icon} label={item.label} />
-            ))}
-
-            <PWAInstall 
-              renderTrigger={(onClick: () => void, isVisible: boolean) => isVisible && (
-                <button onClick={onClick} className="flex flex-col items-center gap-1.5 text-slate-300 hover:text-rose-500 transition-all">
-                  <Download size={22} strokeWidth={2.5} />
-                  <span className="text-[10px] font-black uppercase tracking-widest leading-none">Install</span>
-                </button>
-              )}
-            />
-            
-            <div className="relative -translate-y-6">
-              <button 
-                disabled={activeRole === 'sunane_wala'}
-                onClick={() => setIsLive(!isLive)} 
-                className={`w-15 h-15 rounded-full flex items-center justify-center shadow-2xl border-4 border-[#fdfcff] transition-all active:scale-95 ${isLive ? 'bg-[#ff4d6d] text-white' : 'bg-slate-100 text-slate-400'}`}
-              >
-                {activeRole === 'sunne_wala' ? <Radio size={28} className={isLive ? 'animate-pulse' : ''} /> : <Heart size={28} className="text-[#ff4d6d] fill-current" />}
-              </button>
-            </div>
-
-            {navItems.slice(2).map(item => (
+            {navItems.map(item => (
               <NavIconButton key={item.id} href={item.href} active={activeTab === item.id} icon={item.icon} label={item.label} />
             ))}
           </nav>
         </>
-      ) : (
-        <>{children}</>
       )}
 
-      {/* Global Welcome Tour - Rendered outside conditional layouts for proper z-index */}
-      {showTour && activeRole && (
+      {/* Global Welcome Tour */}
+      {showTour && (
         <WelcomeTour 
-          role={activeRole as 'sunne_wala' | 'sunane_wala'} 
+          role="sunane_wala" // Defaulting to Seeker for tour
           onClose={handleTourClose} 
         />
       )}

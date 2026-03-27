@@ -104,34 +104,55 @@ export default function OwnerSettingsPage() {
                             <div className="space-y-2">
                                 <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest px-1">Default Commission Rate (%)</label>
                                 <div className="flex items-center gap-3">
-                                    <input 
-                                        type="number" 
-                                        step="1"
-                                        value={platformConfig.defaultCommissionRate * 100}
-                                        className="w-full h-14 px-5 rounded-2xl bg-slate-50 border border-slate-100 focus:ring-4 focus:ring-primary/10 outline-none font-bold"
-                                        onChange={(e) => {
-                                            const rate = parseFloat(e.target.value) / 100;
-                                            const newConfig = { ...platformConfig, defaultCommissionRate: rate };
-                                            setPlatformConfig(newConfig);
-                                            (window as any)._platformConfig = newConfig;
-                                        }}
-                                    />
-                                    <span className="text-lg font-black text-slate-400">%</span>
+                                    <div className="relative flex-1">
+                                        <input 
+                                            type="number" 
+                                            step="1"
+                                            value={isNaN(platformConfig.defaultCommissionRate) ? '' : Math.round(platformConfig.defaultCommissionRate * 100)}
+                                            className="w-full h-14 px-5 pr-12 rounded-2xl bg-slate-50 border border-slate-100 focus:ring-4 focus:ring-primary/10 outline-none font-bold"
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                const rate = val === '' ? NaN : parseFloat(val) / 100;
+                                                const newConfig = { ...platformConfig, defaultCommissionRate: rate };
+                                                setPlatformConfig(newConfig);
+                                                (window as any)._platformConfig = newConfig;
+                                            }}
+                                        />
+                                        <span className="absolute right-5 top-1/2 -translate-y-1/2 text-lg font-black text-slate-300">%</span>
+                                    </div>
+                                    <button 
+                                        onClick={saveConfig}
+                                        disabled={saving || isNaN(platformConfig.defaultCommissionRate)}
+                                        className="h-14 px-6 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-primary transition-all disabled:opacity-30"
+                                    >
+                                        Save
+                                    </button>
                                 </div>
                             </div>
 
                             <div className="space-y-2">
                                 <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest px-1">Min Withdrawal (₹)</label>
-                                <input 
-                                    type="number" 
-                                    value={platformConfig.minWithdrawalAmount}
-                                    className="w-full h-14 px-5 rounded-2xl bg-slate-50 border border-slate-100 focus:ring-4 focus:ring-primary/10 outline-none font-bold"
-                                    onChange={(e) => {
-                                        const newConfig = { ...platformConfig, minWithdrawalAmount: parseInt(e.target.value) };
-                                        setPlatformConfig(newConfig);
-                                        (window as any)._platformConfig = newConfig;
-                                    }}
-                                />
+                                <div className="flex items-center gap-3">
+                                    <input 
+                                        type="number" 
+                                        value={isNaN(platformConfig.minWithdrawalAmount) ? '' : platformConfig.minWithdrawalAmount}
+                                        className="w-full h-14 px-5 rounded-2xl bg-slate-50 border border-slate-100 focus:ring-4 focus:ring-primary/10 outline-none font-bold"
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+                                            const weight = val === '' ? NaN : parseInt(val);
+                                            const newConfig = { ...platformConfig, minWithdrawalAmount: weight };
+                                            setPlatformConfig(newConfig);
+                                            (window as any)._platformConfig = newConfig;
+                                        }}
+                                    />
+                                    <button 
+                                        onClick={saveConfig}
+                                        disabled={saving || isNaN(platformConfig.minWithdrawalAmount)}
+                                        className="h-14 px-6 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-primary transition-all disabled:opacity-30"
+                                    >
+                                        Save
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
