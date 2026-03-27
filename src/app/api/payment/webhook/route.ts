@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { adminDb } from '@/lib/firebase-admin';
+import { adminDb, adminRtdb } from '@/lib/firebase-admin';
 import { getAppConfig } from '@/lib/config';
 
 export async function POST(req: Request) {
@@ -39,8 +39,8 @@ export async function POST(req: Request) {
     }
 
     if (status === 'success') {
-      if (type === 'credit_reload') {
-        // Add credits to user
+      if (type === 'credit_reload' || type === 'TOPUP_FOR_PLAN') {
+        // 1. Update credits (Add the paid amount)
         const userRef = adminDb.collection('users').doc(userId);
         const userDoc = await userRef.get();
         if (userDoc.exists) {
@@ -49,6 +49,46 @@ export async function POST(req: Request) {
             creditBalance: currentBalance + parseFloat(amount),
             updatedAt: new Date(),
           });
+          console.log(`Updated credits for ${userId}: +₹${amount}`);
+        }
+
+        // 2. If it's a plan-specific topup, create the session immediately
+        if (type === 'TOPUP_FOR_PLAN') {
+          const planId = data.udf4 as string;
+          const planPrice = parseFloat(data.udf5 as string);
+          const planMinutes = parseInt(data.udf6 as string);
+          const sessionId = `session_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+          
+          // Fetch centralized commission rate
+          const { getPlatformConfig } = await import('@/lib/config-admin');
+          const config = await getPlatformConfig();
+          const commissionRate = config.defaultCommissionRate || 0.20;
+
+          // Note: Credits are NOT deducted here, only session is created
+          await adminDb.collection('sessions').doc(sessionId).set({
+            sessionId,
+            userId,
+            listenerId,
+            planId,
+            planMinutes,
+            planPrice,
+            creditsUsed: planPrice,
+            status: 'waiting',
+            createdAt: new Date(),
+            commissionRate,
+            listenerEarned: planPrice * (1 - commissionRate),
+          });
+
+          // Setup RTDB for signaling
+          await adminRtdb.ref(`sessions/${sessionId}`).set({
+            status: 'ringing',
+            callerId: userId,
+            listenerId: listenerId,
+            createdAt: Date.now(),
+          });
+
+          console.log(`Automatic session created for ${userId} -> ${listenerId}: ${sessionId}`);
+          return NextResponse.redirect(`${process.env.NEXT_PUBLIC_URL}/call/${sessionId}?autoStart=true`);
         }
       } else if (type === 'direct_session') {
         // Create session

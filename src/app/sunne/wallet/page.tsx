@@ -141,45 +141,80 @@ export default function WalletPage() {
       setErrorMsg('Min withdrawal is ₹100.');
       return;
     }
-    if (amount > (user.availableBalance || 0)) {
-      setErrorMsg('Insufficient balance.');
-      return;
-    }
 
     setLoading(true);
     try {
+      const { getDocs, query, collection, where, writeBatch, doc, serverTimestamp, runTransaction } = await import('firebase/firestore');
+      const { db } = await import('@/lib/firebase');
+
+      // 1. Fetch all pending transactions for this user
+      const q = query(
+        collection(db, 'transactions'),
+        where('userId', '==', user.uid),
+        where('type', '==', 'earning'),
+        where('status', '==', 'pending')
+      );
+      const querySnapshot = await getDocs(q);
+      const pendingTxns = querySnapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+
+      if (pendingTxns.length === 0) {
+        throw new Error("No pending earnings available to withdraw.");
+      }
+
+      // Calculate totals from the specific transactions
+      const totalGross = pendingTxns.reduce((acc, tx: any) => acc + (tx.amount || 0), 0);
+      const totalNet = pendingTxns.reduce((acc, tx: any) => acc + (tx.listenerAmount || 0), 0);
+      const totalFee = totalGross - totalNet;
+      const transactionIds = pendingTxns.map(tx => tx.id);
+
+      // 2. Perform atomic update
       await runTransaction(db, async (transaction) => {
         const userRef = doc(db, 'users', user.uid);
         const userDoc = await transaction.get(userRef);
-        
-        if (!userDoc.exists()) throw "User does not exist!";
+        if (!userDoc.exists()) throw "User not found!";
         
         const currentBalance = userDoc.data().availableBalance || 0;
-        if (amount > currentBalance) throw "Insufficient balance!";
 
-        // 1. Deduct balance
-        transaction.update(userRef, {
-          availableBalance: currentBalance - amount
-        });
-
-        // 2. Create withdrawal request
+        // Create Withdrawal Request
         const withdrawRef = doc(collection(db, 'withdrawals'));
+        const requestId = withdrawRef.id;
+
         transaction.set(withdrawRef, {
+          id: requestId,
           userId: user.uid,
           userName: user.displayName || 'Unnamed',
-          amount: amount,
+          amount: totalGross,
+          platformFee: totalFee,
+          netAmount: totalNet,
+          transactionIds: transactionIds,
           status: 'pending',
           qrUrl: user.paymentQrUrl,
           createdAt: serverTimestamp()
         });
 
-        // 3. Optional: Create transaction record for history
-        const transRef = doc(collection(db, 'transactions'));
-        transaction.set(transRef, {
+        // Update all associated transactions to 'requested'
+        pendingTxns.forEach(tx => {
+          const txRef = doc(db, 'transactions', tx.id);
+          transaction.update(txRef, {
+            status: 'requested',
+            withdrawalRequestId: requestId
+          });
+        });
+
+        // Deduct from availableBalance in User Doc
+        transaction.update(userRef, {
+          availableBalance: Math.max(0, currentBalance - totalNet)
+        });
+
+        // Add a 'Withdrawing' log transaction (optional but helpful for UI)
+        const logRef = doc(collection(db, 'transactions'));
+        transaction.set(logRef, {
           userId: user.uid,
-          amount: amount,
+          amount: totalNet,
           type: 'withdrawal',
           status: 'pending',
+          withdrawalRequestId: requestId,
+          description: `Withdrawal request for ${transactionIds.length} sessions`,
           createdAt: serverTimestamp()
         });
       });
@@ -188,7 +223,7 @@ export default function WalletPage() {
       setWithdrawAmount('');
       setErrorMsg(null);
     } catch (err: any) {
-      setErrorMsg(err.toString());
+      setErrorMsg(err.message || err.toString());
     } finally {
       setLoading(false);
     }

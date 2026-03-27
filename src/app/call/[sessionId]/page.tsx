@@ -16,11 +16,11 @@ export default function CallPage({ params }: { params: Promise<{ sessionId: stri
   const router = useRouter();
   const { sessionId } = use(params);
   const { user, activeRole } = useAuthStore();
-  const { 
-    callState, setCallState, setHandler, setIncomingEmoji, 
+  const {
+    callState, setCallState, setHandler, setIncomingEmoji,
     startTimer, stopTimer, endCall, resetCall
   } = useCallStore();
-  
+
   const [session, setSession] = useState<Session | null>(null);
   const [listener, setListener] = useState<DukhSunoUser | null>(null);
   const [showRating, setShowRating] = useState(false);
@@ -44,8 +44,9 @@ export default function CallPage({ params }: { params: Promise<{ sessionId: stri
         }
 
         // Handle remote hangup
-        if (sessionData.status === 'completed' || sessionData.status === 'missed') {
-           endCall();
+        if (['completed', 'missed', 'cancelled_by_listener'].includes(sessionData.status || '')) {
+          console.log("Call ended by remote signal or status change.");
+          endCall();
         }
       } else {
         console.error('Session not found');
@@ -65,30 +66,86 @@ export default function CallPage({ params }: { params: Promise<{ sessionId: stri
     const initialize = async () => {
       try {
         setCallState('ringing');
-        
+
         const onEmoji = (emoji: string) => setIncomingEmoji(emoji);
         const onConnected = async () => {
           setCallState('active');
-          startTimer();
-          // Update session status in Firestore
-          await updateDoc(doc(db, 'sessions', sessionId), {
-            status: 'active',
-            connectedAt: new Date()
-          });
+          
+          // ─── Deduct Credits & Create Transaction (Atomic) ───
+          try {
+            const { runTransaction, doc, collection, serverTimestamp } = await import('firebase/firestore');
+            const { db } = await import('@/lib/firebase');
+
+            await runTransaction(db, async (firestoreTransaction) => {
+              const sessionRef = doc(db, 'sessions', sessionId);
+              const speakerRef = doc(db, 'users', session.userId);
+              
+              const speakerSnap = await firestoreTransaction.get(speakerRef);
+              if (!speakerSnap.exists()) return;
+
+              const currentBalance = speakerSnap.data().creditBalance || 0;
+              const cost = session.planPrice || 0;
+
+              // Check if already active to prevent double deduction
+              const sessionSnap = await firestoreTransaction.get(sessionRef);
+              if (sessionSnap.data()?.status === 'active') return;
+
+              // 1. Deduct from speaker
+              firestoreTransaction.update(speakerRef, {
+                creditBalance: currentBalance - cost
+              });
+
+              // 2. Create Transaction (Pending)
+              const transId = `txn_${Date.now()}`;
+              const transRef = doc(collection(db, 'transactions'), transId);
+              
+              const rate = session.commissionRate || 0;
+              const fee = Math.floor(cost * rate);
+              const net = cost - fee;
+
+              firestoreTransaction.set(transRef, {
+                id: transId,
+                userId: session.listenerId,
+                speakerId: session.userId,
+                listenerId: session.listenerId,
+                type: 'earning',
+                amount: cost,
+                commissionRate: rate * 100,
+                platformFee: fee,
+                listenerAmount: net,
+                status: 'pending',
+                description: `Call earning from session #${sessionId.slice(-4)}`,
+                relatedSessionId: sessionId,
+                createdAt: serverTimestamp()
+              });
+
+              // 3. Update Session
+              firestoreTransaction.update(sessionRef, {
+                status: 'active',
+                connectedAt: serverTimestamp(),
+                transactionId: transId
+              });
+            });
+
+            startTimer();
+          } catch (err) {
+            console.error("Deduction failed:", err);
+            // Even if deduction fails, we might want to allow the call but log the error
+          }
         };
 
         let handler;
         if (activeRole === 'sunane_wala') {
           handler = await startCall(sessionId, onEmoji, onConnected);
-          
+
           // Trigger Multi-Cross Calling Logic
           const resp = await fetch('/api/calls/trigger', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-              sessionId, 
+            body: JSON.stringify({
+              sessionId,
               recipientId: session.listenerId,
-              callerName: user.displayName 
+              callerName: user.displayName
             })
           });
 
@@ -106,7 +163,7 @@ export default function CallPage({ params }: { params: Promise<{ sessionId: stri
         } else {
           handler = await answerCall(sessionId, onEmoji, onConnected);
         }
-        
+
         setHandler(handler);
       } catch (err) {
         console.error('Failed to initialize call:', err);
@@ -121,26 +178,127 @@ export default function CallPage({ params }: { params: Promise<{ sessionId: stri
     };
   }, [user, activeRole, sessionId, session, listener]);
 
-  // 3. Handle call end
+  // 3. Handle Auto-Cut and Call End State
+  useEffect(() => {
+    if (callState === 'active' && session) {
+      const maxSeconds = (session.planMinutes || 5) * 60;
+      if (useCallStore.getState().sessionDuration >= maxSeconds) {
+        console.log("Auto-cutting call...");
+        handleEndCallRequest('auto');
+      }
+    }
+  }, [useCallStore.getState().sessionDuration, callState, session]);
+
   useEffect(() => {
     if (callState === 'ended') {
       setShowRating(true);
     }
   }, [callState]);
 
+  const handleEndCallRequest = async (cutBy: 'speaker' | 'listener' | 'auto') => {
+    if (cutBy === 'speaker') {
+      if (!confirm("Aapke paise lag chuke hain! Kya aap paka call kaatna chahte hain?")) return;
+    } else if (cutBy === 'listener') {
+      if (!confirm("Agar aap call kaatenge to transaction radd ho jayegi aur paise wapas chale jayenge. Kya aap paka call kaatna chahte hain?")) return;
+      
+      // Handle Refund & Void Transaction if Listener cuts
+      try {
+        const { runTransaction, doc, deleteDoc } = await import('firebase/firestore');
+        const { db } = await import('@/lib/firebase');
+
+        await runTransaction(db, async (transaction) => {
+          if (!session || !sessionId) return;
+          const sessionRef = doc(db, 'sessions', sessionId);
+          const speakerRef = doc(db, 'users', session.userId);
+          
+          // 1. Refund Speaker
+          const speakerSnap = await transaction.get(speakerRef);
+          if (speakerSnap.exists()) {
+             const currentBalance = speakerSnap.data().creditBalance || 0;
+             transaction.update(speakerRef, {
+               creditBalance: currentBalance + (session.planPrice || 0)
+             });
+          }
+
+          // 2. Void/Delete Transaction
+          if (session.transactionId) {
+            transaction.delete(doc(db, 'transactions', session.transactionId));
+          }
+
+          // 3. Update Session
+          transaction.update(sessionRef, {
+            status: 'cancelled_by_listener',
+            cutBy: 'listener',
+            actualDurationSeconds: useCallStore.getState().sessionDuration
+          });
+        });
+      } catch (err) {
+        console.error("Listener refund/void failed:", err);
+      }
+    } else if (cutBy === 'auto') {
+      if (sessionId) {
+        await updateDoc(doc(db, 'sessions', sessionId), {
+          status: 'completed',
+          cutBy: 'auto',
+          actualDurationSeconds: useCallStore.getState().sessionDuration
+        });
+      }
+    }
+
+    if (cutBy === 'speaker') {
+      if (sessionId) {
+         await updateDoc(doc(db, 'sessions', sessionId), {
+           status: 'completed',
+           cutBy: 'speaker',
+           actualDurationSeconds: useCallStore.getState().sessionDuration
+         });
+      }
+    }
+
+    endCall();
+  };
+
   const handleRatingSubmit = async (rating: number, comment: string) => {
     setShowRating(false);
-    // Update session with rating
-    if (sessionId) {
-      await updateDoc(doc(db, 'sessions', sessionId), {
-        rating,
-        ratingComment: comment,
-        status: 'completed',
-        endedAt: new Date()
-      });
-      // Reset listener status
-      if (session?.listenerId) {
-        await updateDoc(doc(db, 'users', session.listenerId), { inCall: false });
+    // Update session and activate pre-booked transaction
+    if (sessionId && session) {
+      try {
+        const { runTransaction, doc, serverTimestamp } = await import('firebase/firestore');
+        const { db } = await import('@/lib/firebase');
+
+        await runTransaction(db, async (transaction) => {
+          const sessionRef = doc(db, 'sessions', sessionId);
+          const listenerRef = doc(db, 'users', session.listenerId);
+          
+          // 1. Update Session Status
+          transaction.update(sessionRef, {
+            rating,
+            ratingComment: comment,
+            status: 'completed',
+            endedAt: serverTimestamp()
+          });
+
+          // 2. Finalize Transaction (if needed)
+          // It's already 'pending' from onConnected, no changes needed here unless we want to mark it 'finalized'
+          
+          // 3. Update Listener Balance & Status
+          const listenerSnap = await firestoreTransaction.get(listenerRef);
+          if (listenerSnap.exists()) {
+            const currentBalance = listenerSnap.data().availableBalance || 0;
+            const currentTotal = listenerSnap.data().totalEarnings || 0;
+            
+            // Calculate net from the session record
+            const net = session.listenerEarned || 0;
+            
+            firestoreTransaction.update(listenerRef, {
+              inCall: false,
+              availableBalance: currentBalance + net,
+              totalEarnings: currentTotal + net
+            });
+          }
+        });
+      } catch (err) {
+        console.error("Failed to complete session and activate transaction:", err);
       }
     }
     resetCall();
@@ -155,22 +313,23 @@ export default function CallPage({ params }: { params: Promise<{ sessionId: stri
 
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center text-white">Loading session...</div>;
 
-  const bgClass = callState === 'active' 
-    ? 'bg-gradient-to-b from-surface to-[#1A2435]' 
+  const bgClass = callState === 'active'
+    ? 'bg-gradient-to-b from-surface to-[#1A2435]'
     : 'bg-gradient-to-b from-surface to-accent/90';
 
   return (
     <div className={`min-h-screen ${bgClass} transition-colors duration-1000 fixed inset-0 z-50 overflow-hidden flex flex-col`}>
-      
+
       {(callState === 'ringing' || callState === 'connecting') && (
         <CallingScreen listener={listener || { displayName: 'User', avatarUrl: 'emoji:👤:#F3F1EC' } as any} />
       )}
-      
+
       {callState === 'active' && (
-        <ActiveCallScreen 
-          listener={listener || { displayName: 'User', avatarUrl: 'emoji:👤:#F3F1EC' } as any} 
-          priceInfo={{ price: session?.planPrice || 0, minutes: session?.planMinutes || 0 }} 
+        <ActiveCallScreen
+          listener={listener || { displayName: 'User', avatarUrl: 'emoji:👤:#F3F1EC' } as any}
+          priceInfo={{ price: session?.planPrice || 0, minutes: session?.planMinutes || 0 }}
           sessionId={sessionId}
+          onEnd={() => handleEndCallRequest(activeRole === 'sunane_wala' ? 'speaker' : 'listener')}
         />
       )}
 

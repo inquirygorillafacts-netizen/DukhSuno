@@ -1,20 +1,31 @@
 import { NextResponse } from 'next/server';
 import { adminDb } from '@/lib/firebase-admin';
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(req.url);
-    const type = searchParams.get('type');
-
-    if (type === 'twilio_accounts') {
-      const snap = await adminDb.collection('admin_config').doc('twilio_config').collection('accounts').get();
-      const accounts = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      return NextResponse.json({ accounts });
+    const doc = await adminDb.collection('settings').doc('platform').get();
+    if (doc.exists) {
+      return NextResponse.json(doc.data());
     }
+    return NextResponse.json({
+      defaultCommissionRate: 0.20,
+      minWithdrawalAmount: 500
+    });
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to fetch config' }, { status: 500 });
+  }
+}
 
-    return NextResponse.json({ error: 'Invalid config type' }, { status: 400 });
-  } catch (error: any) {
-    console.error('Admin Config API Error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+export async function POST(req: Request) {
+  try {
+    const data = await req.json();
+    await adminDb.collection('settings').doc('platform').set({
+      ...data,
+      updatedAt: new Date()
+    }, { merge: true });
+    
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to update config' }, { status: 500 });
   }
 }

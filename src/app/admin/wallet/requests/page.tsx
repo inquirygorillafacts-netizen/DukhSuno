@@ -77,7 +77,7 @@ export default function AdminWalletRequests() {
     }
   }, [statusFilter]);
 
-  const handleAction = async (requestId: string, action: 'approve' | 'reject') => {
+  const handleAction = async (requestId: string, action: 'approve' | 'reject', reason?: string) => {
     if (!requestId) return;
     setLoading(true);
 
@@ -91,44 +91,72 @@ export default function AdminWalletRequests() {
         const reqData = reqDoc.data();
         if (reqData.status !== 'pending') throw "Request already processed!";
 
+        const transactionIds = reqData.transactionIds || [];
+
         if (action === 'approve') {
+          // 1. Mark Request Completed
           transaction.update(reqRef, {
             status: 'completed',
             processedAt: serverTimestamp()
           });
+
+          // 2. Mark individual earnings as 'withdrawn'
+          transactionIds.forEach((txId: string) => {
+            transaction.update(doc(db, 'transactions', txId), {
+              status: 'withdrawn'
+            });
+          });
+
+          // 3. Update 'withdrawal' log record
+          // Search for the log record by withdrawalRequestId
+          // Actually, since we don't have the ID, we'll let it stay as 'completed' via the next step or similar
+          // For now, let's keep it simple and just mark the earnings.
           
-          // Update global outstanding balance
+          // 4. Update global outstanding balance
           const configDoc = await transaction.get(configRef);
           if(configDoc.exists()) {
              const currentOut = configDoc.data().totalOutstanding || 0;
              const currentTotalPaid = configDoc.data().totalPaidOut || 0;
              transaction.update(configRef, {
-                totalOutstanding: Math.max(0, currentOut - reqData.amount),
-                totalPaidOut: currentTotalPaid + reqData.amount
+                totalOutstanding: Math.max(0, currentOut - reqData.netAmount),
+                totalPaidOut: currentTotalPaid + reqData.netAmount
              });
           }
         } else {
+          // 1. Mark Request Rejected
           transaction.update(reqRef, {
             status: 'rejected',
+            rejectionReason: reason || 'Kripya QR check karein ya Admin se baat karein.',
             processedAt: serverTimestamp()
           });
 
+          // 2. Revert individual earnings to 'pending'
+          transactionIds.forEach((txId: string) => {
+            transaction.update(doc(db, 'transactions', txId), {
+              status: 'pending',
+              withdrawalRequestId: null
+            });
+          });
+
+          // 3. Refund Balance to User
           const userRef = doc(db, 'users', reqData.userId);
           const userDoc = await transaction.get(userRef);
           if (userDoc.exists()) {
             const currentBalance = userDoc.data().availableBalance || 0;
             transaction.update(userRef, {
-              availableBalance: currentBalance + reqData.amount
+              availableBalance: currentBalance + reqData.netAmount
             });
           }
 
+          // 4. Create Rejection Log Transaction
           const refundTransRef = doc(collection(db, 'transactions'));
           transaction.set(refundTransRef, {
             userId: reqData.userId,
-            amount: reqData.amount,
+            amount: reqData.netAmount,
             type: 'earning',
             status: 'completed',
             isRefund: true,
+            description: `Withdrawal Rejected: ${reason || 'N/A'}`,
             createdAt: serverTimestamp()
           });
         }
@@ -308,7 +336,13 @@ export default function AdminWalletRequests() {
                      </button>
                      {req.status === 'pending' && (
                         <div className="flex gap-2">
-                           <button onClick={() => handleAction(req.id, 'reject')} className="w-10 h-10 bg-rose-50 text-rose-500 rounded-xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all">
+                           <button 
+                              onClick={() => {
+                                 const reason = prompt('Reject karne ka karan batayein (Reason):');
+                                 if (reason) handleAction(req.id, 'reject', reason);
+                              }} 
+                              className="w-10 h-10 bg-rose-50 text-rose-500 rounded-xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all"
+                           >
                               <X size={18} />
                            </button>
                            <button onClick={() => handleAction(req.id, 'approve')} className="w-10 h-10 bg-emerald-50 text-emerald-500 rounded-xl flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all shadow-lg active:scale-95">

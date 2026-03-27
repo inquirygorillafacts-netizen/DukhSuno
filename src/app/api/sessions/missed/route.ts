@@ -20,12 +20,20 @@ export async function POST(req: Request) {
     // Mark as missed
     await sessionRef.update({
       status: 'missed',
-      updatedAt: new Date(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
+
+    // Cancel Linked Transaction
+    if (sessionData?.transactionId) {
+      await adminDb.collection('transactions').doc(sessionData.transactionId).update({
+        status: 'cancelled',
+        updatedAt: admin.firestore.FieldValue.serverTimestamp()
+      });
+    }
 
     // Refund credits if used
     const userId = sessionData?.userId;
-    const amount = sessionData?.amount || 0;
+    const amount = sessionData?.planPrice || 0; // Fixed field name to match create/route.ts
 
     if (amount > 0 && userId) {
       const userRef = adminDb.collection('users').doc(userId);
@@ -49,3 +57,5 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Refund processing failed' }, { status: 500 });
   }
 }
+
+import * as admin from 'firebase-admin';

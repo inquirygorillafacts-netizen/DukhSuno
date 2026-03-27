@@ -117,19 +117,29 @@ export interface Session {
   connectedAt: Date | null;
   endedAt: Date | null;
   durationSeconds: number;
+  actualDurationSeconds?: number;
   commissionRate: number;
   listenerEarned: number;
   rating: number | null;
   ratingComment: string | null;
+  transactionId?: string | null;
+  cutBy?: 'speaker' | 'listener' | 'auto' | null;
 }
 
 // ─── Transaction (for wallet history) ───
 export interface Transaction {
   id: string;
   userId: string;
+  speakerId?: string;       // New: Who paid
+  listenerId?: string;      // New: Who earned
   type: 'credit_add' | 'credit_spend' | 'refund' | 'earning' | 'withdrawal';
-  amount: number;
+  amount: number;           // Gross amount
+  commissionRate?: number;  // New: % rate at time of txn (e.g. 5, 10, 15)
+  platformFee?: number;     // New: Amount platform took
+  listenerAmount?: number;  // New: Amount listener actually gets (Net)
   description: string;
+  status: 'pending' | 'requested' | 'withdrawn' | 'rejected' | 'completed'; // New
+  withdrawalRequestId?: string; // New: Link to the request
   createdAt: Date;
   relatedSessionId?: string;
 }
@@ -138,8 +148,13 @@ export interface Transaction {
 export interface WithdrawalRequest {
   id: string;
   listenerId: string;
-  amount: number;
-  upiId: string;
+  transactionIds: string[]; // New: List of earnings included
+  amount: number;           // Total Gross
+  platformFee: number;      // Total Fee
+  netAmount: number;        // Total to pay listener
+  upiId?: string;
+  qrUrl?: string;           // New: Screenshot of QR
+  rejectionReason?: string; // New: Why it was rejected
   status: 'pending' | 'completed' | 'rejected';
   createdAt: Date;
   processedAt: Date | null;

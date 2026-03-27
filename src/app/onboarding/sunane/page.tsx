@@ -7,7 +7,7 @@ import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/stores/auth-store';
 import { AVATAR_OPTIONS } from '@/types';
 import type { Specialty } from '@/types';
-import { Heart, User, Sparkles, Smile, ArrowRight, ArrowLeft, Info, Phone } from 'lucide-react';
+import { Heart, User, Sparkles, Smile, ArrowRight, ArrowLeft, Info, Phone, Upload, X, Image as ImageIcon } from 'lucide-react';
 
 const MOOD_CHIPS: { id: Specialty; label: string }[] = [
   { id: 'relationship', label: 'रिश्ते (Relationship) 💔' },
@@ -252,9 +252,6 @@ export default function SunaneOnboarding() {
                     </div>
                  </div>
               )}
-            </div>
-          )}
-
             </div>
           )}
         </div>

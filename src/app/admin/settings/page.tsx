@@ -1,13 +1,13 @@
 'use client';
 
-import { 
-    Settings, 
-    Bell, 
-    Shield, 
-    Zap, 
-    Server, 
-    Globe, 
-    Database, 
+import {
+    Settings,
+    Bell,
+    Shield,
+    Zap,
+    Server,
+    Globe,
+    Database,
     ChevronRight,
     ToggleLeft,
     Monitor,
@@ -22,12 +22,30 @@ import { db } from '@/lib/firebase';
 
 export default function OwnerSettingsPage() {
     const [saving, setSaving] = useState(false);
+    const [platformConfig, setPlatformConfig] = useState<any>({
+        defaultCommissionRate: 0.20,
+        minWithdrawalAmount: 500
+    });
+
+    useEffect(() => {
+        fetch('/api/admin/config').then(res => res.json()).then(data => {
+            if (!data.error) setPlatformConfig(data);
+        });
+    }, []);
 
     const saveConfig = async () => {
         setSaving(true);
         try {
-            // Future system-wide settings can go here
-            alert('Settings saved successfully! ✅');
+            // Save Platform Config (Centralized)
+            const configToSave = (window as any)._platformConfig || platformConfig;
+            await fetch('/api/admin/config', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(configToSave)
+            });
+            
+            setPlatformConfig(configToSave);
+            alert('System Settings saved successfully! ✅');
         } catch (err) {
             console.error(err);
             alert('Failed to save settings.');
@@ -40,10 +58,14 @@ export default function OwnerSettingsPage() {
         <div className="max-w-4xl mx-auto space-y-10 animate-in fade-in duration-700">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">System Settings ⚙️</h1>
-                    <p className="text-sm text-slate-500 font-medium italic">Global configuration and platform controls.</p>
+                    <h1 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">
+                        System Settings ⚙️
+                    </h1>
+                    <p className="text-sm text-slate-500 font-medium italic">
+                        Global configuration and platform controls.
+                    </p>
                 </div>
-                <button 
+                <button
                     onClick={saveConfig}
                     disabled={saving}
                     className="px-8 py-3 bg-slate-900 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl hover:bg-slate-800 disabled:opacity-50 transition-all font-bold"
@@ -52,14 +74,9 @@ export default function OwnerSettingsPage() {
                 </button>
             </div>
 
-            <div className="grid gap��गे।
-                           </p>
-                        </div>
-                    </div>
-                </SettingsSection>
-
-                <SettingsSection 
-                    title="Platform Controls" 
+            <div className="grid gap-8">
+                <SettingsSection
+                    title="Platform Controls"
                     icon={<Zap className="text-amber-500" />}
                     description="Manage core platform features and availability."
                 >
@@ -68,8 +85,8 @@ export default function OwnerSettingsPage() {
                     <SettingRow label="Real-time Analytics" description="Process live call data for the owner panel." enabled={true} />
                 </SettingsSection>
 
-                <SettingsSection 
-                    title="Security & Safety" 
+                <SettingsSection
+                    title="Security & Safety"
                     icon={<Shield className="text-primary" />}
                     description="Verification policies and user safety protocols."
                 >
@@ -77,14 +94,59 @@ export default function OwnerSettingsPage() {
                     <SettingRow label="Strict Spam Filters" description="Automatically block suspicious call patterns." enabled={true} />
                 </SettingsSection>
 
-                <SettingsSection 
-                    title="API & Integrations" 
+                <SettingsSection
+                    title="Financial Controls"
+                    icon={<Percent className="text-emerald-500" />}
+                    description="Manage platform fees, commissions, and withdrawal limits."
+                >
+                    <div className="p-8 space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="space-y-2">
+                                <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest px-1">Default Commission Rate (%)</label>
+                                <div className="flex items-center gap-3">
+                                    <input 
+                                        type="number" 
+                                        step="1"
+                                        value={platformConfig.defaultCommissionRate * 100}
+                                        className="w-full h-14 px-5 rounded-2xl bg-slate-50 border border-slate-100 focus:ring-4 focus:ring-primary/10 outline-none font-bold"
+                                        onChange={(e) => {
+                                            const rate = parseFloat(e.target.value) / 100;
+                                            const newConfig = { ...platformConfig, defaultCommissionRate: rate };
+                                            setPlatformConfig(newConfig);
+                                            (window as any)._platformConfig = newConfig;
+                                        }}
+                                    />
+                                    <span className="text-lg font-black text-slate-400">%</span>
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest px-1">Min Withdrawal (₹)</label>
+                                <input 
+                                    type="number" 
+                                    value={platformConfig.minWithdrawalAmount}
+                                    className="w-full h-14 px-5 rounded-2xl bg-slate-50 border border-slate-100 focus:ring-4 focus:ring-primary/10 outline-none font-bold"
+                                    onChange={(e) => {
+                                        const newConfig = { ...platformConfig, minWithdrawalAmount: parseInt(e.target.value) };
+                                        setPlatformConfig(newConfig);
+                                        (window as any)._platformConfig = newConfig;
+                                    }}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </SettingsSection>
+
+                <SettingsSection
+                    title="API & Integrations"
                     icon={<Server className="text-indigo-500" />}
                     description="External services and infrastructure connections."
                 >
                     <div className="p-6 border-b border-slate-50 flex items-center justify-between hover:bg-slate-50/50 transition-colors group cursor-pointer">
                         <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 transition-all group-hover:text-primary"><Database size={20} /></div>
+                            <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 transition-all group-hover:text-primary">
+                                <Database size={20} />
+                            </div>
                             <div>
                                 <p className="text-sm font-bold text-slate-800 tracking-tight">Firebase Real-time Sync</p>
                                 <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Connected (Region: asia-southeast1)</p>
@@ -92,33 +154,25 @@ export default function OwnerSettingsPage() {
                         </div>
                         <ChevronRight size={18} className="text-slate-300" />
                     </div>
-                    <div className="p-6 border-b border-slate-50 flex items-center justify-between hover:bg-slate-50/50 transition-colors group cursor-pointer">
-                        <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 transition-all group-hover:text-primary"><Globe size={20} /></div>
-                            <div>
-                                <p className="text-sm font-bold text-slate-800 tracking-tight">TwiML Webhook Endpoint</p>
-                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">https://api.dukhsuno.com/v1/twiml</p>
-                            </div>
-                        </div>
-                        <ChevronRight size={18} className="text-slate-300" />
-                    </div>
-                    
-                    {/* Twilio Multi-Account Manager */}
+
                     <Link href="/admin/settings/twilio-manager" className="p-6 flex items-center justify-between hover:bg-indigo-50/50 transition-colors group cursor-pointer border-t border-slate-50">
                         <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-indigo-500 transition-all group-hover:bg-indigo-500 group-hover:text-white group-hover:shadow-lg group-hover:shadow-indigo-500/20"><Database size={20} /></div>
+                            <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-indigo-500 transition-all group-hover:bg-indigo-500 group-hover:text-white group-hover:shadow-lg group-hover:shadow-indigo-500/20">
+                                <Database size={20} />
+                            </div>
                             <div>
                                 <p className="text-sm font-bold text-slate-800 tracking-tight">Twilio Account Manager</p>
-                                <p className="text-[10px] text-indigo-500 font-bold uppercase tracking-widest">Manage Multiple Twilio Instances & Names</p>
+                                <p className="text-[10px] text-indigo-500 font-bold uppercase tracking-widest">Manage Multiple Twilio Instances</p>
                             </div>
                         </div>
                         <ChevronRight size={18} className="text-slate-300 group-hover:text-indigo-500 transition-all group-hover:translate-x-1" />
                     </Link>
 
-                    {/* Dynamic ENV Control Link */}
                     <Link href="/admin/settings/env-control" className="p-6 flex items-center justify-between hover:bg-rose-50/50 transition-colors group cursor-pointer border-t border-slate-50">
                         <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-rose-500 transition-all group-hover:bg-rose-500 group-hover:text-white group-hover:shadow-lg group-hover:shadow-rose-500/20"><Monitor size={20} /></div>
+                            <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-rose-500 transition-all group-hover:bg-rose-500 group-hover:text-white group-hover:shadow-lg group-hover:shadow-rose-500/20">
+                                <Monitor size={20} />
+                            </div>
                             <div>
                                 <p className="text-sm font-bold text-slate-800 tracking-tight">Dynamic ENV Control</p>
                                 <p className="text-[10px] text-rose-500 font-bold uppercase tracking-widest">Manage Payment & Global Keys</p>
@@ -128,8 +182,6 @@ export default function OwnerSettingsPage() {
                     </Link>
                 </SettingsSection>
             </div>
-            
-            </div>
         </div>
     );
 }
@@ -137,16 +189,16 @@ export default function OwnerSettingsPage() {
 function SettingsSection({ title, icon, description, children }: any) {
     return (
         <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden">
-             <div className="p-8 border-b border-slate-50">
+            <div className="p-8 border-b border-slate-50">
                 <div className="flex items-center gap-3 mb-1">
                     {icon}
                     <h3 className="text-xl font-black text-slate-900 tracking-tight leading-none">{title}</h3>
                 </div>
                 <p className="text-xs text-slate-400 font-medium ml-8">{description}</p>
-             </div>
-             <div className="flex flex-col">
+            </div>
+            <div className="flex flex-col">
                 {children}
-             </div>
+            </div>
         </div>
     );
 }

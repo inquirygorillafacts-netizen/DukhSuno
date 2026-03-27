@@ -4,7 +4,8 @@ import { getAppConfig } from '@/lib/config';
 
 export async function POST(req: Request) {
   try {
-    const { amount, userId, type, listenerId } = await req.json();
+    const reqBody = await req.json();
+    const { amount, userId, type, listenerId } = reqBody;
     const config = await getAppConfig();
 
     const txnid = `DS_${Date.now()}_${userId.slice(0, 6)}`;
@@ -35,6 +36,9 @@ export async function POST(req: Request) {
       udf1: type,
       udf2: userId,
       udf3: listenerId || '',
+      udf4: reqBody.planId || '',
+      udf5: reqBody.planPrice?.toString() || '',
+      udf6: reqBody.planMinutes?.toString() || '',
     });
   } catch (error) {
     return NextResponse.json({ error: 'Server error' }, { status: 500 });

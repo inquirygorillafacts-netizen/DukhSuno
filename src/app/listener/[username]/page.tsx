@@ -75,9 +75,72 @@ export default function ListenerProfilePage() {
       router.push('/login?redirect=' + encodeURIComponent(window.location.pathname) + '&reason=call');
       return;
     }
+    
     setLoading(true);
-    // TODO: Implement payment + call flow
-    setTimeout(() => setLoading(false), 2000);
+    try {
+      // 1. Calculate payable amount based on user's current creditBalance
+      const userCredits = (user as any).creditBalance || 0;
+      const payableAmount = Math.max(0, selectedPlan.price - userCredits);
+
+      if (payableAmount > 0) {
+        // 2. Initiate PayU for the difference
+        const payuResp = await fetch('/api/payment/initiate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            amount: payableAmount,
+            userId: user.uid,
+            type: 'TOPUP_FOR_PLAN',
+            listenerId: listener.uid,
+            planId: selectedPlan.id,
+            planPrice: selectedPlan.price,
+            planMinutes: selectedPlan.minutes
+          })
+        });
+
+        const payuData = await payuResp.json();
+        if (payuData.error) throw new Error(payuData.error);
+
+        // Redirect to PayU checkout (assuming a client-side form submission or redirect)
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'https://secure.payu.in/_payment'; // Production URL
+        
+        Object.entries(payuData).forEach(([key, value]) => {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = key;
+          input.value = value as string;
+          form.appendChild(input);
+        });
+
+        document.body.appendChild(form);
+        form.submit();
+      } else {
+        // 3. Sufficient balance, create session immediately
+        const resp = await fetch('/api/sessions/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: user.uid,
+            listenerId: listener.uid,
+            planId: selectedPlan.id,
+            planMinutes: selectedPlan.minutes,
+            planPrice: selectedPlan.price,
+            creditsUsed: selectedPlan.price // Total price will be covered by credits
+          })
+        });
+
+        const { sessionId, error } = await resp.json();
+        if (error) throw new Error(error);
+        router.push(`/call/${sessionId}`);
+      }
+    } catch (err: any) {
+      console.error('Call initialization failed:', err);
+      alert(err.message || 'Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Star rating distribution (demo)

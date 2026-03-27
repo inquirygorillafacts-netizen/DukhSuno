@@ -13,11 +13,13 @@ import { syncPresence } from '@/lib/presence';
 export function ActiveCallScreen({ 
   listener, 
   priceInfo, 
-  sessionId 
+  sessionId,
+  onEnd
 }: { 
   listener: any, 
   priceInfo: any, 
-  sessionId: string 
+  sessionId: string,
+  onEnd?: () => void
 }) {
   const { 
     sessionDuration, isMuted, isCameraOn, isSpeaker, isVideoUnlocked,
@@ -176,7 +178,7 @@ export function ActiveCallScreen({
           <span className="text-[11px] text-white/70 font-black uppercase tracking-widest">Audio</span>
         </button>
 
-        <button onClick={endCall} className="flex flex-col items-center gap-2.5 group transform active:scale-90 transition-all">
+        <button onClick={onEnd || endCall} className="flex flex-col items-center gap-2.5 group transform active:scale-90 transition-all">
           <div className="w-15 h-15 rounded-2xl bg-error flex items-center justify-center text-white shadow-2xl shadow-error/40 hover:bg-error/80">
             <PhoneOff size={28} strokeWidth={2.5} />
           </div>

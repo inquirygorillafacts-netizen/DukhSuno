@@ -29,12 +29,12 @@ export async function POST(req: Request) {
       }, { status: 403 });
     }
 
-    // 3. Calculate commission (0% for first 6 months)
-    const registeredAt = listenerData?.registeredAt?.toDate() || new Date();
-    const sixMonthsAgo = new Date();
-    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-    const commissionRate = registeredAt > sixMonthsAgo ? 0 : 0.20; // 20% after 6 months
+    // 3. Get Platform Config (Centralized Commission)
+    const { getPlatformConfig } = await import('@/lib/config-admin');
+    const config = await getPlatformConfig();
+    const commissionRate = config.defaultCommissionRate || 0.20;
 
+    // 4. Create Session (No pre-deduction, no pre-booked transaction)
     const session = {
       sessionId,
       userId,
@@ -42,10 +42,9 @@ export async function POST(req: Request) {
       planId,
       planMinutes,
       planPrice,
-      creditsUsed: creditsUsed || 0,
-      payuAmount: payuAmount || 0,
-      payuTxnId: payuTxnId || null,
+      creditsUsed: planPrice, // The amount that WILL be used
       status: 'waiting',
+      transactionId: null, // To be created on connection
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       connectedAt: null,
       endedAt: null,
@@ -57,7 +56,7 @@ export async function POST(req: Request) {
       videoUnlocked: false,
     };
 
-    // 4. Write session to Firestore
+    // 5. Write to Firestore
     await adminDb.collection('sessions').doc(sessionId).set(session);
 
     // 5. Setup WebRTC signaling state in RTDB
