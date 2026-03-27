@@ -22,21 +22,21 @@ export default function WelcomeTour({ role, onClose }: WelcomeTourProps) {
     {
       title: "आपकी पहचान, आपका राज़ 🔒",
       description: "BigSuno पर आपकी पहचान 100% गुप्त रहती है। कोई भी आपका नाम या मोबाइल नंबर नहीं देख पाएगा।",
-      icon: <Shield size={48} className="text-rose-500" />,
+      icon: <Shield size={32} className="text-rose-500" />,
       tag: "PRIVACY FIRST",
       color: "bg-rose-50"
     },
     {
       title: "सुनें और कमाएं ₹₹ 💰",
       description: "दूसरों की बातें सुनकर आप महीने के ₹20,000 से ₹30,000 तक कमा सकते हैं। घर बैठे अपनी सेवा शुरू करें।",
-      icon: <Wallet size={48} className="text-emerald-500" />,
+      icon: <Wallet size={32} className="text-emerald-500" />,
       tag: "EARNINGS",
       color: "bg-emerald-50"
     },
     {
       title: "बढ़ती हुई कम्युनिटी! 🇮🇳",
       description: "पूरे भारत से लोग BigSuno से जुड़ रहे हैं। आप भी इस मददगार कम्युनिटी का हिस्सा बनें।",
-      icon: <Users size={48} className="text-indigo-500" />,
+      icon: <Users size={32} className="text-indigo-500" />,
       tag: "COMMUNITY",
       color: "bg-indigo-50"
     }
@@ -44,7 +44,7 @@ export default function WelcomeTour({ role, onClose }: WelcomeTourProps) {
     {
       title: "दिल खोल कर बात करें 🛡️",
       description: "यहाँ आप बिना किसी डर के अपने दिल की बात कह सकते हैं। हम आपके भरोसे की 100% कद्र करते हैं।",
-      icon: <Shield size={48} className="text-rose-500" />,
+      icon: <Shield size={32} className="text-rose-500" />,
       tag: "SAFE SPACE",
       color: "bg-rose-50"
     },
@@ -58,7 +58,7 @@ export default function WelcomeTour({ role, onClose }: WelcomeTourProps) {
     {
       title: "सुकून पाने की मंज़िल ✨",
       description: "भारत के कोने-कोने से लोग इस ऐप से जुड़े हैं। आज ही अपने दिल का बोझ हल्का करें और सुखी रहें।",
-      icon: <Heart size={48} className="text-[#ff4d6d]" />,
+      icon: <Heart size={32} className="text-[#ff4d6d]" />,
       tag: "HAPPY LIVES",
       color: "bg-rose-50"
     }
@@ -79,7 +79,7 @@ export default function WelcomeTour({ role, onClose }: WelcomeTourProps) {
     <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 md:p-6 backdrop-blur-2xl bg-slate-900/60 transition-all duration-500">
       {/* Container: Premium & Responsive */}
       <div 
-        className="w-full max-w-[500px] h-[600px] md:h-auto md:min-h-[500px] bg-white rounded-[3rem] shadow-2xl relative overflow-hidden flex flex-col items-center justify-between p-8 md:p-12 animate-in zoom-in-95 fade-in duration-500"
+        className="w-full max-w-[420px] bg-white rounded-[2.5rem] shadow-2xl relative overflow-hidden flex flex-col items-center justify-between p-8 md:p-10 animate-in zoom-in-95 fade-in duration-500"
       >
         {/* Close Button */}
         <button 
@@ -96,15 +96,15 @@ export default function WelcomeTour({ role, onClose }: WelcomeTourProps) {
 
         {/* Content Area */}
         <div className="flex-1 flex flex-col items-center justify-center text-center space-y-8 animate-in slide-in-from-right-10 duration-500">
-           <div className={`w-24 h-24 rounded-[2rem] flex items-center justify-center shadow-inner ${slides[currentSlide].color}`}>
+           <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-inner ${slides[currentSlide].color}`}>
               {slides[currentSlide].icon}
            </div>
            
            <div className="space-y-4">
-              <h2 className="text-[32px] md:text-[36px] font-black text-slate-900 leading-tight tracking-tighter italic">
+              <h2 className="text-[24px] md:text-[28px] font-black text-slate-900 leading-tight tracking-tighter italic">
                 {slides[currentSlide].title}
               </h2>
-              <p className="text-slate-500 text-[16px] md:text-[18px] font-medium leading-relaxed italic px-4">
+              <p className="text-slate-500 text-[14px] md:text-[15px] font-medium leading-relaxed italic px-4">
                 {slides[currentSlide].description}
               </p>
            </div>
@@ -123,10 +123,10 @@ export default function WelcomeTour({ role, onClose }: WelcomeTourProps) {
 
            <button 
               onClick={handleNext}
-              className="w-full h-20 bg-slate-900 text-white rounded-[2rem] font-black text-[18px] shadow-xl shadow-slate-200 flex items-center justify-center gap-4 transition-all active:scale-95 group hover:bg-[#ff4d6d]"
+              className="w-full h-16 bg-slate-900 text-white rounded-2xl font-black text-[15px] shadow-xl shadow-slate-200 flex items-center justify-center gap-4 transition-all active:scale-95 group hover:bg-[#ff4d6d]"
            >
               <span className="uppercase tracking-widest">{currentSlide === slides.length - 1 ? 'Chaliye Shuru Karein' : 'Aage Badhein'}</span>
-              <ArrowRight size={22} className="group-hover:translate-x-1 transition-transform" />
+              <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
            </button>
         </div>
 
