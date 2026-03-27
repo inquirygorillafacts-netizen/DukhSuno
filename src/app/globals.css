@@ -247,6 +247,9 @@ h1, h2, h3, h4, h5, h6 {
   100% { transform: scale(2.5); opacity: 0; }
 }
 
+.animate-star-bounce { animation: star-bounce 0.6s ease-in-out; }
+.animate-zoom-in { animation: fadeInUp 0.5s ease-out; }
+.animate-slide-up { animation: slideUp 0.5s ease-out; }
 .animate-heartbeat { animation: heartbeat 1.5s ease-in-out infinite; }
 .animate-ripple { animation: ripple 3s cubic-bezier(0, 0, 0.2, 1) infinite; }
 .animate-pulse-soft { animation: pulse-soft 3s ease-in-out infinite; }

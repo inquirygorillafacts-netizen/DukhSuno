@@ -46,14 +46,14 @@ export default function BlockedPage() {
              <span className="text-xs font-black text-rose-500 uppercase tracking-widest">Suraksha Chetavani</span>
           </div>
           <p className="text-xs text-slate-300 font-medium leading-relaxed">
-            Agar aapko lagta hai ki yeh galti se hua hai, toh kripya DukhSuno Management se contact karein. Aapka screen data aur calling features freeze kar diye gaye hain.
+            Agar aapko lagta hai ki yeh galti se hua hai, toh kripya BigSuno Management se contact karein. Aapka screen data aur calling features freeze kar diye gaye hain.
           </p>
         </div>
 
         {/* Action Buttons */}
         <div className="flex flex-col gap-4">
           <a
-            href="https://wa.me/918302829465?text=Hello%20DukhSuno%20Team,%20mera%20account%20block%20ho%20gaya%20hai.%20Kripya%20meri%20sadaayta%20karein."
+            href="https://wa.me/918302829465?text=Hello%20BigSuno%20Team,%20mera%20account%20block%20ho%20gaya%20hai.%20Kripya%20meri%20sadaayta%20karein."
             target="_blank"
             rel="noopener noreferrer"
             className="w-full h-14 bg-emerald-500 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:bg-emerald-600 transition-all active:scale-95 shadow-xl shadow-emerald-500/20"
@@ -72,7 +72,7 @@ export default function BlockedPage() {
       </div>
 
       <p className="mt-12 text-[10px] font-black text-slate-600 uppercase tracking-[0.4em]">
-        DukhSuno Security System v1.0
+        BigSuno Security System v1.0
       </p>
     </div>
   );

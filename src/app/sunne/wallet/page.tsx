@@ -58,7 +58,8 @@ export default function WalletPage() {
   const [transactions, setTransactions] = useState<any[]>([]);
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [commission, setCommission] = useState(2); // Default 2%
+  const [commission, setCommission] = useState(0.02); // 2% expressed as fraction
+  const [minWithdrawalAmount, setMinWithdrawalAmount] = useState(99); // New default 99
   
   // Withdrawal States
   const [showSetup, setShowSetup] = useState(false);
@@ -104,9 +105,13 @@ export default function WalletPage() {
       setRequests(snap.docs.map(d => ({ id: d.id, ...d.data() })));
     });
 
-    // Fetch Commission
-    const unsubscribeConfig = onSnapshot(doc(db, 'config', 'platform'), (snap) => {
-      if (snap.exists()) setCommission(snap.data().commissionPercent || 2);
+    // Fetch Platform Config
+    const unsubscribeConfig = onSnapshot(doc(db, 'settings', 'platform'), (snap) => {
+      if (snap.exists()) {
+        const data = snap.data();
+        setCommission(data.defaultCommissionRate || 0.02);
+        setMinWithdrawalAmount(data.minWithdrawalAmount || 99);
+      }
     });
 
     return () => {
@@ -137,8 +142,8 @@ export default function WalletPage() {
 
   const handleWithdrawRequest = async () => {
     const amount = parseFloat(withdrawAmount);
-    if (!user || isNaN(amount) || amount < 100) {
-      setErrorMsg('Min withdrawal is ₹100.');
+    if (!user || isNaN(amount) || amount < minWithdrawalAmount) {
+      setErrorMsg(`Min withdrawal is ₹${minWithdrawalAmount}.`);
       return;
     }
 
@@ -188,7 +193,7 @@ export default function WalletPage() {
           netAmount: totalNet,
           transactionIds: transactionIds,
           status: 'pending',
-          qrUrl: user.paymentQrUrl,
+          qrUrl: (user as any).paymentQrUrl,
           createdAt: serverTimestamp()
         });
 
@@ -260,7 +265,7 @@ export default function WalletPage() {
                <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 rounded-full border border-emerald-500/20">
                      <Plus size={14} className="text-emerald-400" />
-                     <span className="text-[11px] font-black uppercase tracking-widest text-emerald-400">Today: ₹{user?.todayEarnings || 0}</span>
+                     <span className="text-[11px] font-black uppercase tracking-widest text-emerald-400">Today: ₹{(user as any)?.todayEarnings || 0}</span>
                   </div>
                   <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full border border-white/5">
                      <Clock size={14} className="text-slate-400" />
@@ -270,7 +275,7 @@ export default function WalletPage() {
             </div>
 
             <button 
-               onClick={() => user?.paymentQrUrl ? setShowWithdraw(true) : setShowSetup(true)}
+               onClick={() => (user as any)?.paymentQrUrl ? setShowWithdraw(true) : setShowSetup(true)}
                className="w-full h-20 bg-rose-500 hover:bg-rose-600 text-white rounded-3xl font-black text-[18px] uppercase tracking-[0.2em] shadow-2xl shadow-rose-500/30 transition-all active:scale-[0.98] flex items-center justify-center gap-4"
             >
                Withdraw Funds
@@ -280,7 +285,7 @@ export default function WalletPage() {
       </div>
 
       {/* QR Status Reminder if not set */}
-      {!user?.paymentQrUrl && (
+      {!(user as any)?.paymentQrUrl && (
          <div onClick={() => setShowSetup(true)} className="p-6 rounded-3xl bg-amber-50 border border-amber-100 flex items-center gap-4 cursor-pointer hover:bg-amber-100 transition-colors">
             <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-amber-500 shadow-sm shrink-0">
                <QrCode size={24} />
@@ -356,8 +361,8 @@ export default function WalletPage() {
                                  {r.status.toUpperCase()} — {(r.createdAt as any)?.toDate?.() ? r.createdAt.toDate().toLocaleDateString() : 'Recent'}
                               </p>
                               <div className="flex items-center gap-2 mt-1.5 pt-1.5 border-t border-slate-50">
-                                 <span className="text-[9px] font-black text-emerald-500 uppercase tracking-tighter bg-emerald-50 px-2 py-0.5 rounded-md">Receive: ₹{r.amount - Math.floor(r.amount * (commission/100))}</span>
-                                 <span className="text-[9px] font-bold text-slate-300 uppercase tracking-tighter italic">Fee: ₹{Math.floor(r.amount * (commission/100))}</span>
+                                 <span className="text-[9px] font-black text-emerald-500 uppercase tracking-tighter bg-emerald-50 px-2 py-0.5 rounded-md">Receive: ₹{r.amount - Math.floor(r.amount * (commission))}</span>
+                                 <span className="text-[9px] font-bold text-slate-300 uppercase tracking-tighter italic">Fee: ₹{Math.floor(r.amount * (commission))}</span>
                               </div>
                            </div>
                         </div>
@@ -468,9 +473,9 @@ export default function WalletPage() {
                      <div className="flex items-center justify-between px-2 relative z-10">
                         <div className="flex items-center gap-2">
                            <div className="w-8 h-8 bg-white rounded-xl flex items-center justify-center text-rose-500 shadow-sm border border-rose-50"><Minus size={14} /></div>
-                           <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Platform Fee ({commission}%)</span>
+                           <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Platform Fee ({(commission * 100).toFixed(0)}%)</span>
                         </div>
-                        <span className="text-sm font-black text-rose-400">-₹{Math.floor((parseInt(withdrawAmount) || 0) * (commission/100))}</span>
+                        <span className="text-sm font-black text-rose-400">-₹{Math.floor((parseInt(withdrawAmount) || 0) * (commission))}</span>
                      </div>
                      
                      <div className="h-px bg-indigo-100/50 relative z-10" />
@@ -481,7 +486,7 @@ export default function WalletPage() {
                            <span className="text-[11px] font-black text-white uppercase tracking-[0.1em]">Final Payout</span>
                         </div>
                         <div className="text-right">
-                           <span className="text-2xl font-black text-white italic tracking-tighter">₹{(parseInt(withdrawAmount) || 0) - Math.floor((parseInt(withdrawAmount) || 0) * (commission/100))}</span>
+                           <span className="text-2xl font-black text-white italic tracking-tighter">₹{(parseInt(withdrawAmount) || 0) - Math.floor((parseInt(withdrawAmount) || 0) * (commission))}</span>
                            <p className="text-[8px] text-white/60 font-black uppercase tracking-widest leading-none">Net Amount</p>
                         </div>
                      </div>
@@ -489,7 +494,7 @@ export default function WalletPage() {
 
                   <div className="p-6 rounded-[2rem] bg-slate-50 border border-slate-100 flex items-center gap-4">
                      <div className="w-14 h-14 rounded-2xl overflow-hidden border-2 border-white shadow-md">
-                        <img src={user?.paymentQrUrl} className="w-full h-full object-cover" />
+                        <img src={(user as any)?.paymentQrUrl} className="w-full h-full object-cover" />
                      </div>
                      <div>
                         <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Withdrawal Account</p>

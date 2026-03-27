@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { useAuthStore } from "@/stores/auth-store";
 
 function cn(...classes: (string | boolean | undefined)[]) {
     return classes.filter(Boolean).join(" ");
@@ -26,6 +27,7 @@ function cn(...classes: (string | boolean | undefined)[]) {
 
 export default function SpeakerSidebar() {
     const pathname = usePathname();
+    const { setShowTour } = useAuthStore();
     const [isExpanded, setIsExpanded] = useState(true);
 
     const links = [
@@ -59,12 +61,12 @@ export default function SpeakerSidebar() {
             {/* Brand */}
             <div className={`shrink-0 p-6 ${isExpanded ? 'px-6' : 'px-0 flex justify-center'}`}>
                 <Link href="/sunane/home" className="flex items-center gap-3">
-                    <div className="flex items-center justify-center w-8 h-8 shrink-0 rounded-xl bg-rose-600 border border-rose-400/30 shadow-lg">
-                        <MessageCircle size={18} className="text-white fill-white" />
+                    <div className="flex items-center justify-center w-9 h-9 shrink-0 rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden">
+                        <img src="/logo.png" alt="BigSuno" className="w-full h-full object-cover" />
                     </div>
                     {isExpanded && (
                         <div className="flex flex-col min-w-0">
-                            <span className="text-sm font-black text-slate-900 tracking-tighter leading-tight uppercase">DukhSuno</span>
+                            <span className="text-sm font-black text-slate-900 tracking-tighter leading-tight uppercase">BigSuno</span>
                             <span className="text-[9px] font-black text-rose-600 uppercase tracking-widest mt-[-2px]">Speaker</span>
                         </div>
                     )}
@@ -125,6 +127,18 @@ export default function SpeakerSidebar() {
                 >
                     <LogOut size={16} />
                     {isExpanded && <span className="text-[11px] font-black uppercase tracking-widest leading-none mt-0.5">Logout</span>}
+                </button>
+
+                <button
+                    onClick={() => setShowTour(true)}
+                    className={cn(
+                        "flex items-center gap-3 h-10 rounded-xl transition-all duration-200 group w-full",
+                        isExpanded ? "px-4" : "justify-center",
+                        "text-rose-400 hover:text-rose-600 hover:bg-rose-50 border border-rose-50 bg-white shadow-sm"
+                    )}
+                >
+                    <Sparkles size={16} className="animate-pulse" />
+                    {isExpanded && <span className="text-[11px] font-black uppercase tracking-widest leading-none mt-0.5">How it Works?</span>}
                 </button>
             </div>
         </aside>

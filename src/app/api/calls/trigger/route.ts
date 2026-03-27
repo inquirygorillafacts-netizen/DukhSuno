@@ -84,7 +84,7 @@ async function sendPushNotification(targetToken: string, data: any) {
     to: targetToken,
     sound: 'default',
     title: 'Incoming Call 📞',
-    body: `${data.callerName || 'Anonymous'} is calling you on DukhSuno`,
+    body: `${data.callerName || 'Anonymous'} is calling you on BigSuno`,
     data: data,
     priority: 'high' as any,
     channelId: 'dukhsuno_calls',

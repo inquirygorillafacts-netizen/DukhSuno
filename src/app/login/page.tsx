@@ -7,7 +7,7 @@ import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, googleProvider, db } from '@/lib/firebase';
 import { useAuthStore } from '@/stores/auth-store';
 import RoleSelectionDrawer from '@/components/shared/RoleSelectionDrawer';
-import type { DukhSunoUser, Role } from '@/types';
+import type { BigSunoUser, Role } from '@/types';
 import { Heart, ShieldCheck } from 'lucide-react';
 
 export default function LoginPage() {
@@ -26,7 +26,7 @@ export default function LoginPage() {
       const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
 
       if (userDoc.exists()) {
-        const userData = userDoc.data() as DukhSunoUser;
+        const userData = userDoc.data() as BigSunoUser;
         setUser(userData);
         setUserRoles(userData.roles || []);
 
@@ -47,7 +47,7 @@ export default function LoginPage() {
           setLoading(false);
         }
       } else {
-        const newUser: Partial<DukhSunoUser> = {
+        const newUser: Partial<BigSunoUser> = {
           uid: firebaseUser.uid,
           email: firebaseUser.email || '',
           displayName: firebaseUser.displayName || '',
@@ -61,7 +61,7 @@ export default function LoginPage() {
           ...newUser,
           createdAt: serverTimestamp(),
         });
-        setUser(newUser as DukhSunoUser);
+        setUser(newUser as BigSunoUser);
         router.push('/select-role');
       }
     } catch (error) {

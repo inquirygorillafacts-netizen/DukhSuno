@@ -8,8 +8,8 @@ export async function GET() {
       return NextResponse.json(doc.data());
     }
     return NextResponse.json({
-      defaultCommissionRate: 0.20,
-      minWithdrawalAmount: 500
+      defaultCommissionRate: 0.02,
+      minWithdrawalAmount: 99
     });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch config' }, { status: 500 });

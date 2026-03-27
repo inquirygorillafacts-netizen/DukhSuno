@@ -22,8 +22,8 @@ export async function POST(req: Request) {
       from: twilioNumber,
       twiml: `<Response>
         <Say voice="Polly.Aditi" language="hi-IN">
-          Namaskar! DukhSuno app mein aapko ek call aa rahi hai.
-          Kripya apna DukhSuno app kholen aur call accept karen.
+          Namaskar! BigSuno app mein aapko ek call aa rahi hai.
+          Kripya apna BigSuno app kholen aur call accept karen.
           Aapki kamai aapka intezaar kar rahi hai.
         </Say>
       </Response>`,

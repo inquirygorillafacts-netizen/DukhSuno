@@ -6,14 +6,14 @@ import { collection, query, where, getDocs, limit, addDoc, serverTimestamp } fro
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/stores/auth-store';
 import { SPECIALTY_LABELS } from '@/types';
-import type { DukhSunoUser, Plan } from '@/types';
+import type { BigSunoUser, Plan } from '@/types';
 import { Phone, Star, ChevronDown, ShieldCheck, Heart, Zap, Sparkles, MessageCircle, AlertCircle } from 'lucide-react';
 
 export default function SunaneListenerProfilePage() {
     const params = useParams();
     const router = useRouter();
     const { user } = useAuthStore();
-    const [listener, setListener] = useState<Partial<DukhSunoUser> | null>(null);
+    const [listener, setListener] = useState<Partial<BigSunoUser> | null>(null);
     const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
     const [showFullBio, setShowFullBio] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -29,7 +29,7 @@ export default function SunaneListenerProfilePage() {
                 );
                 const snap = await getDocs(q);
                 if (!snap.empty) {
-                    setListener(snap.docs[0].data() as DukhSunoUser);
+                    setListener(snap.docs[0].data() as BigSunoUser);
                 }
             } catch (err) {
                 console.error("Error fetching listener:", err);

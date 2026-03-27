@@ -64,7 +64,7 @@ export default function PWAInstall({ renderTrigger }: Props) {
     { 
       icon: <Smartphone className="text-rose-400" />, 
       title: "One-Tap Access", 
-      desc: "Open DukhSuno directly from your home screen." 
+      desc: "Open BigSuno directly from your home screen." 
     }
   ];
 
@@ -92,7 +92,7 @@ export default function PWAInstall({ renderTrigger }: Props) {
                   <Download size={32} />
                </div>
                <div>
-                  <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-1">Install DukhSuno App</h3>
+                  <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-1">Install BigSuno App</h3>
                   <div className="flex items-center gap-2">
                      <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                      <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Premium PWA Experience v3.0</p>

@@ -6,7 +6,7 @@ import { ref, onValue } from 'firebase/database';
 import { db, rtdb } from '@/lib/firebase';
 import { MOOD_TAGS, SPECIALTY_LABELS } from '@/types';
 import type { ListenerCard as ListenerCardType, Specialty } from '@/types';
-import { Search, Sparkles, Star, Phone, Heart, Filter, MessageCircle, Plus, Play, Loader2 } from 'lucide-react';
+import { Search, Sparkles, Star, Phone, Heart, Filter, MessageCircle, Plus, Play, Loader2, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
 import { APP_CONFIG } from '@/lib/constants';
@@ -17,7 +17,7 @@ function ListenerCard({ listener }: { listener: ListenerCardType }) {
   const specialty = listener.specialties[0];
   
   return (
-    <Link href={`/listener/${listener.username}`}>
+    <Link href={`/p/${listener.uid}`}>
       <div className="glass bg-white p-4 rounded-3xl border border-white relative group transition-all duration-500 hover:scale-[1.02] cursor-pointer shadow-sm hover:shadow-xl">
         <div className="flex items-start justify-between mb-3">
           <div className="relative">
@@ -26,6 +26,11 @@ function ListenerCard({ listener }: { listener: ListenerCardType }) {
              </div>
              {listener.isAvailable && (
                <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-white animate-pulse" />
+             )}
+             {listener.isVerified && (
+               <div className="absolute -top-1 -right-1 w-5 h-5 bg-blue-500 rounded-lg flex items-center justify-center border-2 border-white shadow-sm">
+                 <ShieldCheck size={10} fill="white" className="text-blue-500" />
+               </div>
              )}
           </div>
           <div className="text-right">
@@ -170,7 +175,8 @@ export default function SunaneHomePage() {
           .map(doc => ({
             uid: doc.id,
             ...doc.data(),
-            cheapestPlan: doc.data().plans?.sort((a: any, b: any) => a.price - b.price)[0] || null
+            cheapestPlan: doc.data().plans?.sort((a: any, b: any) => a.price - b.price)[0] || null,
+            isBlocked: doc.data().isBlocked || false
           } as ListenerCardType))
           .filter(l => !l.isBlocked);
 
@@ -311,7 +317,7 @@ export default function SunaneHomePage() {
                <p className="mt-4 text-white font-black text-xs uppercase tracking-[0.3em]">Watch Tutorial</p>
             </div>
             <div className="absolute bottom-6 left-8 z-20">
-               <p className="text-white font-black text-lg italic tracking-tighter leading-none mb-1">DukhSuno Kaise Use Karein?</p>
+               <p className="text-white font-black text-lg italic tracking-tighter leading-none mb-1">BigSuno Kaise Use Karein?</p>
                <p className="text-white/60 text-[10px] uppercase font-bold tracking-widest">Learn in 2 minutes</p>
             </div>
          </a>

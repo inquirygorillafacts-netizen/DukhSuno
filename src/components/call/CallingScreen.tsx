@@ -33,9 +33,15 @@ export function CallingScreen({ listener }: { listener: any }) {
 
       <div className="text-center space-y-4 z-10">
         <h2 className="text-[32px] font-black text-white tracking-tight leading-tight" style={{ fontFamily: 'var(--font-display)' }}>
-          {listener?.displayName || 'Listener'} ko<br/>call jaa rahi hai... ✨
+          {listener?.displayName === 'Seeker' ? (
+            <>Naya Seeker ki<br/>call aa rahi hai... ✨</>
+          ) : (
+            <>{listener?.displayName || 'Listener'} ko<br/>call jaa rahi hai... ✨</>
+          )}
         </h2>
-        <p className="text-white/60 text-[16px] font-medium italic">Kripya thoda intezaar karein</p>
+        <p className="text-white/60 text-[16px] font-medium italic">
+          {listener?.displayName === 'Seeker' ? 'Kripya call pick karein' : 'Kripya thoda intezaar karein'}
+        </p>
       </div>
 
       <div className="relative mt-16 mb-24 z-10 w-40 h-40">

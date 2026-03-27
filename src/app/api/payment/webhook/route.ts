@@ -62,7 +62,7 @@ export async function POST(req: Request) {
           // Fetch centralized commission rate
           const { getPlatformConfig } = await import('@/lib/config-admin');
           const config = await getPlatformConfig();
-          const commissionRate = config.defaultCommissionRate || 0.20;
+          const commissionRate = config.defaultCommissionRate || 0.02;
 
           // Note: Credits are NOT deducted here, only session is created
           await adminDb.collection('sessions').doc(sessionId).set({

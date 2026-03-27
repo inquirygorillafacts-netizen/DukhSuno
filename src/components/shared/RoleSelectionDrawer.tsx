@@ -147,7 +147,7 @@ export default function RoleSelectionDrawer({ isOpen, onClose, roles }: RoleSele
         </div>
 
         <p className="text-center mt-8 text-[10px] text-slate-400 font-black uppercase tracking-widest">
-          Premium Experience by DukhSuno
+          Premium Experience by BigSuno
         </p>
       </div>
     </div>

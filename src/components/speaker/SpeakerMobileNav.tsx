@@ -8,11 +8,14 @@ import {
     Search, 
     Wallet, 
     User, 
-    MessageCircle 
+    MessageCircle,
+    Sparkles
 } from "lucide-react";
+import { useAuthStore } from "@/stores/auth-store";
 
 export default function SpeakerMobileNav() {
     const pathname = usePathname();
+    const { setShowTour } = useAuthStore();
 
     const links = [
         { name: "Home", href: "/sunane/home", icon: Home },
@@ -42,6 +45,15 @@ export default function SpeakerMobileNav() {
                     </Link>
                 );
             })}
+
+            {/* Intro Button (Static) */}
+            <button
+                onClick={() => setShowTour(true)}
+                className="flex flex-col items-center gap-1 text-rose-400 animate-pulse active:scale-95 transition-all"
+            >
+                <Sparkles size={20} />
+                <span className="text-[10px] font-bold uppercase tracking-tighter">Intro</span>
+            </button>
         </nav>
     );
 }

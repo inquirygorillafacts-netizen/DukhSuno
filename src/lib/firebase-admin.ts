@@ -15,7 +15,7 @@ if (!admin.apps.length) {
 
     const serviceAccount = (saString && saString !== '{}') ? JSON.parse(saString) : null;
     
-    const projectId = serviceAccount?.project_id || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'dukhsuno-placeholder';
+    const projectId = serviceAccount?.project_id || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'bigsuno-app';
     const databaseURL = process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL || `https://${projectId}.firebaseio.com`;
 
     if (serviceAccount?.project_id) {

@@ -3,13 +3,19 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "DukhSuno — Dil ki baat sune koi apna",
+  title: "BigSuno — Dil ki baat sune koi apna ✨",
   description:
-    "Anonymous emotional support marketplace. Sunane wale pay karke sune. Sunne wale earn karke sune. WebRTC P2P call. Premium UI.",
+    "BigSuno: Anonymous consultation, mentorship, and influencer platform. Connect with experts for career, guidance, and emotional support.",
   keywords: ["emotional support", "anonymous", "voice call", "therapy", "India"],
   manifest: "/manifest.json",
   icons: {
     icon: "/favicon.png",
+  },
+  themeColor: "#FFFFFF",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "BigSuno",
   },
 };
 

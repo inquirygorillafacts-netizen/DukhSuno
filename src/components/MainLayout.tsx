@@ -14,10 +14,20 @@ import WelcomeTour from './shared/WelcomeTour';
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { user, activeRole } = useAuthStore();
+  const { user, activeRole, showTour, setShowTour } = useAuthStore();
   const [isLive, setIsLive] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [showWelcomeTour, setShowWelcomeTour] = useState(false);
+
+  const path = pathname || '';
+  const isFullPage = path === '/' ||
+                    path === '/login' || 
+                    path === '/select-role' || 
+                    path === '/choose-role' || 
+                    path === '/blocked' ||
+                    path.includes('onboarding') ||
+                    path.startsWith('/admin') ||
+                    path.startsWith('/sunne') ||
+                    path.startsWith('/sunane');
 
   useEffect(() => {
     setMounted(true);
@@ -32,20 +42,20 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
 
   // Check for Welcome Tour
   useEffect(() => {
-    if (mounted && user && !isAuthPage && activeRole) {
+    if (mounted && user && !isFullPage && activeRole) {
       const tourKey = `hasSeenWelcomeTour_${user.uid}_${activeRole}`;
       const hasSeen = localStorage.getItem(tourKey);
       if (!hasSeen) {
-        setShowWelcomeTour(true);
+        setShowTour(true);
       }
     }
-  }, [mounted, user, isAuthPage, activeRole]);
+  }, [mounted, user, isFullPage, activeRole, setShowTour]);
 
   const handleTourClose = () => {
     if (user && activeRole) {
       localStorage.setItem(`hasSeenWelcomeTour_${user.uid}_${activeRole}`, 'true');
     }
-    setShowWelcomeTour(false);
+    setShowTour(false);
   };
 
   // Determine active tab based on pathname
@@ -61,16 +71,6 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
 
   // Navigation items logic remains same...
   
-  const path = pathname || '';
-  const isAuthPage = path === '/' ||
-                    path === '/login' || 
-                    path === '/select-role' || 
-                    path === '/choose-role' || 
-                    path.includes('onboarding') ||
-                    path.includes('owner') ||
-                    path.includes('admin') ||
-                    path.includes('sunne') ||
-                    path.includes('sunane');
 
   // Define navigation based on activeRole
   const navItems = activeRole === 'sunne_wala' ? [
@@ -90,10 +90,19 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
       <AuroraBackground />
       
       {!mounted ? (
-         <main className="flex-1 flex flex-col items-center justify-center h-screen w-full">
-            <h2 className="text-xl font-black text-slate-200 tracking-tighter uppercase animate-pulse">DukhSuno...</h2>
+         <main className="flex-1 flex flex-col items-center justify-center h-screen w-full bg-white relative z-[2000]">
+            <div className="relative w-24 h-24 mb-6 flex items-center justify-center">
+               <div className="absolute inset-0 bg-rose-100 rounded-full animate-ping opacity-20" />
+               <div className="relative w-16 h-16 bg-white shadow-xl rounded-2xl flex items-center justify-center animate-heartbeat">
+                  <Heart className="text-[#ff4d6d] fill-current w-8 h-8" />
+               </div>
+            </div>
+            <div className="space-y-2 text-center">
+               <h2 className="text-2xl font-black text-slate-900 tracking-tighter uppercase leading-none">Dukh<span className="text-[#ff4d6d] italic">Suno</span></h2>
+               <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] animate-pulse">Sabar Rakhein...</p>
+            </div>
          </main>
-      ) : isAuthPage ? (
+      ) : isFullPage ? (
         <main className="min-h-screen relative z-[1000] bg-white w-full">{children}</main>
       ) : (
         <>
@@ -217,7 +226,8 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
         </>
       )}
 
-      {showWelcomeTour && activeRole && (
+      {/* Global Welcome Tour - Rendered outside conditional layouts for proper z-index */}
+      {showTour && activeRole && (
         <WelcomeTour 
           role={activeRole as 'sunne_wala' | 'sunane_wala'} 
           onClose={handleTourClose} 

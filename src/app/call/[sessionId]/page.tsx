@@ -10,7 +10,7 @@ import { useAuthStore } from '@/stores/auth-store';
 import { startCall, answerCall } from '@/lib/webrtc';
 import { doc, getDoc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import type { Session, DukhSunoUser } from '@/types';
+import type { Session, BigSunoUser } from '@/types';
 
 export default function CallPage({ params }: { params: Promise<{ sessionId: string }> }) {
   const router = useRouter();
@@ -22,7 +22,7 @@ export default function CallPage({ params }: { params: Promise<{ sessionId: stri
   } = useCallStore();
 
   const [session, setSession] = useState<Session | null>(null);
-  const [listener, setListener] = useState<DukhSunoUser | null>(null);
+  const [listener, setListener] = useState<BigSunoUser | null>(null);
   const [showRating, setShowRating] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -35,11 +35,24 @@ export default function CallPage({ params }: { params: Promise<{ sessionId: stri
         const sessionData = docSnap.data() as Session;
         setSession(sessionData);
 
-        // If listener not fetched yet, fetch them
-        if (!listener && sessionData.listenerId) {
-          const listenerSnap = await getDoc(doc(db, 'users', sessionData.listenerId));
-          if (listenerSnap.exists()) {
-            setListener(listenerSnap.data() as DukhSunoUser);
+        // Fetch Partner (Listener if I am Speaker, Speaker if I am Listener)
+        const partnerId = activeRole === 'sunane_wala' ? sessionData.listenerId : sessionData.userId;
+        
+        if (!listener && partnerId) {
+          const partnerSnap = await getDoc(doc(db, 'users', partnerId));
+          if (partnerSnap.exists()) {
+            let partnerData = partnerSnap.data() as BigSunoUser;
+            
+            // ─── SEEKER PRIVACY MASKING ───
+            if (activeRole === 'sunne_wala') {
+              partnerData = {
+                ...partnerData,
+                displayName: 'Seeker',
+                avatarUrl: 'emoji:👤:#F3F1EC', // Default Seeker Avatar
+              };
+            }
+            
+            setListener(partnerData);
           }
         }
 
@@ -282,7 +295,7 @@ export default function CallPage({ params }: { params: Promise<{ sessionId: stri
           // It's already 'pending' from onConnected, no changes needed here unless we want to mark it 'finalized'
           
           // 3. Update Listener Balance & Status
-          const listenerSnap = await firestoreTransaction.get(listenerRef);
+          const listenerSnap = await transaction.get(listenerRef);
           if (listenerSnap.exists()) {
             const currentBalance = listenerSnap.data().availableBalance || 0;
             const currentTotal = listenerSnap.data().totalEarnings || 0;
@@ -290,7 +303,7 @@ export default function CallPage({ params }: { params: Promise<{ sessionId: stri
             // Calculate net from the session record
             const net = session.listenerEarned || 0;
             
-            firestoreTransaction.update(listenerRef, {
+            transaction.update(listenerRef, {
               inCall: false,
               availableBalance: currentBalance + net,
               totalEarnings: currentTotal + net

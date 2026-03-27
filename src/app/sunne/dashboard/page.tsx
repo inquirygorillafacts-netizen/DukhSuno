@@ -20,7 +20,9 @@ import {
   Settings,
   Copy,
   Check,
-  Share
+  Share,
+  Clock,
+  Users
 } from 'lucide-react';
 import Link from 'next/link';
 import { doc, updateDoc, onSnapshot, query, collection, where, limit, orderBy } from 'firebase/firestore';
@@ -38,6 +40,7 @@ export default function SunneDashboardPage() {
   const [showQR, setShowQR] = useState(false);
   const [showSupport, setShowSupport] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [commissionRate, setCommissionRate] = useState(0.02); // Default
   const router = useRouter();
 
   useEffect(() => {
@@ -77,10 +80,18 @@ export default function SunneDashboardPage() {
       setSessions(allSessions);
     });
 
+    // Platform settings listener
+    const unsubscribeSettings = onSnapshot(doc(db, 'settings', 'platform'), (docSnap) => {
+      if (docSnap.exists()) {
+        setCommissionRate(docSnap.data().defaultCommissionRate || 0.02);
+      }
+    });
+
     return () => {
       unsubscribeUser();
       unsubscribePending();
       unsubscribeAll();
+      unsubscribeSettings();
     };
   }, [user?.uid]);
 
@@ -102,6 +113,26 @@ export default function SunneDashboardPage() {
   return (
     <div className="space-y-6 animate-in fade-in duration-700 slide-in-from-bottom-2">
       
+      {/* Verification Pending Banner */}
+      {user && !user.isVerified && (
+        <div className="p-8 rounded-[2.5rem] bg-amber-50 border-2 border-amber-100 flex flex-col md:flex-row items-center gap-6 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-amber-200 rounded-full blur-[60px] opacity-20 animate-pulse" />
+          <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-amber-500 shadow-sm shrink-0">
+             <Clock className="w-8 h-8 animate-spin-slow" />
+          </div>
+          <div className="flex-1 text-center md:text-left">
+             <h4 className="text-lg font-black text-amber-900 tracking-tighter uppercase leading-none mb-1">Verification Pending ⏳</h4>
+             <p className="text-[11px] text-amber-700 font-bold leading-relaxed max-w-md italic">
+                Aapka profile abhi verification processing mein hai. Humne Twilio update trigger kar diya hai, jald hi aap calls attend kar payenge!
+             </p>
+          </div>
+          <div className="flex items-center gap-2 px-4 py-2 bg-amber-200/50 rounded-full text-[9px] font-black uppercase text-amber-900 tracking-widest">
+             <div className="w-1.5 h-1.5 bg-amber-600 rounded-full animate-ping" />
+             Under Review
+          </div>
+        </div>
+      )}
+
       {/* Live Toggle & Profile Actions Line */}
       <section className="p-6 md:p-8 glass bg-white rounded-[2.5rem] border border-white shadow-sm relative overflow-hidden">
         <div className={`absolute -right-20 -top-20 w-48 h-48 rounded-full blur-[100px] transition-colors duration-1000 ${isLive ? 'bg-emerald-500/10' : 'bg-rose-500/5'}`} />
@@ -174,7 +205,7 @@ export default function SunneDashboardPage() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
         <StatBox 
           label="Today's Earnings" 
           value={`₹${user?.totalEarnings || 0}`} 
@@ -189,11 +220,16 @@ export default function SunneDashboardPage() {
           trend="+2%"
         />
         <StatBox 
+          label="Platform Fee" 
+          value={`${(commissionRate * 100).toFixed(0)}%`} 
+          icon={<Settings />} 
+          color="rose"
+        />
+        <StatBox 
           label="Total Calls" 
           value={user?.totalSessions || 0} 
           icon={<PhoneIncoming />} 
           color="slate"
-          className="col-span-2 md:col-span-1"
         />
       </div>
 
@@ -300,8 +336,6 @@ export default function SunneDashboardPage() {
       {/* Sheets */}
       {showQR && <QRShareSheet user={user} onClose={() => setShowQR(false)} />}
       {showSupport && <SupportSheet onClose={() => setShowSupport(false)} />}
-    </div>
-
     </div>
   );
 }

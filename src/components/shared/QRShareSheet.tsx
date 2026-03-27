@@ -11,7 +11,10 @@ interface QRShareSheetProps {
 
 export default function QRShareSheet({ user, onClose }: QRShareSheetProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
-  const shareUrl = `${window.location.origin}/sunane/home?ref=${user?.uid || 'guest'}`;
+  const isListener = user?.roles?.includes('sunne_wala');
+  const shareUrl = isListener 
+    ? `${window.location.origin}/p/${user?.uid}`
+    : `${window.location.origin}/sunane/home?ref=${user?.uid || 'guest'}`;
 
   const downloadQR = () => {
     const canvas = document.querySelector('canvas');
@@ -32,7 +35,7 @@ export default function QRShareSheet({ user, onClose }: QRShareSheetProps) {
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, 1080, 1920);
 
-    // DukhSuno Branding
+    // BigSuno Branding
     ctx.fillStyle = '#ff4d6d';
     ctx.beginPath();
     ctx.roundRect(440, 150, 200, 200, 40);
@@ -46,7 +49,7 @@ export default function QRShareSheet({ user, onClose }: QRShareSheetProps) {
 
     ctx.fillStyle = '#1e293b';
     ctx.font = 'bold 100px Arial';
-    ctx.fillText('DukhSuno', 540, 480);
+    ctx.fillText('BigSuno', 540, 480);
     
     ctx.fillStyle = '#ff4d6d';
     ctx.font = 'italic bold 50px Arial';
@@ -74,10 +77,10 @@ export default function QRShareSheet({ user, onClose }: QRShareSheetProps) {
     
     ctx.fillStyle = '#94a3b8';
     ctx.font = '500 35px Arial';
-    ctx.fillText('Scan to connect on DukhSuno', 540, 1720);
+    ctx.fillText('Scan to connect on BigSuno', 540, 1720);
 
     const link = document.createElement('a');
-    link.download = `DukhSuno_QR_${user?.displayName || 'Shared'}.png`;
+    link.download = `BigSuno_QR_${user?.displayName || 'Shared'}.png`;
     link.href = posterCanvas.toDataURL('image/png');
     link.click();
   };
@@ -86,7 +89,7 @@ export default function QRShareSheet({ user, onClose }: QRShareSheetProps) {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'DukhSuno - Connect with me!',
+          title: 'BigSuno - Connect with me!',
           text: 'Dil ki baat kahein, sukoon paayein. Mujhse baat karne ke liye scan karein!',
           url: shareUrl
         });
@@ -140,7 +143,7 @@ export default function QRShareSheet({ user, onClose }: QRShareSheetProps) {
                  />
               </div>
               <div className="mt-6 text-center space-y-1">
-                 <p className="text-xs font-black text-slate-900 uppercase tracking-tighter italic">DukhSuno Premium QR</p>
+                 <p className="text-xs font-black text-slate-900 uppercase tracking-tighter italic">BigSuno Premium QR</p>
                  <div className="flex items-center justify-center gap-2">
                     <div className="h-1 w-6 bg-rose-200 rounded-full" />
                     <Heart size={10} className="text-rose-400 fill-current" />

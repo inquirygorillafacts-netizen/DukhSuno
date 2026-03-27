@@ -84,12 +84,12 @@ export default function AdminSidebar() {
             {/* Brand */}
             <div className={`shrink-0 p-6 ${isExpanded ? 'px-6' : 'px-0 flex justify-center'}`}>
                 <Link href="/admin/dashboard" className="flex items-center gap-3">
-                    <div className="flex items-center justify-center w-8 h-8 shrink-0 rounded-xl bg-slate-900 border border-slate-700 shadow-xl">
-                        <Lock size={18} className="text-white fill-white" />
+                    <div className="flex items-center justify-center w-10 h-10 shrink-0 rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden">
+                        <img src="/logo.png" alt="BigSuno" className="w-full h-full object-cover" />
                     </div>
                     {isExpanded && (
                         <div className="flex flex-col min-w-0">
-                            <span className="text-sm font-black text-slate-900 tracking-tighter leading-tight uppercase">DukhSuno</span>
+                            <span className="text-sm font-black text-slate-900 tracking-tighter leading-tight uppercase">BigSuno</span>
                             <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-[-2px]">Admin Portal</span>
                         </div>
                     )}

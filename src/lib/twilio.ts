@@ -19,7 +19,7 @@ export async function triggerVoiceAlert(toPhoneNumber: string) {
   const client = twilio(accountSid, authToken);
 
   try {
-    const ringtoneUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'https://dukhsuno.com'}/ringtone.mp3`;
+    const ringtoneUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'https://bigsuno.app'}/ringtone.mp3`;
     const call = await client.calls.create({
       twiml: `<Response>
                 <Pause length="1"/>

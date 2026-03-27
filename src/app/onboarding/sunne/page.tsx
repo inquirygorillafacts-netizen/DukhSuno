@@ -34,9 +34,12 @@ interface Avatar {
   category: 'boy' | 'girl' | 'baby';
 }
 
+import { IntroSlides } from '@/components/onboarding/IntroSlides';
+
 export default function SunneOnboarding() {
   const router = useRouter();
   const { user, setUser } = useAuthStore();
+  const [showIntro, setShowIntro] = useState(true);
   const [step, setStep] = useState(1);
   const totalSteps = 7;
 
@@ -161,7 +164,20 @@ export default function SunneOnboarding() {
   const handleComplete = async () => {
     if (!user) return;
     setLoading(true);
+    setErrorMsg(null);
     try {
+      // Check if phone number already exists
+      const phoneQuery = query(
+        collection(db, 'users'),
+        where('phoneNumber', '==', `+91${phone}`)
+      );
+      const phoneSnap = await getDocs(phoneQuery);
+      if (!phoneSnap.empty && phoneSnap.docs[0].id !== user.uid) {
+        setErrorMsg('यह मोबाइल नंबर पहले से ही किसी अन्य प्रोवाइडर द्वारा उपयोग में है।');
+        setLoading(false);
+        return;
+      }
+
       const avatar = dpMode === 'avatar' ? selectedAvatarUrl : customUrl;
       const finalAvatar = avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=kush'; 
 
@@ -192,6 +208,8 @@ export default function SunneOnboarding() {
         username,
         isAvailable: false,
         isVerified: false,
+        isGenderLocked: true, // NEW: LOCK GENDER
+        isPhoneLocked: true,  // NEW: LOCK PHONE
         verificationStatus: 'pending',
         phoneNumber: phone ? `+91${phone}` : null,
         registeredAt: serverTimestamp(),
@@ -215,6 +233,14 @@ export default function SunneOnboarding() {
       setLoading(false);
     }
   };
+
+  if (showIntro) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white p-4">
+        <IntroSlides onComplete={() => setShowIntro(false)} />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12 relative overflow-hidden bg-white">

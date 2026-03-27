@@ -1,4 +1,4 @@
-// ─── DukhSuno — Shared Types ─────────────────────
+// ─── BigSuno — Shared Types ─────────────────────
 
 export type Role = 'sunane_wala' | 'sunne_wala' | 'admin';
 
@@ -60,7 +60,7 @@ export interface Plan {
 }
 
 // ─── User (Firestore users/{userId}) ───
-export interface DukhSunoUser {
+export interface BigSunoUser {
   uid: string;
   email: string;
   displayName: string;
@@ -176,6 +176,7 @@ export interface ListenerCard {
   age: number;
   cheapestPlan: { price: number; minutes: number } | null;
   username: string;
+  isBlocked: boolean;
 }
 
 // ─── Avatar Options (for sunane wala onboarding) ───

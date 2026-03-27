@@ -12,14 +12,18 @@ import {
   QrCode, 
   Heart, 
   LogOut,
-  ChevronRight
+  ChevronRight,
+  X,
+  Download
 } from 'lucide-react';
 import { SPECIALTY_LABELS } from '@/types';
-import React from 'react';
+import React, { useState } from 'react';
+import { QRCodeSVG } from 'qrcode.react';
 
 export default function SunneProfilePage() {
   const { user, logout } = useAuthStore();
   const router = useRouter();
+  const [showQr, setShowQr] = useState(false);
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -28,9 +32,9 @@ export default function SunneProfilePage() {
   };
 
   const handleShare = async () => {
-    const url = `dukhsuno.app/${user?.username || user?.uid}`;
+    const url = `${window.location.origin}/p/${user?.uid}`;
     if (navigator.share) {
-      await navigator.share({ title: `${user?.displayName} - DukhSuno`, url });
+      await navigator.share({ title: `${user?.displayName} - BigSuno`, url });
     } else {
       await navigator.clipboard.writeText(url);
       alert('Link copied! ✓');
@@ -137,12 +141,12 @@ export default function SunneProfilePage() {
            <button onClick={handleShare} className="flex items-center justify-center gap-2 py-3.5 rounded-xl bg-[#ff4d6d] text-white font-black text-[10px] uppercase tracking-widest shadow-xl shadow-rose-100 hover:scale-[1.02] transition-all">
               <Share2 size={16} /> Share
            </button>
-           <button onClick={() => alert('QR Code Generation coming soon! 📲')} className="flex items-center justify-center gap-2 py-3.5 rounded-xl bg-slate-50 border border-slate-100 font-bold text-[10px] uppercase tracking-widest hover:bg-slate-100 transition-all">
+           <button onClick={() => setShowQr(true)} className="flex items-center justify-center gap-2 py-3.5 rounded-xl bg-slate-50 border border-slate-100 font-bold text-[10px] uppercase tracking-widest hover:bg-slate-100 transition-all">
               <QrCode size={16} /> QR Code
            </button>
         </div>
         <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 text-center">
-           <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">dukhsuno.app/{user?.username || user?.uid}</p>
+           <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">bigsuno.app/p/{user?.uid}</p>
         </div>
       </div>
 
@@ -166,9 +170,76 @@ export default function SunneProfilePage() {
           <LogOut size={18} strokeWidth={3} /> Logout Session
         </button>
         <div className="mt-8 flex items-center justify-center gap-2 text-[10px] font-black text-slate-300 uppercase tracking-[0.5em]">
-           <Heart size={10} className="fill-current text-[#ff4d6d]/40" /> DUKHSUNO v3.0
+           <Heart size={10} className="fill-current text-[#ff4d6d]/40" /> BIGSUNO v3.0
         </div>
       </div>
+
+      {/* QR MODAL */}
+      {showQr && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/60 backdrop-blur-md animate-in fade-in duration-300">
+           <div className="w-full max-w-sm bg-white rounded-[3rem] p-10 relative animate-in zoom-in duration-300 shadow-2xl">
+              <button 
+                onClick={() => setShowQr(false)}
+                className="absolute top-6 right-8 text-slate-300 hover:text-slate-900 transition-colors"
+              >
+                <X size={24} strokeWidth={3} />
+              </button>
+              
+              <div className="text-center space-y-6">
+                <div className="space-y-2">
+                  <h3 className="text-2xl font-black text-slate-900 tracking-tighter">Apna QR Code 📲</h3>
+                  <p className="text-[12px] font-bold text-slate-400 uppercase tracking-widest">Ise apne doston ke saath share karein</p>
+                </div>
+
+                <div className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 inline-block shadow-inner">
+                  <QRCodeSVG 
+                    value={`https://bigsuno.app/p/${user?.uid}`}
+                    size={200}
+                    level="H"
+                    includeMargin={true}
+                    imageSettings={{
+                      src: "emoji:👤",
+                      x: undefined,
+                      y: undefined,
+                      height: 40,
+                      width: 40,
+                      excavate: true,
+                    }}
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">bigsuno.app/p/{user?.uid}</p>
+                  <button 
+                    onClick={() => {
+                      const svg = document.querySelector('svg');
+                      if (svg) {
+                        const svgData = new XMLSerializer().serializeToString(svg);
+                        const canvas = document.createElement("canvas");
+                        const ctx = canvas.getContext("2d");
+                        const img = new Image();
+                        img.onload = () => {
+                          canvas.width = img.width;
+                          canvas.height = img.height;
+                          ctx?.drawImage(img, 0, 0);
+                          const pngFile = canvas.toDataURL("image/png");
+                          const downloadLink = document.createElement("a");
+                          downloadLink.download = "BigSuno-QR.png";
+                          downloadLink.href = pngFile;
+                          downloadLink.click();
+                        };
+                        img.src = "data:image/svg+xml;base64," + btoa(svgData);
+                      }
+                    }}
+                    className="w-full h-14 bg-slate-900 text-white rounded-2xl font-black text-[12px] uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl shadow-slate-200"
+                  >
+                    <Download size={18} /> Download QR
+                  </button>
+                </div>
+              </div>
+           </div>
+        </div>
+      )}
 
     </div>
   );

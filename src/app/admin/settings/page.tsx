@@ -23,8 +23,8 @@ import { db } from '@/lib/firebase';
 export default function OwnerSettingsPage() {
     const [saving, setSaving] = useState(false);
     const [platformConfig, setPlatformConfig] = useState<any>({
-        defaultCommissionRate: 0.20,
-        minWithdrawalAmount: 500
+        defaultCommissionRate: 0.02,
+        minWithdrawalAmount: 99
     });
 
     useEffect(() => {

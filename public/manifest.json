@@ -1,11 +1,11 @@
 {
-  "name": "DukhSuno",
-  "short_name": "DukhSuno",
-  "description": "Dil ki baat sune koi apna — Anonymous emotional support marketplace",
+  "name": "BigSuno",
+  "short_name": "BigSuno",
+  "description": "Dil ki baat sune koi apna — Premium consultation & mentorship platform",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#F8F7F4",
-  "theme_color": "#BF4B2B",
+  "background_color": "#FFFFFF",
+  "theme_color": "#FFFFFF",
   "orientation": "portrait-primary",
   "icons": [
     {

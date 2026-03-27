@@ -17,12 +17,12 @@ import {
     IndianRupee,
     Heart
 } from 'lucide-react';
-import type { DukhSunoUser, Session } from '@/types';
+import type { BigSunoUser, Session } from '@/types';
 
 export default function AdminHeadRoom() {
-    const [onlineUsers, setOnlineUsers] = useState<DukhSunoUser[]>([]);
+    const [onlineUsers, setOnlineUsers] = useState<BigSunoUser[]>([]);
     const [activeCalls, setActiveCalls] = useState<Session[]>([]);
-    const [recentRegistrations, setRecentRegistrations] = useState<DukhSunoUser[]>([]);
+    const [recentRegistrations, setRecentRegistrations] = useState<BigSunoUser[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -33,7 +33,7 @@ export default function AdminHeadRoom() {
             where('roles', 'array-contains', 'sunne_wala')
         );
         const unsubscribeListeners = onSnapshot(listenersQ, (snapshot) => {
-            const list = snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() } as DukhSunoUser));
+            const list = snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() } as BigSunoUser));
             setOnlineUsers(list);
         });
 
@@ -55,7 +55,7 @@ export default function AdminHeadRoom() {
             limit(10)
         );
         const unsubscribeReg = onSnapshot(regQ, (snapshot) => {
-            const list = snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() } as DukhSunoUser));
+            const list = snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() } as BigSunoUser));
             setRecentRegistrations(list);
             setLoading(false);
         });

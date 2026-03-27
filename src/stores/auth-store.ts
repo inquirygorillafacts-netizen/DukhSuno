@@ -1,17 +1,19 @@
 // ─── Auth Store (Zustand) ─────────────────────────
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { DukhSunoUser, Role } from '@/types';
+import type { BigSunoUser, Role } from '@/types';
 
 interface AuthState {
-  user: DukhSunoUser | null;
+  user: BigSunoUser | null;
   activeRole: Role | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  showTour: boolean;
 
-  setUser: (user: DukhSunoUser | null) => void;
+  setUser: (user: BigSunoUser | null) => void;
   setActiveRole: (role: Role) => void;
   setLoading: (loading: boolean) => void;
+  setShowTour: (show: boolean) => void;
   logout: () => void;
   hasRole: (role: Role) => boolean;
   hasDualRole: () => boolean;
@@ -24,6 +26,7 @@ export const useAuthStore = create<AuthState>()(
       activeRole: null,
       isLoading: true,
       isAuthenticated: false,
+      showTour: false,
 
       setUser: (user) =>
         set({
@@ -32,6 +35,8 @@ export const useAuthStore = create<AuthState>()(
           activeRole: user?.activeRole || null,
           isLoading: false,
         }),
+      
+      setShowTour: (show) => set({ showTour: show }),
 
       setActiveRole: (role) =>
         set((state) => ({
@@ -60,7 +65,7 @@ export const useAuthStore = create<AuthState>()(
       },
     }),
     {
-      name: 'dukhsuno-auth',
+      name: 'bigsuno-auth',
       partialize: (state) => ({
         activeRole: state.activeRole,
       }),

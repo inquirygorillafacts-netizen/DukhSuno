@@ -19,7 +19,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const hashStr = `${key}|${txnid}|${amount}|DukhSuno|User|anon@dukhsuno.app|||||||||||${salt}`;
+    const hashStr = `${key}|${txnid}|${amount}|BigSuno|User|anon@bigsuno.app|||||||||||${salt}`;
     const hash = crypto.createHash('sha512').update(hashStr).digest('hex');
 
     return NextResponse.json({
@@ -27,9 +27,9 @@ export async function POST(req: Request) {
       txnid,
       amount,
       hash,
-      productinfo: 'DukhSuno',
+      productinfo: 'BigSuno',
       firstname: 'User',
-      email: 'anon@dukhsuno.app',
+      email: 'anon@bigsuno.app',
       phone: '9999999999',
       surl: `${process.env.NEXT_PUBLIC_URL}/api/payment/webhook`,
       furl: `${process.env.NEXT_PUBLIC_URL}/api/payment/webhook`,

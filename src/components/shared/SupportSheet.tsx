@@ -23,7 +23,7 @@ const FAQS = [
   },
   { 
     q: "क्या मेरा नंबर सुरक्षित है?", 
-    a: "जी हाँ, 100%। DukhSuno पर आपकी पहचान और मोबाइल नंबर पूरी तरह से गुप्त रहता है। यूजर को सिर्फ आपका गुप्त नाम दिखता है।",
+    a: "जी हाँ, 100%। BigSuno पर आपकी पहचान और मोबाइल नंबर पूरी तरह से गुप्त रहता है। यूजर को सिर्फ आपका गुप्त नाम दिखता है।",
     icon: <Shield className="text-rose-500" size={18} />
   },
   { 
@@ -167,7 +167,7 @@ export default function SupportSheet({ onClose }: SupportSheetProps) {
            </div>
            
            <p className="text-[10px] text-slate-400 font-medium text-center uppercase tracking-widest italic pt-2">
-              DukhSuno is here for you 24/7 ❤️ Made in India
+              BigSuno is here for you 24/7 ❤️ Made in India
            </p>
         </div>
       </div>

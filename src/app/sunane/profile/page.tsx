@@ -109,7 +109,7 @@ export default function SunaneProfilePage() {
           <LogOut size={18} strokeWidth={3} /> Logout Session
         </button>
         <div className="mt-8 flex items-center justify-center gap-2 text-[10px] font-black text-slate-300 uppercase tracking-[0.5em]">
-           <Sparkles size={10} className="fill-current text-[#ff4d6d]/40" /> DUKHSUNO v3.0
+           <Sparkles size={10} className="fill-current text-[#ff4d6d]/40" /> BIGSUNO v3.0
         </div>
       </div>
 

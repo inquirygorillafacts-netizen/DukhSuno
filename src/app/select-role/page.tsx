@@ -49,7 +49,7 @@ export default function SelectRolePage() {
               <Heart size={32} fill="currentColor" strokeWidth={0} />
            </div>
            <h1 className="text-3xl font-black tracking-tight">Choose Your Path ✨</h1>
-           <p className="text-slate-500 text-sm font-medium italic">"DukhSuno par aapka maqsad kya hai?"</p>
+           <p className="text-slate-500 text-sm font-medium italic">"BigSuno par aapka maqsad kya hai?"</p>
         </div>
 
         <div className="space-y-4">

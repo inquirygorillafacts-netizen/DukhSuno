@@ -7,7 +7,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import { useAuthStore } from '@/stores/auth-store';
 import RoleSelectionDrawer from '@/components/shared/RoleSelectionDrawer';
-import type { DukhSunoUser, Role } from '@/types';
+import type { BigSunoUser, Role } from '@/types';
 import { Heart } from 'lucide-react';
 
 
@@ -25,7 +25,7 @@ export default function SplashPage() {
           try {
             const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
             if (userDoc.exists()) {
-              const userData = userDoc.data() as DukhSunoUser;
+              const userData = userDoc.data() as BigSunoUser;
               setUser(userData);
               setUserRoles(userData.roles || []);
 

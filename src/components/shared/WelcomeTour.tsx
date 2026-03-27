@@ -21,7 +21,7 @@ export default function WelcomeTour({ role, onClose }: WelcomeTourProps) {
   const slides = role === 'sunne_wala' ? [
     {
       title: "आपकी पहचान, आपका राज़ 🔒",
-      description: "DukhSuno पर आपकी पहचान 100% गुप्त रहती है। कोई भी आपका नाम या मोबाइल नंबर नहीं देख पाएगा।",
+      description: "BigSuno पर आपकी पहचान 100% गुप्त रहती है। कोई भी आपका नाम या मोबाइल नंबर नहीं देख पाएगा।",
       icon: <Shield size={48} className="text-rose-500" />,
       tag: "PRIVACY FIRST",
       color: "bg-rose-50"
@@ -34,10 +34,10 @@ export default function WelcomeTour({ role, onClose }: WelcomeTourProps) {
       color: "bg-emerald-50"
     },
     {
-      title: "8,000+ लोग जुड़ चुके हैं! 🇮🇳",
-      description: "पूरे भारत से हजारों लिसनर्स आज ही कमाई कर रहे हैं। आप भी इस बड़ी कम्युनिटी का हिस्सा बनें।",
+      title: "बढ़ती हुई कम्युनिटी! 🇮🇳",
+      description: "पूरे भारत से लोग BigSuno से जुड़ रहे हैं। आप भी इस मददगार कम्युनिटी का हिस्सा बनें।",
       icon: <Users size={48} className="text-indigo-500" />,
-      tag: "JOIN THE SCALE",
+      tag: "COMMUNITY",
       color: "bg-indigo-50"
     }
   ] : [
@@ -50,14 +50,14 @@ export default function WelcomeTour({ role, onClose }: WelcomeTourProps) {
     },
     {
       title: "पूरे भारत का भरोसा 🤝",
-      description: "हज़ारों लोग रोज़ाना DukhSuno पर सुकून पाते हैं। यहाँ हर भाषा और हर राज्य के लोग मौजूद हैं।",
+      description: "हज़ारों लोग रोज़ाना BigSuno पर सुकून पाते हैं। यहाँ हर भाषा और हर राज्य के लोग मौजूद हैं।",
       icon: <Users size={48} className="text-indigo-500" />,
       tag: "MOST TRUSTED",
       color: "bg-indigo-50"
     },
     {
-      title: "10k+ सुकून पाने वाले ✨",
-      description: "भारत के 10,000+ लोग इस ऐप से जुड़े हैं। आज ही अपने दिल का बोझ हल्का करें और सुखी रहें।",
+      title: "सुकून पाने की मंज़िल ✨",
+      description: "भारत के कोने-कोने से लोग इस ऐप से जुड़े हैं। आज ही अपने दिल का बोझ हल्का करें और सुखी रहें।",
       icon: <Heart size={48} className="text-[#ff4d6d]" />,
       tag: "HAPPY LIVES",
       color: "bg-rose-50"
