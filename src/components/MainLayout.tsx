@@ -23,11 +23,18 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
   const isFullPage = path === '/' ||
                     path === '/login' || 
                     path === '/blocked' ||
-                    path.includes('onboarding');
+                    path.includes('onboarding') ||
+                    path.startsWith('/admin') ||
+                    path.startsWith('/sunne') ||
+                    path.startsWith('/sunane');
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const handleTourClose = () => {
+    setShowTour(false);
+  };
 
   // Determine active tab based on pathname
   const getActiveTab = () => {
@@ -49,7 +56,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
   ];
 
   return (
-    <div className="min-h-screen flex bg-[#fdfcff] transition-colors duration-500 overflow-x-hidden relative">
+    <div className="min-h-screen flex bg-[#fdfcff] transition-colors duration-500 overflow-x-hidden relative" suppressHydrationWarning>
       <AuroraBackground />
       
       {!mounted ? (
@@ -61,7 +68,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
       ) : (
         <>
           {/* डेस्कटॉप साइडबार (Sidebar - Desktop Only) */}
-          <aside className="hidden lg:flex flex-col w-72 h-screen sticky top-0 border-r border-slate-100 p-8 z-50 bg-white/40 backdrop-blur-md">
+          <aside className="hidden lg:flex flex-col w-72 h-screen sticky top-0 border-r border-slate-100 p-8 z-50 bg-white/40 backdrop-blur-md" suppressHydrationWarning>
             <Link href="/home" className="flex items-center gap-3 mb-12">
               <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center shadow-lg shadow-slate-100">
                 <Heart className="text-white fill-current w-5 h-5" />
@@ -106,7 +113,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
 
           {/* मुख्य कंटेंट (Main Content) */}
           <main className="flex-1 flex flex-col min-h-screen overflow-y-auto" suppressHydrationWarning>
-            <div className="flex-1 w-full max-w-[1240px] mx-auto p-3 md:p-6 lg:p-8 pb-32">
+            <div className="flex-1 w-full max-w-[1240px] mx-auto p-3 md:p-6 lg:p-8 pb-32" suppressHydrationWarning>
               <header className="flex justify-between items-center mb-6 px-2 lg:px-0">
                 <div>
                   <h2 className="text-lg md:text-xl font-black text-slate-900 tracking-tighter uppercase leading-none">
@@ -133,7 +140,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
                 </div>
               </header>
 
-              <div className="relative">
+              <div className="relative" suppressHydrationWarning>
                 {children}
               </div>
             </div>
@@ -161,9 +168,9 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
 
 const AuroraBackground = () => (
   <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10 opacity-[0.15]" suppressHydrationWarning>
-    <div className="absolute top-[-10%] left-[-5%] w-[600px] h-[600px] bg-rose-400 rounded-full blur-[120px] animate-blob" />
-    <div className="absolute bottom-[-5%] right-[-5%] w-[500px] h-[500px] bg-[#ff4d6d] rounded-full blur-[120px] animate-blob-delay" />
-    <div className="absolute top-[40%] left-[30%] w-[300px] h-[300px] bg-indigo-400 rounded-full blur-[120px] animate-blob opacity-50" />
+    <div className="absolute top-[-10%] left-[-5%] w-[600px] h-[600px] bg-rose-400 rounded-full blur-[120px] animate-blob" suppressHydrationWarning />
+    <div className="absolute bottom-[-5%] right-[-5%] w-[500px] h-[500px] bg-[#ff4d6d] rounded-full blur-[120px] animate-blob-delay" suppressHydrationWarning />
+    <div className="absolute top-[40%] left-[30%] w-[300px] h-[300px] bg-indigo-400 rounded-full blur-[120px] animate-blob opacity-50" suppressHydrationWarning />
   </div>
 );
 

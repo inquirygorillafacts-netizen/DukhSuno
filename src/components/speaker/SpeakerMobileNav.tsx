@@ -19,8 +19,6 @@ export default function SpeakerMobileNav() {
 
     const links = [
         { name: "Home", href: "/sunane/home", icon: Home },
-        { name: "Search", href: "/sunane/search", icon: Search },
-        { name: "Talk", href: "/sunane/search", icon: MessageCircle },
         { name: "Wallet", href: "/sunane/wallet", icon: Wallet },
         { name: "Me", href: "/sunane/profile", icon: User },
     ];

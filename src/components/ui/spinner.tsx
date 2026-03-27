@@ -23,16 +23,18 @@ export function Spinner({
   };
 
   return (
-    <div className={`relative flex items-center justify-center ${className}`}>
+    <div className={`relative flex items-center justify-center ${className}`} suppressHydrationWarning>
       {/* Background Track */}
       <div 
         className={`${sizeClasses[size]} rounded-full border-slate-900/5`}
         aria-hidden="true"
+        suppressHydrationWarning
       />
       {/* Animated Spinner Part */}
       <div 
         className={`absolute ${sizeClasses[size]} rounded-full border-t-slate-900 animate-spin`}
         style={{ borderLeftColor: 'transparent', borderRightColor: 'transparent', borderBottomColor: 'transparent' }}
+        suppressHydrationWarning
       />
     </div>
   );

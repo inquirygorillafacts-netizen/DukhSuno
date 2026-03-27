@@ -32,7 +32,6 @@ export default function SpeakerSidebar() {
 
     const links = [
         { name: "My Home", href: "/sunane/home", icon: Home },
-        { name: "Find Listener", href: "/sunane/search", icon: Search, highlight: true },
         { name: "My Wallet", href: "/sunane/wallet", icon: Wallet },
         { name: "My Profile", href: "/sunane/profile", icon: User },
         { name: "Settings", href: "/sunane/settings", icon: Settings },

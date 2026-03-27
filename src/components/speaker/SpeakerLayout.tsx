@@ -14,19 +14,19 @@ export default function SpeakerLayout({
 }) {
     return (
         <AuthGuard>
-            <div className="flex h-screen bg-slate-50 text-slate-900 overflow-hidden font-jakarta">
+            <div className="flex h-screen bg-slate-50 text-slate-900 overflow-hidden font-jakarta" suppressHydrationWarning>
             {/* Desktop Sidebar */}
             <SpeakerSidebar />
 
             <IncomingCallBanner />
 
-            <div className="flex flex-col flex-1 min-w-0 h-full relative">
+            <div className="flex flex-col flex-1 min-w-0 h-full relative" suppressHydrationWarning>
                 {/* Global Header */}
                 <SpeakerHeader />
 
                 {/* Main Content Area */}
                 <main className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-10 pb-32 md:pb-10">
-                    <div className="max-w-6xl mx-auto stagger-children">
+                    <div className="max-w-[1400px] mx-auto stagger-children" suppressHydrationWarning>
                         {children}
                     </div>
                 </main>

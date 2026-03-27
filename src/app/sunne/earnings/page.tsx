@@ -4,6 +4,9 @@ import { useAuthStore } from '@/stores/auth-store';
 import { IndianRupee, TrendingUp, ArrowUpRight, Sparkles } from 'lucide-react';
 import React from 'react';
 
+import { query, collection, where, orderBy, limit, onSnapshot } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+
 export default function SunneEarningsPage() {
   const { user } = useAuthStore();
 
@@ -12,10 +15,6 @@ export default function SunneEarningsPage() {
 
   React.useEffect(() => {
     if (!user) return;
-
-    // Simplified for this task, I'll use the standard onSnapshot
-    const { query, collection, where, orderBy, limit, onSnapshot } = require('firebase/firestore');
-    const { db } = require('@/lib/firebase');
 
     const fireQ = query(
       collection(db, 'sessions'),

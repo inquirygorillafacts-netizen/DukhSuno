@@ -182,19 +182,52 @@ export default function SunaneHomePage() {
     fetchListeners();
   }, [selectedMood, searchQuery]); // Re-fetch on mood or search change
 
-  const filteredListeners = listeners; // Backend already filtered them
+  const displayListeners = React.useMemo(() => {
+    if (!user) return listeners;
+    
+    const isUserInList = listeners.some(l => l.uid === user.uid);
+    if (isUserInList) return listeners;
+
+    // Only add if user has listener role and is available
+    const isListener = user.roles?.includes('sunne_wala');
+    const isAvailable = user.isAvailable;
+
+    if (isListener && isAvailable) {
+      const plans = (user as any).plans || [];
+      const cheapestPlan = plans.length > 0 ? [...plans].sort((a: any, b: any) => a.price - b.price)[0] : null;
+
+      const userAsListener = {
+        uid: user.uid,
+        displayName: user.displayName,
+        avatarUrl: user.avatarUrl,
+        headline: user.headline,
+        specialties: user.specialties || [],
+        ratingAvg: user.ratingAvg || 0,
+        ratingCount: user.ratingCount || 0,
+        isAvailable: true,
+        isVerified: user.isVerified || false,
+        cheapestPlan: cheapestPlan
+      } as ListenerCardType;
+      
+      return [userAsListener, ...listeners];
+    }
+    
+    return listeners;
+  }, [listeners, user]);
 
   return (
     <div className="space-y-6 animate-in fade-in duration-700 slide-in-from-bottom-2 pb-24" suppressHydrationWarning>
       
       {/* Hero Section */}
       <section className="space-y-4 pt-2">
-        <div className="space-y-1">
-          <h2 className="text-3xl md:text-4xl font-black text-slate-900 leading-tight tracking-tighter">
-            Kaisa mehsoos kar rahe ho? ✨
-          </h2>
-          <p className="text-xs md:text-sm text-slate-500 font-bold italic">Hum aapke liye hi yahan hain — bina kisi judge ke.</p>
-        </div>
+        {!searchQuery && (
+          <div className="space-y-1">
+            <h2 className="text-3xl md:text-4xl font-black text-slate-900 leading-tight tracking-tighter">
+              Kaisa mehsoos kar rahe ho? ✨
+            </h2>
+            <p className="text-xs md:text-sm text-slate-500 font-bold italic">Hum aapke liye hi yahan hain — bina kisi judge ke.</p>
+          </div>
+        )}
 
         {/* Search Bar */}
         <div className="relative group">
@@ -212,111 +245,119 @@ export default function SunaneHomePage() {
         </div>
 
         {/* Categories / Mood Tags */}
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-2 px-2">
-          {MOOD_TAGS.map((mood) => (
-            <button
-              key={mood.id}
-              onClick={() => setSelectedMood(selectedMood === mood.id ? null : (mood.id as Specialty))}
-              className={`flex-shrink-0 px-4 py-2.5 rounded-xl text-[10px] font-black transition-all border shadow-sm ${
-                selectedMood === mood.id
-                  ? 'bg-[#ff4d6d] border-[#ff4d6d] text-white scale-105'
-                  : 'glass bg-white border-white text-slate-500'
-              }`}
-            >
-              <span className="mr-1.5">{mood.emoji}</span> {mood.label}
-            </button>
-          ))}
-        </div>
+        {!searchQuery && (
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-2 px-2">
+            {MOOD_TAGS.map((mood) => (
+              <button
+                key={mood.id}
+                onClick={() => setSelectedMood(selectedMood === mood.id ? null : (mood.id as Specialty))}
+                className={`flex-shrink-0 px-4 py-2.5 rounded-xl text-[10px] font-black transition-all border shadow-sm ${
+                  selectedMood === mood.id
+                    ? 'bg-[#ff4d6d] border-[#ff4d6d] text-white scale-105'
+                    : 'glass bg-white border-white text-slate-500'
+                }`}
+              >
+                <span className="mr-1.5">{mood.emoji}</span> {mood.label}
+              </button>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Urgent Help & Community Sections */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Urgent Help Banner */}
-        <button 
-          onClick={handleUrgentCall}
-          disabled={isCallingAdmin}
-          className="p-5 glass bg-gradient-to-br from-[#ff4d6d]/10 to-transparent rounded-3xl border border-white relative overflow-hidden group block w-full text-left transition-transform active:scale-95 disabled:opacity-70"
-        >
-           <div className="relative z-10 flex items-center gap-4">
-              <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg group-hover:rotate-6 transition-transform">
-                 {isCallingAdmin ? (
-                   <Loader2 className="text-[#ff4d6d] w-6 h-6 animate-spin" />
-                 ) : (
-                   <Sparkles className="text-[#ff4d6d] w-6 h-6" />
-                 )}
-              </div>
-              <div className="flex-1">
-                 <div className="flex items-center gap-2 mb-1">
-                   <h4 className="text-sm font-black leading-none uppercase tracking-tighter italic">Urgent Help?</h4>
-                   {isAdminOnline && (
-                     <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" title="Admin is Online" />
+      {!searchQuery && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Urgent Help Banner */}
+          <button 
+            onClick={handleUrgentCall}
+            disabled={isCallingAdmin}
+            className="p-5 glass bg-gradient-to-br from-[#ff4d6d]/10 to-transparent rounded-3xl border border-white relative overflow-hidden group block w-full text-left transition-transform active:scale-95 disabled:opacity-70"
+          >
+             <div className="relative z-10 flex items-center gap-4">
+                <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg group-hover:rotate-6 transition-transform">
+                   {isCallingAdmin ? (
+                     <Loader2 className="text-[#ff4d6d] w-6 h-6 animate-spin" />
+                   ) : (
+                     <Sparkles className="text-[#ff4d6d] w-6 h-6" />
                    )}
-                 </div>
-                 <p className="text-[9px] text-slate-500 font-medium">
-                   Bina intezaar kiye Admin se judiye.
-                 </p>
-              </div>
-              <div className="bg-[#ff4d6d] text-white p-2.5 rounded-xl shadow-lg shadow-rose-200 group-hover:scale-110 transition-transform">
-                 <Heart size={16} className="fill-current" />
-              </div>
-           </div>
-        </button>
+                </div>
+                <div className="flex-1">
+                   <div className="flex items-center gap-2 mb-1">
+                     <h4 className="text-sm font-black leading-none uppercase tracking-tighter italic">Urgent Help?</h4>
+                     {isAdminOnline && (
+                       <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" title="Admin is Online" />
+                     )}
+                   </div>
+                   <p className="text-[9px] text-slate-500 font-medium">
+                     Bina intezaar kiye Admin se judiye.
+                   </p>
+                </div>
+                <div className="bg-[#ff4d6d] text-white p-2.5 rounded-xl shadow-lg shadow-rose-200 group-hover:scale-110 transition-transform">
+                   <Heart size={16} className="fill-current" />
+                </div>
+             </div>
+          </button>
 
-        {/* WhatsApp Group Banner */}
-        <a 
-          href={APP_CONFIG.whatsappGroup}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="p-5 glass bg-gradient-to-br from-emerald-500/10 to-transparent rounded-3xl border border-white relative overflow-hidden group block"
-        >
-           <div className="relative z-10 flex items-center gap-4">
-              <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg group-hover:-rotate-6 transition-transform">
-                 <MessageCircle className="text-emerald-500 w-6 h-6" />
-              </div>
-              <div className="flex-1">
-                 <h4 className="text-sm font-black leading-none mb-1 uppercase tracking-tighter italic">Social Group</h4>
-                 <p className="text-[9px] text-slate-500 font-medium tracking-tight">Community join karein aur baatein karein.</p>
-              </div>
-              <div className="bg-emerald-500 text-white p-2.5 rounded-xl shadow-lg shadow-emerald-200 group-hover:scale-110 transition-transform">
-                 <Plus size={16} />
-              </div>
-           </div>
-        </a>
-      </div>
+          {/* WhatsApp Group Banner */}
+          <a 
+            href={APP_CONFIG.whatsappGroup}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-5 glass bg-gradient-to-br from-emerald-500/10 to-transparent rounded-3xl border border-white relative overflow-hidden group block"
+          >
+             <div className="relative z-10 flex items-center gap-4">
+                <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg group-hover:-rotate-6 transition-transform">
+                   <MessageCircle className="text-emerald-500 w-6 h-6" />
+                </div>
+                <div className="flex-1">
+                   <h4 className="text-sm font-black leading-none mb-1 uppercase tracking-tighter italic">Social Group</h4>
+                   <p className="text-[9px] text-slate-500 font-medium tracking-tight">Community join karein aur baatein karein.</p>
+                </div>
+                <div className="bg-emerald-500 text-white p-2.5 rounded-xl shadow-lg shadow-emerald-200 group-hover:scale-110 transition-transform">
+                   <Plus size={16} />
+                </div>
+             </div>
+          </a>
+        </div>
+      )}
 
       {/* YouTube / Tutorial Section */}
-      <section className="px-2">
-         <a 
-           href={APP_CONFIG.youtubeTutorial}
-           target="_blank"
-           rel="noopener noreferrer"
-           className="w-full aspect-video rounded-[2.5rem] bg-slate-900 overflow-hidden relative group block border-4 border-white shadow-2xl"
-         >
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10" />
-            <img 
-              src="https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&q=80&w=800" 
-              alt="How it works"
-              className="w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-1000"
-            />
-            <div className="absolute inset-0 flex flex-col items-center justify-center z-20">
-               <div className="w-16 h-16 bg-[#ff4d6d] rounded-full flex items-center justify-center text-white shadow-2xl group-hover:scale-125 transition-transform duration-500">
-                  <Play size={32} className="ml-1 fill-current" />
-               </div>
-               <p className="mt-4 text-white font-black text-xs uppercase tracking-[0.3em]">Watch Tutorial</p>
-            </div>
-            <div className="absolute bottom-6 left-8 z-20">
-               <p className="text-white font-black text-lg italic tracking-tighter leading-none mb-1">BigSuno Kaise Use Karein?</p>
-               <p className="text-white/60 text-[10px] uppercase font-bold tracking-widest">Learn in 2 minutes</p>
-            </div>
-         </a>
-      </section>
+      {!searchQuery && (
+        <section className="px-2">
+           <a 
+             href={APP_CONFIG.youtubeTutorial}
+             target="_blank"
+             rel="noopener noreferrer"
+             className="w-full aspect-video rounded-[2.5rem] bg-slate-900 overflow-hidden relative group block border-4 border-white shadow-2xl"
+           >
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10" />
+              <img 
+                src="https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&q=80&w=800" 
+                alt="How it works"
+                className="w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-1000"
+              />
+              <div className="absolute inset-0 flex flex-col items-center justify-center z-20">
+                 <div className="w-16 h-16 bg-[#ff4d6d] rounded-full flex items-center justify-center text-white shadow-2xl group-hover:scale-125 transition-transform duration-500">
+                    <Play size={32} className="ml-1 fill-current" />
+                 </div>
+                 <p className="mt-4 text-white font-black text-xs uppercase tracking-[0.3em]">Watch Tutorial</p>
+              </div>
+              <div className="absolute bottom-6 left-8 z-20">
+                 <p className="text-white font-black text-lg italic tracking-tighter leading-none mb-1">BigSuno Kaise Use Karein?</p>
+                 <p className="text-white/60 text-[10px] uppercase font-bold tracking-widest">Learn in 2 minutes</p>
+              </div>
+           </a>
+        </section>
+      )}
 
       {/* Listener List */}
       <section className="space-y-6">
          <div className="flex items-center justify-between px-2">
             <div className="flex items-center gap-2">
                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-               <span className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">Available Listeners</span>
+               <span className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">
+                  {searchQuery ? `Doston ki Khoj: "${searchQuery}"` : "Available Listeners"}
+               </span>
             </div>
          </div>
 
@@ -325,8 +366,8 @@ export default function SunaneHomePage() {
                Array.from({ length: 4 }).map((_, i) => (
                   <div key={i} className="aspect-[3/4] glass bg-white/40 animate-pulse rounded-3xl" />
                ))
-            ) : filteredListeners.length > 0 ? (
-               filteredListeners.map(l => <ListenerCard key={l.uid} listener={l} />)
+            ) : displayListeners.length > 0 ? (
+               displayListeners.map(l => <ListenerCard key={l.uid} listener={l} />)
             ) : (
                <div className="col-span-full py-20 text-center glass rounded-[3rem] border-dashed border-2 border-slate-100">
                   <Sparkles className="mx-auto mb-4 text-slate-200" size={48} />

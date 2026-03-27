@@ -50,15 +50,14 @@ export default function AdminSidebar() {
                 { name: "Revenue", href: "/admin/payments", icon: Wallet },
             ]
         },
-        // Owner Only Category
-        ...(isOwner ? [{
+        {
             title: "Infrastructure",
             links: [
                 { name: "Twilio Settings", href: "/admin/twilio", icon: Database },
                 { name: "Global Config", href: "/admin/settings", icon: Settings },
                 { name: "System Audit", href: "/admin/logs", icon: Terminal },
             ]
-        }] : [])
+        }
     ];
 
     return (

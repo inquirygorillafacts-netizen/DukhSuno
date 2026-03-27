@@ -14,7 +14,11 @@ import {
   LogOut,
   ChevronRight,
   X,
-  Download
+  Download,
+  Clock,
+  MessageCircle,
+  Users,
+  HelpCircle
 } from 'lucide-react';
 import { SPECIALTY_LABELS } from '@/types';
 import React, { useState } from 'react';
@@ -74,9 +78,13 @@ export default function SunneProfilePage() {
           <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tighter">
             {user?.displayName || 'Listener'}
           </h3>
-          {user?.isVerified && (
+          {user?.isVerified ? (
             <div className="bg-emerald-50 text-emerald-600 px-2.5 py-1 rounded-full flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest border border-emerald-100">
               <Sparkles size={12} className="fill-current" /> Verified
+            </div>
+          ) : (
+            <div className="bg-amber-50 text-amber-600 px-2.5 py-1 rounded-full flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest border border-amber-100 animate-pulse">
+              <Clock size={12} className="animate-spin-slow" /> Pending
             </div>
           )}
         </div>
@@ -132,6 +140,40 @@ export default function SunneProfilePage() {
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Help & Support Section */}
+      <div className="p-1 rounded-[2.5rem] bg-gradient-to-br from-emerald-50 to-indigo-50 border border-white shadow-sm overflow-hidden">
+         <div className="p-6 md:p-8 space-y-6">
+            <div className="flex items-center justify-between">
+               <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-emerald-500 shadow-sm">
+                     <MessageCircle size={20} />
+                  </div>
+                  <div>
+                     <h4 className="font-black text-sm tracking-tight uppercase">Helpline Support</h4>
+                     <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Connect with community</p>
+                  </div>
+               </div>
+               <button 
+                  onClick={() => alert('Joining WhatsApp Community... 👥')}
+                  className="px-4 py-2 bg-emerald-500 text-white rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-200 active:scale-95"
+               >
+                  Join WhatsApp
+               </button>
+            </div>
+
+            {!user?.isVerified && (
+               <div className="p-4 rounded-2xl bg-white/50 border border-white flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center text-amber-500 shrink-0">
+                     <Clock size={16} className="animate-spin-slow" />
+                  </div>
+                  <p className="text-[10px] font-bold text-slate-600 leading-relaxed italic">
+                     Aapka verification abhi pending hai. Kisi bhi query ke liye hamare support group se judein.
+                  </p>
+               </div>
+            )}
+         </div>
       </div>
 
       {/* Share Section */}
