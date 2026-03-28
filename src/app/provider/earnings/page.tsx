@@ -18,7 +18,7 @@ export default function SunneEarningsPage() {
 
     const fireQ = query(
       collection(db, 'sessions'),
-      where('listenerId', '==', user.uid),
+      where('listenerId', '==', user.uid), // Database field
       where('status', '==', 'completed'),
       orderBy('createdAt', 'desc'),
       limit(20)
@@ -84,7 +84,7 @@ export default function SunneEarningsPage() {
                 </p>
               </div>
               <div className="text-right">
-                <p className="font-black text-base text-emerald-500 tracking-tighter">+₹{item.listenerEarned || 0}</p>
+                <p className="font-black text-base text-emerald-500 tracking-tighter">+₹{item.listenerEarned || item.providerEarned || 0}</p>
               </div>
             </div>
           ))}

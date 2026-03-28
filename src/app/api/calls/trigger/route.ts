@@ -87,7 +87,7 @@ async function sendPushNotification(targetToken: string, data: any) {
     body: `${data.callerName || 'Anonymous'} is calling you on BigSuno`,
     data: data,
     priority: 'high' as any,
-    channelId: 'dukhsuno_calls',
+    channelId: 'bigsuno_calls',
   } as const];
 
   try {

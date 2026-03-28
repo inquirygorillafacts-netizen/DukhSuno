@@ -108,7 +108,7 @@ export function IncomingCallBanner() {
              <p className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.3em]">Incoming Support Request</p>
           </div>
           <p className="text-[20px] font-black text-slate-900 tracking-tighter leading-none mb-1 uppercase italic">
-            {incomingCall.callerName || 'Unknown Speaker'}
+            {incomingCall.callerName || 'Unknown Seeker'}
           </p>
           <p className="text-[11px] text-slate-400 font-bold tracking-tight uppercase">
             {incomingCall.planMinutes || 0} Minute Session Requested

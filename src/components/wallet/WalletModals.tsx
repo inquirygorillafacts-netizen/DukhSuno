@@ -38,7 +38,7 @@ export default function WalletModals({ isOpen, onClose, type, amountNeeded = 300
           userId: user.uid,
           type: type,
           firstName: user.displayName || 'BigSuno User',
-          email: user.email || 'user@bigsuno.app',
+          email: user.email || `${user.uid}@bigsuno.internal`,
           productInfo: type === 'add_money' ? 'Wallet Topup' : 'Session Payment'
         }),
       });

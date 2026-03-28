@@ -133,7 +133,7 @@ export function ActiveCallScreen({
             {getAvatarDisplay(listener?.avatarUrl)}
           </div>
           <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 px-6 py-2 rounded-2xl glass-container border-white/40 shadow-2xl">
-            <h3 className="text-[18px] font-black text-white whitespace-nowrap tracking-tight">{listener?.displayName || 'Listener'}</h3>
+            <h3 className="text-[18px] font-black text-white whitespace-nowrap tracking-tight">{listener?.displayName || 'Expert'}</h3>
           </div>
         </div>
       )}

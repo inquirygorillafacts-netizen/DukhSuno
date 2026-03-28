@@ -24,7 +24,7 @@ export default function SunneCallsPage() {
 
     const qAll = query(
       collection(db, 'sessions'),
-      where('listenerId', '==', user.uid),
+      where('listenerId', '==', user.uid), // Database field
       orderBy('createdAt', 'desc'),
       limit(50)
     );
@@ -48,7 +48,7 @@ export default function SunneCallsPage() {
         <div className="flex-1 min-w-0">
           <div className="flex justify-between items-start mb-0.5">
             <h4 className="font-bold truncate text-lg text-slate-800 uppercase tracking-tighter">Session #{session.sessionId.slice(-4).toUpperCase()}</h4>
-            <p className="font-black text-lg text-[#ff4d6d]">₹{session.listenerEarned || 0}</p>
+            <p className="font-black text-lg text-[#ff4d6d]">₹{session.listenerEarned || session.providerEarned || 0}</p>
           </div>
           <div className="flex items-center gap-3">
             <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">

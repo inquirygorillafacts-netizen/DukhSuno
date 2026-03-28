@@ -11,13 +11,15 @@ import {
     Settings,
     PhoneCall,
     Database,
-    Terminal
+    Terminal,
+    Command
 } from "lucide-react";
 
 export default function AdminMobileNav() {
     const pathname = usePathname();
 
     const links = [
+        { name: "Live", href: "/admin/headroom", icon: Command },
         { name: "Dash", href: "/admin/dashboard", icon: LayoutDashboard },
         { name: "Calls", href: "/admin/calls", icon: PhoneCall },
         { name: "Users", href: "/admin/users", icon: Users },

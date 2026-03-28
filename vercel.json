@@ -3,8 +3,10 @@
   "framework": "nextjs",
   "buildCommand": "npm run build",
   "installCommand": "npm install",
-  "regions": ["bom1"],
+  "regions": [
+    "bom1"
+  ],
   "env": {
-    "NEXT_PUBLIC_BASE_URL": "https://dukhsuno.com"
+    "NEXT_PUBLIC_BASE_URL": "https://bigsuno.app"
   }
 }

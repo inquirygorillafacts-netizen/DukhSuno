@@ -129,7 +129,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
       if (path.startsWith('/seeker') && !roles.includes('seeker')) return false;
       
       // Role Selection Check: Authenticated users without roles should still be able to access seeker panel
-      const isInternalPanel = path.startsWith('/seeker') || path.startsWith('/provider') || path === '/history' || path === '/wallet' || path === '/me';
+      const isInternalPanel = path.startsWith('/seeker') || path.startsWith('/provider');
       if (isInternalPanel && roles.length === 0 && !path.startsWith('/seeker')) return false;
 
       return true;
@@ -137,8 +137,14 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
     const redirectToDashboard = (u: BigSunoUser) => {
       const roles = u.roles || [];
-      // If no roles, default strictly to seeker
-      const activeRole = u.activeRole || (roles.includes('seeker') ? 'seeker' : (roles[0] || 'seeker'));
+      // Prioritize 'provider' role if available, otherwise 'admin', then 'seeker'
+      let activeRole = u.activeRole;
+      
+      if (!activeRole) {
+          if (roles.includes('provider')) activeRole = 'provider';
+          else if (roles.includes('admin')) activeRole = 'admin';
+          else activeRole = 'seeker';
+      }
       
       if (activeRole === 'admin') router.push('/admin/dashboard');
       else if (activeRole === 'provider') router.push('/provider/dashboard');

@@ -5,6 +5,11 @@ import * as admin from 'firebase-admin';
 
 export async function POST(req: Request) {
   try {
+    const adminSecret = req.headers.get('x-admin-secret');
+    if (adminSecret !== (process.env.ADMIN_SECRET_KEY || 'dev-secret-key')) {
+        return NextResponse.json({ error: 'Unauthorized Access' }, { status: 401 });
+    }
+
     const { action, id, metadata } = await req.json();
 
     if (!action || !id) {

@@ -67,7 +67,7 @@ export default function AdminPaymentsPage() {
                 setStats([
                     { name: "Total Revenue", value: `₹${totalRevenue.toLocaleString()}`, icon: IndianRupee, change: "Total Platform", trend: "up", color: "indigo" },
                     { name: "Pending Withdrawals", value: `₹${pendingAmount.toLocaleString()}`, icon: Clock, change: `${pendingCount} requests`, trend: "neutral", color: "amber" },
-                    { name: "Total Paid Out", value: `₹${paidAmount.toLocaleString()}`, icon: CheckCircle2, change: "To Listeners", trend: "up", color: "emerald" },
+                    { name: "Total Paid Out", value: `₹${paidAmount.toLocaleString()}`, icon: CheckCircle2, change: "To Providers", trend: "up", color: "emerald" },
                 ]);
             });
 
@@ -97,7 +97,10 @@ export default function AdminPaymentsPage() {
         try {
             const resp = await fetch('/api/admin/actions', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'x-admin-secret': process.env.NEXT_PUBLIC_ADMIN_SECRET || 'dev-secret-key' 
+                },
                 body: JSON.stringify({ action: 'mark_paid', id })
             });
             if (resp.ok) {
@@ -118,7 +121,10 @@ export default function AdminPaymentsPage() {
         try {
             const resp = await fetch('/api/admin/actions', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'x-admin-secret': process.env.NEXT_PUBLIC_ADMIN_SECRET || 'dev-secret-key' 
+                },
                 body: JSON.stringify({ action: 'reject_withdrawal', id, metadata: { reason } })
             });
             if (resp.ok) {
@@ -139,7 +145,7 @@ export default function AdminPaymentsPage() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-black text-slate-900 tracking-tight text-gradient uppercase italic">BigSuno Finance</h1>
-                    <p className="text-sm text-slate-500 font-medium tracking-tight italic">Monitor platform earnings and listener payouts.</p>
+                    <p className="text-sm text-slate-500 font-medium tracking-tight italic">Monitor platform earnings and provider payouts.</p>
                 </div>
                 <div className="flex items-center gap-3">
                     <button className="px-5 py-2.5 bg-slate-100 text-slate-600 rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all flex items-center gap-2 active:scale-95">

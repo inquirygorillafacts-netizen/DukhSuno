@@ -168,7 +168,7 @@ export default function WalletPage() {
 
       // Calculate totals from the specific transactions
       const totalGross = pendingTxns.reduce((acc, tx: any) => acc + (tx.amount || 0), 0);
-      const totalNet = pendingTxns.reduce((acc, tx: any) => acc + (tx.listenerAmount || 0), 0);
+      const totalNet = pendingTxns.reduce((acc, tx: any) => acc + (tx.listenerAmount || tx.providerAmount || 0), 0);
       const totalFee = totalGross - totalNet;
       const transactionIds = pendingTxns.map(tx => tx.id);
 
@@ -361,8 +361,8 @@ export default function WalletPage() {
                                  {r.status.toUpperCase()} — {(r.createdAt as any)?.toDate?.() ? r.createdAt.toDate().toLocaleDateString() : 'Recent'}
                               </p>
                               <div className="flex items-center gap-2 mt-1.5 pt-1.5 border-t border-slate-50">
-                                 <span className="text-[9px] font-black text-emerald-500 uppercase tracking-tighter bg-emerald-50 px-2 py-0.5 rounded-md">Receive: ₹{r.amount - Math.floor(r.amount * (commission))}</span>
-                                 <span className="text-[9px] font-bold text-slate-300 uppercase tracking-tighter italic">Fee: ₹{Math.floor(r.amount * (commission))}</span>
+                                 <span className="text-[9px] font-black text-emerald-500 uppercase tracking-tighter bg-emerald-50 px-2 py-0.5 rounded-md">Receive: ₹{r.netAmount || (r.amount - Math.floor(r.amount * (commission)))}</span>
+                                 <span className="text-[9px] font-bold text-slate-300 uppercase tracking-tighter italic">Fee: ₹{r.platformFee || Math.floor(r.amount * (commission))}</span>
                               </div>
                            </div>
                         </div>

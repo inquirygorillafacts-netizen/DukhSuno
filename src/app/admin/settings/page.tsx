@@ -28,7 +28,11 @@ export default function OwnerSettingsPage() {
     });
 
     useEffect(() => {
-        fetch('/api/admin/config').then(res => res.json()).then(data => {
+        fetch('/api/admin/config', {
+            headers: { 
+                'x-admin-secret': process.env.NEXT_PUBLIC_ADMIN_SECRET || 'dev-secret-key' 
+            }
+        }).then(res => res.json()).then(data => {
             if (!data.error) setPlatformConfig(data);
         });
     }, []);
@@ -40,7 +44,10 @@ export default function OwnerSettingsPage() {
             const configToSave = (window as any)._platformConfig || platformConfig;
             await fetch('/api/admin/config', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'x-admin-secret': process.env.NEXT_PUBLIC_ADMIN_SECRET || 'dev-secret-key' 
+                },
                 body: JSON.stringify(configToSave)
             });
             

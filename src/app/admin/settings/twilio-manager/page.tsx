@@ -137,7 +137,11 @@ export default function TwilioManagerPage() {
         if (!accountId) return;
         setIsMigrationLoading(true);
         try {
-            const resp = await fetch(`/api/admin/users/twilio-migration?accountId=${accountId}`);
+            const resp = await fetch(`/api/admin/users/twilio-migration?accountId=${accountId}`, {
+                headers: { 
+                    'x-admin-secret': process.env.NEXT_PUBLIC_ADMIN_SECRET || 'dev-secret-key' 
+                }
+            });
             if (resp.ok) {
                 const data = await resp.json();
                 setMigrationUsers(data.users || []);
@@ -155,7 +159,10 @@ export default function TwilioManagerPage() {
         try {
             const resp = await fetch('/api/admin/users/twilio-migration', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'x-admin-secret': process.env.NEXT_PUBLIC_ADMIN_SECRET || 'dev-secret-key' 
+                },
                 body: JSON.stringify({ uid, targetAccountId })
             });
 

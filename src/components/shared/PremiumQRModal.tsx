@@ -29,8 +29,10 @@ export default function PremiumQRModal({ isOpen, onClose, user }: PremiumQRModal
 
   if (!isOpen) return null;
 
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://bigsuno.app';
+  const getBaseUrl = () => typeof window !== 'undefined' ? window.location.origin : 'https://bigsuno.app';
+  const baseUrl = getBaseUrl();
   const shareUrl = `${baseUrl}/p/${user?.uid}`;
+  const displayHost = typeof window !== 'undefined' ? window.location.hostname : 'bigsuno.app';
 
   const handleCopy = () => {
     navigator.clipboard.writeText(shareUrl);

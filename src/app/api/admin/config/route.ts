@@ -3,6 +3,10 @@ import { adminDb } from '@/lib/firebase-admin';
 
 export async function GET(req: Request) {
   try {
+    const adminSecret = req.headers.get('x-admin-secret');
+    if (adminSecret !== (process.env.ADMIN_SECRET_KEY || 'dev-secret-key')) {
+        return NextResponse.json({ error: 'Unauthorized Access' }, { status: 401 });
+    }
     const { searchParams } = new URL(req.url);
     const type = searchParams.get('type');
 
@@ -31,6 +35,10 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
+    const adminSecret = req.headers.get('x-admin-secret');
+    if (adminSecret !== (process.env.ADMIN_SECRET_KEY || 'dev-secret-key')) {
+        return NextResponse.json({ error: 'Unauthorized Access' }, { status: 401 });
+    }
     const data = await req.json();
     await adminDb.collection('settings').doc('platform').set({
       ...data,

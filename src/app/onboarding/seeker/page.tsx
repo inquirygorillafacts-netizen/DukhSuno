@@ -110,7 +110,7 @@ export default function SunaneOnboarding() {
     try {
       const avatar = dpMode === 'upload' && customUrl 
         ? customUrl 
-        : 'https://api.dicebear.com/7.x/avataaars/svg?seed=DukhSuno_Speaker'; // Premium Professional Default
+        : 'https://api.dicebear.com/7.x/avataaars/svg?seed=BigSuno_Seeker'; // Premium Professional Default
 
       const updateData = {
         displayName,

@@ -5,8 +5,7 @@ import { adminDb } from '@/lib/firebase-admin';
 
 export async function POST(req: Request) {
   const startTime = Date.now();
-  console.log('[Twilio Call] 🚀 New call request started');
-  
+  // console.log('[Twilio Call] 🚀 New call request started');
   try {
     const { phoneNumber, simulate = false, accountId: manualAccountId } = await req.json();
 
@@ -27,20 +26,20 @@ export async function POST(req: Request) {
       if (!userSnap.empty) {
         const userData = userSnap.docs[0].data();
         if (userData.isBlocked) {
-            console.error(`[Twilio Call] ❌ Blocked attempted call from ${phoneNumber}`);
+            // console.error(`[Twilio Call] ❌ Blocked attempted call from ${phoneNumber}`);
             return NextResponse.json({ 
-                error: 'Hum kshama chahte hain, aapka account block kar diya gaya hai aur aap call nahi kar sakte.' 
+                error: 'We apologize, but your account has been restricted. You cannot make calls.' 
             }, { status: 403 });
         }
         finalAccountId = userData.twilioAccountId;
       }
     }
-    console.log(`[Twilio Call] 🔍 Routing complete in ${Date.now() - routingStart}ms`);
+    // console.log(`[Twilio Call] 🔍 Routing complete in ${Date.now() - routingStart}ms`);
 
     // Credentials Lookup
     const credsStart = Date.now();
     const { sid: accountSid, token: authToken, from: twilioNumber } = await getTwilioCredentials(finalAccountId);
-    console.log(`[Twilio Call] 🔑 Credentials fetched in ${Date.now() - credsStart}ms`);
+    // console.log(`[Twilio Call] 🔑 Credentials fetched in ${Date.now() - credsStart}ms`);
 
     if (!accountSid || !authToken) {
       console.error('[Twilio Call] ❌ Credentials missing');
@@ -56,12 +55,13 @@ export async function POST(req: Request) {
 
     // Twilio Call Initiation
     const twilioStart = Date.now();
-    const host = req.headers.get('host') || 'dukhsuno.com';
-    const protocol = host.includes('localhost') ? 'http' : 'https';
-    const audioUrl = `${protocol}://${host}/ringtone.mp3`;
+    const host = req.headers.get('host');
+    const protocol = (host?.includes('localhost')) ? 'http' : 'https';
+    const finalHost = host || (process.env.VERCEL_URL ? process.env.VERCEL_URL : 'localhost:3000');
+    const baseUrl = `${protocol}://${finalHost}`;
+    const audioUrl = `${baseUrl}/ringtone.mp3`;
 
-    console.log(`[Twilio Call] 📞 Initiating real call to ${phoneNumber} from ${twilioNumber}`);
-    
+    // console.log(`[Twilio Call] 📞 Initiating real call to ${phoneNumber} from ${twilioNumber}`);
     const call = await client.calls.create({
        twiml: `
         <Response>
@@ -74,8 +74,7 @@ export async function POST(req: Request) {
     });
 
     const totalDuration = Date.now() - startTime;
-    console.log(`[Twilio Call] ✅ Call triggered successfully in ${totalDuration}ms. SID: ${call.sid}`);
-
+    // console.log(`[Twilio Call] ✅ Call triggered successfully in ${totalDuration}ms. SID: ${call.sid}`);
     return NextResponse.json({ 
        sid: call.sid,
        status: 'calling'
@@ -87,7 +86,7 @@ export async function POST(req: Request) {
     
     if (error.code === 21211 || error.message.includes('not verified')) {
         return NextResponse.json({ 
-            error: 'यह नंबर Twilio पर वेरिफाइड नहीं है। ट्रायल अकाउंट में सिर्फ वेरिफाइड नंबर्स को कॉल किया जा सकता है।' 
+            error: 'This number is not verified on Twilio. Trial accounts can only call verified caller IDs.' 
         }, { status: 400 });
     }
 

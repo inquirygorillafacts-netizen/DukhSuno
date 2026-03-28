@@ -1,6 +1,6 @@
 import React from "react";
-import ListenerLayout from "@/components/listener/ListenerLayout";
+import ProviderLayout from "@/components/provider/ProviderLayout";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  return <ListenerLayout>{children}</ListenerLayout>;
+  return <ProviderLayout>{children}</ProviderLayout>;
 }

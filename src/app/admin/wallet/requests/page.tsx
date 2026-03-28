@@ -375,7 +375,7 @@ export default function AdminWalletRequests() {
                      
                      <div className="flex flex-col items-center gap-1">
                         <h2 className="text-[40px] font-black text-slate-900 tracking-tighter italic leading-none">₹{selectedReq.amount - Math.floor(selectedReq.amount * (commission/100))}</h2>
-                        <p className="text-[10px] text-emerald-500 font-black uppercase tracking-widest">Payable to Listener</p>
+                        <p className="text-[10px] text-emerald-500 font-black uppercase tracking-widest">Payable to Provider</p>
                      </div>
 
                      <div className="flex items-center justify-center gap-6 pt-4">

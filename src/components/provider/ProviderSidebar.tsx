@@ -4,36 +4,36 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-    Home,
-    Search,
+    LayoutDashboard,
+    History,
     Wallet,
     User,
     Settings,
     LogOut,
     PanelLeftClose,
     PanelLeftOpen,
-    MessageCircle,
-    Heart,
     Sparkles,
-    Activity
+    Download
 } from "lucide-react";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useAuthStore } from "@/stores/auth-store";
+import PWAInstall from "@/components/shared/PWAInstall";
 
 function cn(...classes: (string | boolean | undefined)[]) {
     return classes.filter(Boolean).join(" ");
 }
 
-export default function SpeakerSidebar() {
+export default function ProviderSidebar() {
     const pathname = usePathname();
-    const { setShowTour } = useAuthStore();
     const [isExpanded, setIsExpanded] = useState(true);
 
     const links = [
-        { name: "My Home", href: "/seeker/home", icon: Home },
-        { name: "My Wallet", href: "/seeker/wallet", icon: Wallet },
-        { name: "My Profile", href: "/seeker/profile", icon: User },
+        { name: "My Dashboard", href: "/provider/dashboard", icon: LayoutDashboard, highlight: false },
+        { name: "Call History", href: "/provider/calls", icon: History, highlight: false },
+        { name: "My Earnings", href: "/provider/earnings", icon: Wallet, highlight: false },
+        { name: "My Profile", href: "/provider/profile", icon: User, highlight: false },
+        { name: "Settings", href: "/provider/settings", icon: Settings, highlight: false },
     ];
 
     return (
@@ -43,8 +43,7 @@ export default function SpeakerSidebar() {
                 isExpanded ? "w-64" : "w-[76px]"
             )}
             style={{
-                background: 'rgba(255, 255, 255, 0.98)',
-                backdropFilter: 'blur(20px)',
+                background: '#ffffff',
                 borderRight: '1px solid rgba(226, 232, 240, 0.8)',
             }}
         >
@@ -58,14 +57,14 @@ export default function SpeakerSidebar() {
 
             {/* Brand */}
             <div className={`shrink-0 p-6 ${isExpanded ? 'px-6' : 'px-0 flex justify-center'}`}>
-                <Link href="/seeker/home" className="flex items-center gap-3">
+                <Link href="/provider/dashboard" className="flex items-center gap-3">
                     <div className="flex items-center justify-center w-9 h-9 shrink-0 rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden">
                         <img src="/logo.png" alt="BigSuno" className="w-full h-full object-cover" />
                     </div>
                     {isExpanded && (
                         <div className="flex flex-col min-w-0">
                             <span className="text-sm font-black text-slate-900 tracking-tighter leading-tight uppercase">BigSuno</span>
-                            <span className="text-[9px] font-black text-indigo-600 uppercase tracking-widest mt-[-2px]">Client Space</span>
+                            <span className="text-[9px] font-black text-indigo-600 uppercase tracking-widest mt-[-2px]">Provider Hub</span>
                         </div>
                     )}
                 </Link>
@@ -84,7 +83,8 @@ export default function SpeakerSidebar() {
                                 className={cn(
                                     "flex items-center h-11 rounded-xl transition-all duration-200 group/item",
                                     isExpanded ? "px-4" : "justify-center",
-                                    isActive ? "bg-indigo-50 text-indigo-600 shadow-sm" : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                                    isActive ? "bg-indigo-50 text-indigo-600 shadow-sm border border-indigo-50" : "text-slate-500 hover:bg-slate-50/50 hover:text-slate-900",
+                                    link.highlight && !isActive && "text-indigo-500"
                                 )}
                             >
                                 <Icon size={18} className={cn("shrink-0", isActive ? "scale-110" : "group-hover/item:scale-110")} />
@@ -99,21 +99,8 @@ export default function SpeakerSidebar() {
                 </nav>
             </div>
 
-            {/* Bottom Section */}
-            <div className={`shrink-0 p-4 border-t border-slate-100 bg-indigo-50/20 ${isExpanded ? 'block' : 'hidden'}`}>
-                <div className="p-4 rounded-2xl bg-white border border-indigo-100 shadow-sm flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
-                        <Activity size={18} />
-                    </div>
-                    <div>
-                        <p className="text-[9px] font-black text-indigo-400 uppercase tracking-widest leading-none mb-1">Need Guidance?</p>
-                        <p className="text-[10px] font-bold text-indigo-600 tracking-tight leading-none italic">"Connect with Experts"</p>
-                    </div>
-                </div>
-            </div>
-
-            {/* Logout */}
-            <div className="shrink-0 p-4 border-t border-slate-100 bg-slate-50/30">
+            {/* Bottom Actions */}
+            <div className="shrink-0 p-4 border-t border-slate-100 space-y-2 bg-slate-50/30">
                 <button
                     onClick={async () => { await signOut(auth); window.location.href = "/login"; }}
                     className={cn(
@@ -126,19 +113,28 @@ export default function SpeakerSidebar() {
                     {isExpanded && <span className="text-[11px] font-black uppercase tracking-widest leading-none mt-0.5">Logout</span>}
                 </button>
 
-                <button
-                    onClick={() => setShowTour(true)}
-                    className={cn(
-                        "flex items-center gap-3 h-10 rounded-xl transition-all duration-200 group w-full",
-                        isExpanded ? "px-4" : "justify-center",
-                        "text-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 border border-indigo-50 bg-white shadow-sm"
+                <PWAInstall 
+                    renderTrigger={(onClick, isVisible) => isVisible && (
+                        <button
+                            onClick={onClick}
+                            className={cn(
+                                "flex items-center gap-3 h-12 rounded-[1.25rem] transition-all duration-300 group w-full overflow-hidden relative active:scale-95 shadow-lg",
+                                isExpanded ? "px-4" : "justify-center",
+                                "bg-emerald-600 text-white shadow-emerald-100 hover:shadow-emerald-200 overflow-hidden"
+                            )}
+                        >
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                            <Download size={18} className="shrink-0 group-hover:scale-110 transition-transform" />
+                            {isExpanded && (
+                                <div className="flex flex-col items-start min-w-0">
+                                    <span className="text-[10px] font-black uppercase tracking-widest leading-none">Install App</span>
+                                    <span className="text-[7px] opacity-70 font-bold uppercase tracking-tighter mt-1 whitespace-nowrap">Premium Provider Experience</span>
+                                </div>
+                            )}
+                        </button>
                     )}
-                >
-                    <Sparkles size={16} className="animate-pulse" />
-                    {isExpanded && <span className="text-[11px] font-black uppercase tracking-widest leading-none mt-0.5">How it Works?</span>}
-                </button>
+                />
             </div>
         </aside>
     );
 }
-

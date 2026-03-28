@@ -15,7 +15,8 @@ import {
     PanelLeftClose,
     PanelLeftOpen,
     Terminal,
-    Lock
+    Lock,
+    Command
 } from "lucide-react";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
@@ -37,6 +38,7 @@ export default function AdminSidebar() {
         {
             title: "Insights",
             links: [
+                { name: "Command Center", href: "/admin/headroom", icon: Command },
                 { name: "Overview", href: "/admin/dashboard", icon: LayoutDashboard },
                 { name: "Call Logs", href: "/admin/calls", icon: PhoneCall },
             ]

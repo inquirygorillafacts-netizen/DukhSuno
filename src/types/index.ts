@@ -66,10 +66,10 @@ export const PROVIDER_TYPE_LABELS: Record<ProviderType, string> = {
   influencer: 'Expert ✨',
   mentor: 'Consultant 🎓',
   coach: 'Specialist 🏅',
-  listener: 'Counselor 👂',
+  listener: 'Expert Provider 👂',
   expert: 'Expert ✨',
   consultant: 'Consultant 🎓',
-  counselor: 'Counselor 👂',
+  counselor: 'Expert Provider 👂',
   specialist: 'Specialist 🏅',
 };
 
@@ -121,6 +121,7 @@ export interface Session {
   sessionId: string;
   userId: string;
   listenerId: string;
+  providerId?: string; // Unified: Alias for listenerId
   planId: string;
   planMinutes: number;
   planPrice: number;
@@ -135,26 +136,30 @@ export interface Session {
   actualDurationSeconds?: number;
   commissionRate: number;
   listenerEarned: number;
+  providerEarned?: number; // Alias
   rating: number | null;
   ratingComment: string | null;
   transactionId?: string | null;
-  cutBy?: 'speaker' | 'listener' | 'auto' | null;
+  cutBy?: 'seeker' | 'provider' | 'auto' | null;
 }
 
 // ─── Transaction (for wallet history) ───
 export interface Transaction {
   id: string;
   userId: string;
-  speakerId?: string;       // New: Who paid
-  listenerId?: string;      // New: Who earned
+  seekerId?: string;        // Alias for speakerId
+  speakerId?: string;       // Original
+  listenerId?: string;      // Original
+  providerId?: string;      // Alias
   type: 'credit_add' | 'credit_spend' | 'refund' | 'earning' | 'withdrawal';
   amount: number;           // Gross amount
-  commissionRate?: number;  // New: % rate at time of txn (e.g. 5, 10, 15)
-  platformFee?: number;     // New: Amount platform took
-  listenerAmount?: number;  // New: Amount listener actually gets (Net)
+  commissionRate?: number;
+  platformFee?: number;
+  listenerAmount?: number;  // Original
+  providerAmount?: number;  // Alias
   description: string;
-  status: 'pending' | 'requested' | 'withdrawn' | 'rejected' | 'completed'; // New
-  withdrawalRequestId?: string; // New: Link to the request
+  status: 'pending' | 'requested' | 'withdrawn' | 'rejected' | 'completed';
+  withdrawalRequestId?: string;
   createdAt: Date;
   relatedSessionId?: string;
 }

@@ -118,7 +118,7 @@ export function PublicProfileView({ provider }: { provider: BigSunoUser }) {
              <div className="md:col-span-2 space-y-4">
                 <h3 className="text-xs font-black uppercase tracking-[0.3em] text-slate-400">Mere Baare Mein</h3>
                 <p className="text-[17px] font-medium text-slate-600 leading-relaxed md:pr-12">
-                  {provider.bio || "Hello! main ek certified listener hoon. Aap apni koi bhi man ki baat mere saath share kar sakte hain—bina judge hue. Career ho, relationship ho ya life ki koi bhi pareshani, main sab sunti hoon."}
+                  {provider.bio || "Hello! main ek certified expert hoon. Aap apni koi bhi man ki baat mere saath share kar sakte hain—bina judge hue. Career ho, relationship ho ya life ki koi bhi pareshani, main sab sunti hoon."}
                 </p>
              </div>
              <div className="space-y-6">

@@ -1,6 +1,6 @@
 import React from "react";
-import SpeakerLayout from "@/components/speaker/SpeakerLayout";
+import SeekerLayout from "@/components/seeker/SeekerLayout";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  return <SpeakerLayout>{children}</SpeakerLayout>;
+  return <SeekerLayout>{children}</SeekerLayout>;
 }

@@ -73,7 +73,7 @@ export default function SunneProfilePage() {
       <div className="px-2">
         <div className="flex items-center gap-3 mb-1">
           <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tighter">
-            {user?.displayName || 'Listener'}
+            {user?.displayName || 'Expert Provider'}
           </h3>
           {user?.isVerified ? (
             <div className="bg-emerald-50 text-emerald-600 px-2.5 py-1 rounded-full flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest border border-emerald-100">
@@ -99,7 +99,7 @@ export default function SunneProfilePage() {
       <div className="glass bg-white p-5 md:p-8 rounded-3xl md:rounded-[1.5rem] border border-white shadow-sm relative group">
         <span className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 block mb-3">Mera Bio</span>
         <p className="text-xs md:text-sm font-medium leading-relaxed">
-           Main ek acchi listener hu. Aap apni koi bhi baat share kar sakte hain — bina judge hue. Relationship, career, ya life — sab ke baare mein baat karein.
+           Main ek professional provider hu. Aap apni koi bhi baat share kar sakte hain — bina judge hue. Relationship, career, ya life — sab ke baare mein khul kar baat karein.
         </p>
       </div>
 
@@ -185,7 +185,9 @@ export default function SunneProfilePage() {
            </button>
         </div>
         <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 text-center">
-           <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">bigsuno.app/p/{user?.uid}</p>
+           <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
+             {typeof window !== 'undefined' ? window.location.host : 'bigsuno.app'}/p/{user?.uid}
+           </p>
         </div>
       </div>
 

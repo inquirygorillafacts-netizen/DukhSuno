@@ -36,7 +36,7 @@ export function CallingScreen({ listener }: { listener: any }) {
           {listener?.displayName === 'Seeker' ? (
             <>Naya Seeker ki<br/>call aa rahi hai... ✨</>
           ) : (
-            <>{listener?.displayName || 'Listener'} ko<br/>call jaa rahi hai... ✨</>
+            <>{listener?.displayName || 'Expert'} ko<br/>call jaa rahi hai... ✨</>
           )}
         </h2>
         <p className="text-white/60 text-[16px] font-medium italic">

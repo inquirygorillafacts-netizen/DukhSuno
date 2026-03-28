@@ -9,16 +9,20 @@ import {
     Wallet, 
     User, 
     MessageCircle,
-    Sparkles
+    Sparkles,
+    History,
+    Download
 } from "lucide-react";
 import { useAuthStore } from "@/stores/auth-store";
+import PWAInstall from "../shared/PWAInstall";
 
-export default function SpeakerMobileNav() {
+export default function SeekerMobileNav() {
     const pathname = usePathname();
     const { setShowTour } = useAuthStore();
 
     const links = [
         { name: "Home", href: "/seeker/home", icon: Home },
+        { name: "History", href: "/seeker/history", icon: History },
         { name: "Wallet", href: "/seeker/wallet", icon: Wallet },
         { name: "Me", href: "/seeker/profile", icon: User },
     ];
@@ -52,6 +56,17 @@ export default function SpeakerMobileNav() {
                 <Sparkles size={20} />
                 <span className="text-[10px] font-bold uppercase tracking-tighter">Intro</span>
             </button>
+            <PWAInstall 
+                renderTrigger={(onClick: () => void, isVisible: boolean) => isVisible && (
+                    <button 
+                        onClick={onClick}
+                        className="flex flex-col items-center gap-1 text-slate-800 active:scale-95 transition-all"
+                    >
+                        <Download size={20} />
+                        <span className="text-[10px] font-bold uppercase tracking-tighter">App</span>
+                    </button>
+                )}
+            />
         </nav>
     );
 }

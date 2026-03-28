@@ -59,7 +59,7 @@ export default function SunneDashboardPage() {
     // Pending call listener
     const qPending = query(
       collection(db, 'sessions'),
-      where('listenerId', '==', user.uid),
+      where('listenerId', '==', user.uid), // Keeping Firestore field for now to avoid breaking backend
       where('status', '==', 'pending'),
       limit(1)
     );
@@ -72,9 +72,9 @@ export default function SunneDashboardPage() {
     // All calls listener
     const qAll = query(
       collection(db, 'sessions'),
-      where('listenerId', '==', user.uid),
+      where('listenerId', '==', user.uid), // Keeping Firestore field
       orderBy('createdAt', 'desc'),
-      limit(5) // Just a few for the simplified dashboard view
+      limit(5) 
     );
     const unsubscribeAll = onSnapshot(qAll, (snapshot) => {
       const allSessions = snapshot.docs.map(doc => ({ sessionId: doc.id, ...doc.data() } as any));
@@ -238,7 +238,7 @@ export default function SunneDashboardPage() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-base font-black text-emerald-600 tracking-tighter italic">₹{session.listenerEarned || 0}</p>
+                  <p className="text-base font-black text-emerald-600 tracking-tighter italic">₹{session.listenerEarned || session.providerEarned || 0}</p>
                   <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">{Math.floor((session.durationSeconds || 0) / 60)} mins</p>
                 </div>
               </div>

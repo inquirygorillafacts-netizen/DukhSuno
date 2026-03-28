@@ -30,20 +30,14 @@ export async function POST(req: Request) {
     // We integrate our UDFs for database logic but maintain the same core structure.
     const pInfo = productInfo || 'BigSuno';
     const fName = firstName || 'User';
-    const eMail = email || 'anon@bigsuno.app';
+    const eMail = email || `${userId.slice(0, 8)}@bigsuno.internal`;
     
     // Hash sequence: key|txnid|amount|productinfo|firstname|email|udf1|udf2|udf3|udf4|udf5|udf6|udf7|udf8|udf9|udf10|salt
     const hashStr = `${key}|${txnid}|${amount}|${pInfo}|${fName}|${eMail}|${udf1}|${udf2}|${udf3}|${udf4}|${udf5}|${udf6}|||||${salt}`;
     const hash = crypto.createHash('sha512').update(hashStr).digest('hex');
 
     const baseUrl = config.PAYU_BASE_URL || 'https://secure.payu.in';
-    console.log('--- PayU Initiation Debug ---');
-    console.log('Config PAYU_BASE_URL:', config.PAYU_BASE_URL);
-    console.log('Base URL resolved:', baseUrl);
-    
     const payuUrl = baseUrl.includes('/_payment') ? baseUrl : `${baseUrl.replace(/\/$/, '')}/_payment`;
-    console.log('Final PayU URL:', payuUrl);
-    console.log('-----------------------------');
 
     const host = req.headers.get('host');
     const protocol = req.headers.get('x-forwarded-proto') || 'http';

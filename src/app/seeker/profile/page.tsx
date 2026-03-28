@@ -54,7 +54,7 @@ export default function SunaneProfilePage() {
                  <h2 className="text-lg md:text-xl font-black text-slate-900 tracking-tighter uppercase">{user?.displayName || 'User'}</h2>
                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em]">{user?.email}</p>
                  <div className="mt-2 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-500 text-[8px] font-black uppercase tracking-widest border border-indigo-100">
-                    <Sparkles size={8} className="fill-current" /> Active Speaker
+                    <Sparkles size={12} className="fill-current" /> Active Seeker
                  </div>
               </div>
            </div>

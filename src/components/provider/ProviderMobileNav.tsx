@@ -9,11 +9,13 @@ import {
     History, 
     Wallet, 
     User,
-    Sparkles
+    Sparkles,
+    Download
 } from "lucide-react";
 import { useAuthStore } from "@/stores/auth-store";
+import PWAInstall from "@/components/shared/PWAInstall";
 
-export default function ListenerMobileNav() {
+export default function ProviderMobileNav() {
     const pathname = usePathname();
     const { setShowTour } = useAuthStore();
 
@@ -45,14 +47,20 @@ export default function ListenerMobileNav() {
                 );
             })}
 
-            {/* Intro Button (Static) */}
-            <button
-                onClick={() => setShowTour(true)}
-                className="flex flex-col items-center gap-1 text-emerald-400 animate-pulse active:scale-95 transition-all"
-            >
-                <Sparkles size={20} />
-                <span className="text-[10px] font-bold uppercase tracking-tighter">Intro</span>
-            </button>
+            <PWAInstall 
+                renderTrigger={(onClick, isVisible) => isVisible && (
+                    <button
+                        onClick={onClick}
+                        className="flex flex-col items-center gap-1.5 transition-all active:scale-90 group relative"
+                    >
+                        <div className="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-lg shadow-emerald-100 group-active:scale-95 transition-all overflow-hidden relative">
+                             <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/20 to-white/0 animate-shimmer" />
+                             <Download size={20} className="relative z-10" />
+                        </div>
+                        <span className="text-[9px] font-black uppercase tracking-widest text-emerald-700 leading-none">Install</span>
+                    </button>
+                )}
+            />
         </nav>
     );
 }

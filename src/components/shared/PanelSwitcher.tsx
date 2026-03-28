@@ -53,8 +53,8 @@ export default function PanelSwitcher() {
     const availablePanels = PANELS.filter(panel => {
         if (panel.name === "Owner Portal") return user?.owner === true;
         if (panel.name === "Admin Portal") return hasRole('admin');
-        if (panel.name === "Listener Panel") return hasRole('provider');
-        if (panel.name === "Speaker Panel") return hasRole('seeker');
+        if (panel.name === "Provider Dashboard") return hasRole('provider');
+        if (panel.name === "Client Space") return hasRole('seeker');
         return true;
     });
 
@@ -131,7 +131,7 @@ export default function PanelSwitcher() {
                                     </div>
                                     <div className="flex-1">
                                         <p className={`text-sm font-bold ${isActive ? 'text-slate-900' : 'text-slate-600 group-hover:text-slate-900'}`}>
-                                            {panel.name === 'Speaker Panel' ? 'Seeker Panel' : panel.name}
+                                            {panel.name}
                                         </p>
                                         <p className="text-[10px] text-slate-400 font-medium leading-tight line-clamp-1">
                                             {panel.description}

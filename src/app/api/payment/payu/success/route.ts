@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     const txnid = data.txnid as string;
     const amount = data.amount as string;
     const hash = data.hash as string;
-    const type = data.udf1 as string; // "credit_reload" | "TOPUP_FOR_PLAN" | "direct_session"
+    const type = data.udf1 as string; // "credit_reload" | "TOPUP_FOR_PLAN" | "add_money"
     const userId = data.udf2 as string;
     const email = data.email as string;
     const firstname = data.firstname as string;
@@ -29,18 +29,17 @@ export async function POST(req: Request) {
     }
 
     // Verify reverse hash integrity
-    // sha512(SALT|status|udf10|udf9|udf8|udf7|udf6|udf5|udf4|udf3|udf2|udf1|email|firstname|productinfo|amount|txnid|key)
-    const hashStr = `${salt}|${status}|${data.udf10 || ''}|${data.udf9 || ''}|${data.udf8 || ''}|${data.udf7 || ''}|${data.udf6 || ''}|${data.udf5 || ''}|${data.udf4 || ''}|${listenerId || ''}|${userId}||${email}|${firstname}|${productinfo}|${amount}|${txnid}|${key}`;
-    // Wait, the hash string in webhook was:
-    // `${salt}|${status}|${data.udf10 || ''}|${data.udf9 || ''}|${data.udf8 || ''}|${data.udf7 || ''}|${data.udf6 || ''}|${data.udf5 || ''}|${data.udf4 || ''}|${listenerId}|${userId}|${type}|${email}|${firstname}|${productinfo}|${amount}|${txnid}|${key}`;
-    // Let's stick to the webhook's proven hash verification.
     const originalHashStr = `${salt}|${status}|${data.udf10 || ''}|${data.udf9 || ''}|${data.udf8 || ''}|${data.udf7 || ''}|${data.udf6 || ''}|${data.udf5 || ''}|${data.udf4 || ''}|${listenerId || ''}|${userId || ''}|${type || ''}|${email || ''}|${firstname || ''}|${productinfo || ''}|${amount || ''}|${txnid || ''}|${key || ''}`;
     const calculatedHash = crypto.createHash('sha512').update(originalHashStr).digest('hex');
 
+    const host = req.headers.get('host');
+    const protocol = host?.includes('localhost') ? 'http' : 'https';
+    const finalHost = host || 'bigsuno.vercel.app';
+    const origin = `${protocol}://${finalHost}`;
+
     if (calculatedHash !== hash) {
       console.error('Hash mismatch! Potential fraud attempt.');
-      const baseUrl = process.env.NEXT_PUBLIC_URL || 'https://bigsuno.app';
-      return NextResponse.redirect(`${baseUrl}/payment/failed?error=hash_mismatch`);
+      return NextResponse.redirect(`${origin}/payment/failed?error=hash_mismatch`);
     }
 
     if (status === 'success') {
@@ -104,27 +103,19 @@ export async function POST(req: Request) {
             createdAt: Date.now(),
           });
 
-          const baseUrl = process.env.NEXT_PUBLIC_URL || 'https://bigsuno.app';
-          return NextResponse.redirect(`${baseUrl}/call/${sessionId}?autoStart=true`);
+          return NextResponse.redirect(`${origin}/call/${sessionId}?autoStart=true`);
         }
       }
       
-      const host = req.headers.get('host');
-      const protocol = req.headers.get('x-forwarded-proto') || 'http';
-      const origin = `${protocol}://${host}`;
-      
-      return NextResponse.redirect(`${origin}/wallet?payment=success&txnid=${txnid}&amount=${amount}&type=${type}`);
+      return NextResponse.redirect(`${origin}/seeker/wallet?payment=success&txnid=${txnid}&amount=${amount}&type=${type}`);
     } else {
-      const host = req.headers.get('host');
-      const protocol = req.headers.get('x-forwarded-proto') || 'http';
-      const origin = `${protocol}://${host}`;
-      return NextResponse.redirect(`${origin}/wallet?payment=failed&txnid=${txnid}`);
+      return NextResponse.redirect(`${origin}/seeker/wallet?payment=failed&txnid=${txnid}`);
     }
   } catch (error) {
     console.error('Success route error:', error);
     const host = req.headers.get('host');
-    const protocol = req.headers.get('x-forwarded-proto') || 'http';
-    const origin = `${protocol}://${host}`;
-    return NextResponse.redirect(`${origin}/wallet?payment=failed&error=server_error`);
+    const protocol = host?.includes('localhost') ? 'http' : 'https';
+    const origin = `${protocol}://${host || 'bigsuno.vercel.app'}`;
+    return NextResponse.redirect(`${origin}/seeker/wallet?payment=failed&error=server_error`);
   }
 }

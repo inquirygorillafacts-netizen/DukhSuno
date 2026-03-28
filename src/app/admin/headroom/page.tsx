@@ -100,7 +100,7 @@ export default function AdminHeadRoom() {
                  <div className="bg-slate-900 p-8 rounded-[3rem] text-white relative overflow-hidden group">
                     <Activity className="absolute -right-4 -bottom-4 w-32 h-32 text-white/5 group-hover:rotate-12 transition-transform duration-700" />
                     <div className="relative z-10">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Live Listeners</p>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Live Providers</p>
                         <div className="flex items-baseline gap-2">
                             <h3 className="text-5xl font-black tracking-tighter">{onlineUsers.length}</h3>
                             <span className="text-emerald-400 text-xs font-bold flex items-center gap-1">
@@ -211,7 +211,7 @@ export default function AdminHeadRoom() {
                              <h4 className="text-2xl font-black text-slate-900">+142%</h4>
                         </div>
                         <div className="p-6 rounded-[2rem] bg-rose-50 border border-rose-100">
-                             <p className="text-[9px] font-black text-rose-600 uppercase tracking-widest mb-1">Active Listeners</p>
+                             <p className="text-[9px] font-black text-rose-600 uppercase tracking-widest mb-1">Active Providers</p>
                              <h4 className="text-2xl font-black text-slate-900">{onlineUsers.length}</h4>
                         </div>
                     </div>
@@ -262,7 +262,7 @@ export default function AdminHeadRoom() {
                         <h2 className="text-xl font-bold text-slate-900">User Activity Monitor</h2>
                         <div className="flex gap-2">
                             <button className="px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-xl text-[9px] font-black uppercase tracking-widest">All</button>
-                            <button className="px-3 py-1.5 bg-white border border-slate-100 rounded-xl text-[9px] font-black uppercase tracking-widest text-slate-400">Listeners</button>
+                            <button className="px-3 py-1.5 bg-white border border-slate-100 rounded-xl text-[9px] font-black uppercase tracking-widest text-slate-400">Providers</button>
                         </div>
                     </div>
 
@@ -321,11 +321,11 @@ export default function AdminHeadRoom() {
                 </div>
             </div>
             
-            {/* Real-time Online Map - Listeners */}
+            {/* Real-time Online Map - Providers */}
              <div className="bg-slate-900 p-10 rounded-[4rem] text-white">
                  <div className="mb-8">
-                    <h2 className="text-2xl font-black tracking-tight mb-2">Listener Command Post</h2>
-                    <p className="text-slate-400 text-sm">Real-time status of all verified listeners on post.</p>
+                    <h2 className="text-2xl font-black tracking-tight mb-2">Provider Command Post</h2>
+                    <p className="text-slate-400 text-sm">Real-time status of all verified providers on post.</p>
                  </div>
                  
                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
@@ -341,7 +341,7 @@ export default function AdminHeadRoom() {
                             </div>
                         </div>
                     ))}
-                    {onlineUsers.length === 0 && <p className="col-span-full text-center py-10 text-slate-500 font-black uppercase tracking-[0.4em] text-xs">Zero Listeners Post Duty</p>}
+                    {onlineUsers.length === 0 && <p className="col-span-full text-center py-10 text-slate-500 font-black uppercase tracking-[0.4em] text-xs">Zero Providers Post Duty</p>}
                  </div>
              </div>
         </div>
