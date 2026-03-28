@@ -17,17 +17,32 @@ const firebaseConfig = {
 
 const hasConfig = !!process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
 
+/**
+ * Creates a defensive proxy for service objects to provide better 
+ * debugging info if environment variables are missing at build-time.
+ */
+const createDefensiveProxy = (name: string) => {
+  return new Proxy({} as any, {
+    get: (target, prop) => {
+      if (typeof window !== 'undefined') {
+        console.error(`🔴 Firebase ${name} Error: Attempted to access '${String(prop)}' but the configuration was missing during build. Please verify your NEXT_PUBLIC_FIREBASE_* environment variables on Netlify and re-trigger a build.`);
+      }
+      return target[prop];
+    }
+  });
+};
+
 // Initialize Firebase (prevent duplicate initialization)
 // During build time on Netlify, if env vars are missing, we provide a placeholder app
 const app: FirebaseApp = hasConfig 
   ? (getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0])
   : ({ name: '[DEFAULT]', options: {}, automaticDataCollectionEnabled: false } as any);
 
-export const auth: Auth = hasConfig ? getAuth(app) : {} as any;
+export const auth: Auth = hasConfig ? getAuth(app) : createDefensiveProxy('Auth');
 export const googleProvider = new GoogleAuthProvider();
-export const db: Firestore = hasConfig ? getFirestore(app) : {} as any;
-export const rtdb: Database = hasConfig ? getDatabase(app) : {} as any;
+export const db: Firestore = hasConfig ? getFirestore(app) : createDefensiveProxy('Firestore');
+export const rtdb: Database = hasConfig ? getDatabase(app) : createDefensiveProxy('Database');
 export { onDisconnect } from 'firebase/database';
-export const storage: FirebaseStorage = hasConfig ? getStorage(app) : {} as any;
+export const storage: FirebaseStorage = hasConfig ? getStorage(app) : createDefensiveProxy('Storage');
 
 export default app;
