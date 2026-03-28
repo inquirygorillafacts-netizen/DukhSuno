@@ -1,8 +1,20 @@
 import { NextResponse } from 'next/server';
 import { adminDb } from '@/lib/firebase-admin';
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
+    const { searchParams } = new URL(req.url);
+    const type = searchParams.get('type');
+
+    if (type === 'twilio_accounts') {
+      const snap = await adminDb.collection('admin_config').doc('twilio_config').collection('accounts').get();
+      const accounts = snap.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      return NextResponse.json({ accounts });
+    }
+
     const doc = await adminDb.collection('settings').doc('platform').get();
     if (doc.exists) {
       return NextResponse.json(doc.data());
@@ -12,6 +24,7 @@ export async function GET() {
       minWithdrawalAmount: 99
     });
   } catch (error) {
+    console.error('[Admin Config] GET Error:', error);
     return NextResponse.json({ error: 'Failed to fetch config' }, { status: 500 });
   }
 }
