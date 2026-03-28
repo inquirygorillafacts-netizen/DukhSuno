@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { doc, updateDoc, arrayUnion, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { uploadToImgBB } from '@/lib/imgbb';
 import { useAuthStore } from '@/stores/auth-store';
 import { AVATAR_OPTIONS } from '@/types';
 import type { Specialty } from '@/types';

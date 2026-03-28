@@ -18,7 +18,7 @@ export default function MePage() {
   const router = useRouter();
   const { user, logout } = useAuthStore();
   const [showIntro, setShowIntro] = useState(false);
-  const [isOnline, setIsOnline] = useState(user?.isOnline || false);
+  const [isAvailable, setIsAvailable] = useState(user?.isAvailable || false);
 
   const handleLogout = async () => {
     await logout();
@@ -78,13 +78,13 @@ export default function MePage() {
         <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col justify-center">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Status</span>
-            <div className={`w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`} />
+            <div className={`w-2 h-2 rounded-full ${isAvailable ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`} />
           </div>
           <button 
-            onClick={() => setIsOnline(!isOnline)}
+            onClick={() => setIsAvailable(!isAvailable)}
             className="text-lg font-black text-slate-900 tracking-tight mt-1 text-left"
           >
-            {isOnline ? 'Available' : 'Invisible'}
+            {isAvailable ? 'Available' : 'Invisible'}
           </button>
         </div>
       </section>
@@ -169,7 +169,7 @@ export default function MePage() {
 
       {/* Logout */}
       <motion.button
-        whileHover={{ bg: 'rgb(254 242 242)' }}
+        whileHover={{ backgroundColor: 'rgb(254 242 242)' }}
         onClick={handleLogout}
         className="w-full p-6 rounded-[2.5rem] flex items-center gap-4 text-rose-500 font-black uppercase tracking-[0.2em] text-[10px]"
       >

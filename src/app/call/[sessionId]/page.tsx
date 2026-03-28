@@ -36,7 +36,7 @@ export default function CallPage({ params }: { params: Promise<{ sessionId: stri
         setSession(sessionData);
 
         // Fetch Partner (Listener if I am Speaker, Speaker if I am Listener)
-        const partnerId = activeRole === 'sunane_wala' ? sessionData.listenerId : sessionData.userId;
+        const partnerId = activeRole === 'seeker' ? sessionData.listenerId : sessionData.userId;
         
         if (!listener && partnerId) {
           const partnerSnap = await getDoc(doc(db, 'users', partnerId));
@@ -44,7 +44,7 @@ export default function CallPage({ params }: { params: Promise<{ sessionId: stri
             let partnerData = partnerSnap.data() as BigSunoUser;
             
             // ─── SEEKER PRIVACY MASKING ───
-            if (activeRole === 'sunne_wala') {
+            if (activeRole === 'provider') {
               partnerData = {
                 ...partnerData,
                 displayName: 'Seeker',
@@ -148,7 +148,7 @@ export default function CallPage({ params }: { params: Promise<{ sessionId: stri
         };
 
         let handler;
-        if (activeRole === 'sunane_wala') {
+        if (activeRole === 'seeker') {
           handler = await startCall(sessionId, onEmoji, onConnected);
 
           // Trigger Multi-Cross Calling Logic
@@ -165,12 +165,12 @@ export default function CallPage({ params }: { params: Promise<{ sessionId: stri
           const data = await resp.json();
           if (data.error === 'RECIPIENT_BUSY') {
             alert('Listener abhi doosri call पर hain. Kripya thodi der baad koshish karein.');
-            router.replace('/sunane/home');
+            router.replace('/seeker/home');
             return;
           }
           if (data.error === 'RECIPIENT_ON_HOLIDAY') {
             alert('Ye aaj ke liye chhuti par hai 🌴. Kripya kisi aur ko call karein.');
-            router.replace('/sunane/home');
+            router.replace('/seeker/home');
             return;
           }
         } else {
@@ -315,13 +315,13 @@ export default function CallPage({ params }: { params: Promise<{ sessionId: stri
       }
     }
     resetCall();
-    router.replace(activeRole === 'sunane_wala' ? '/sunane/home' : '/sunne/dashboard');
+    router.replace(activeRole === 'seeker' ? '/seeker/home' : '/provider/dashboard');
   };
 
   const handleSkip = () => {
     setShowRating(false);
     resetCall();
-    router.replace(activeRole === 'sunane_wala' ? '/sunane/home' : '/sunne/dashboard');
+    router.replace(activeRole === 'seeker' ? '/seeker/home' : '/provider/dashboard');
   };
 
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center text-white">Loading session...</div>;
@@ -342,7 +342,7 @@ export default function CallPage({ params }: { params: Promise<{ sessionId: stri
           listener={listener || { displayName: 'User', avatarUrl: 'emoji:👤:#F3F1EC' } as any}
           priceInfo={{ price: session?.planPrice || 0, minutes: session?.planMinutes || 0 }}
           sessionId={sessionId}
-          onEnd={() => handleEndCallRequest(activeRole === 'sunane_wala' ? 'speaker' : 'listener')}
+          onEnd={() => handleEndCallRequest(activeRole === 'seeker' ? 'speaker' : 'listener')}
         />
       )}
 

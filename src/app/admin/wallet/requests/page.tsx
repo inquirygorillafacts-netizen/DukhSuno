@@ -450,7 +450,7 @@ function StatCard({ label, value, icon, color, textColor, sub, glow }: any) {
          <div className={`absolute -right-4 -bottom-4 w-24 h-24 ${glow} rounded-full blur-[60px] opacity-10 group-hover:opacity-20 transition-all`} />
          <div className="flex flex-col gap-4 relative z-10">
             <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${color.includes('slate-900') ? 'bg-white/10 text-white' : 'bg-slate-50 text-slate-400 opacity-50'}`}>
-               {cloneElement(icon as ReactElement, { size: 24 })}
+               {cloneElement(icon as ReactElement, { size: 24 } as any)}
             </div>
             <div>
                <p className={`text-[10px] font-black uppercase tracking-[0.2em] ${color.includes('slate-900') ? 'text-slate-400' : 'text-slate-400'}`}>{label}</p>
