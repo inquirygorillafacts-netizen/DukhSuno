@@ -93,7 +93,7 @@ export default function AdminAvatars() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
-            <Link href="/sunne/dashboard" className="inline-flex items-center gap-2 text-slate-400 hover:text-accent transition-colors text-xs font-black uppercase tracking-widest mb-4">
+            <Link href="/provider/dashboard" className="inline-flex items-center gap-2 text-slate-400 hover:text-accent transition-colors text-xs font-black uppercase tracking-widest mb-4">
               <ArrowLeft size={14} /> Back to Dashboard
             </Link>
             <h1 className="text-4xl font-black text-slate-900 tracking-tighter">Avatar <span className="text-accent italic font-serif">Management</span></h1>
@@ -216,3 +216,4 @@ export default function AdminAvatars() {
     </div>
   );
 }
+

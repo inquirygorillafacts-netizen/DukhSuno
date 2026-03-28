@@ -18,9 +18,9 @@ export default function SpeakerMobileNav() {
     const { setShowTour } = useAuthStore();
 
     const links = [
-        { name: "Home", href: "/sunane/home", icon: Home },
-        { name: "Wallet", href: "/sunane/wallet", icon: Wallet },
-        { name: "Me", href: "/sunane/profile", icon: User },
+        { name: "Home", href: "/seeker/home", icon: Home },
+        { name: "Wallet", href: "/seeker/wallet", icon: Wallet },
+        { name: "Me", href: "/seeker/profile", icon: User },
     ];
 
     return (
@@ -55,3 +55,4 @@ export default function SpeakerMobileNav() {
         </nav>
     );
 }
+

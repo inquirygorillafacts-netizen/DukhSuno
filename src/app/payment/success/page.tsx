@@ -38,7 +38,7 @@ function SuccessContent() {
 
       <div className="flex flex-col w-full max-w-sm gap-4">
         <Link 
-          href="/sunane/home" 
+          href="/seeker/home" 
           className="h-16 bg-slate-900 text-white rounded-2xl font-black text-[14px] uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all"
         >
           <span>Continue calling</span>
@@ -46,14 +46,14 @@ function SuccessContent() {
         </Link>
         <div className="flex gap-4">
           <Link 
-            href="/sunane/wallet" 
+            href="/seeker/wallet" 
             className="flex-1 h-14 bg-white border border-slate-100 text-slate-900 rounded-2xl font-black text-[12px] uppercase tracking-widest flex items-center justify-center gap-2 active:scale-95 transition-all"
           >
             <Wallet size={18} />
             Wallet
           </Link>
           <Link 
-            href="/sunane/history" 
+            href="/seeker/history" 
             className="flex-1 h-14 bg-white border border-slate-100 text-slate-900 rounded-2xl font-black text-[12px] uppercase tracking-widest flex items-center justify-center gap-2 active:scale-95 transition-all"
           >
             <History size={18} />
@@ -72,3 +72,4 @@ export default function PaymentSuccessPage() {
     </Suspense>
   );
 }
+

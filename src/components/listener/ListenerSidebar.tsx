@@ -33,11 +33,11 @@ export default function ListenerSidebar() {
     const [isExpanded, setIsExpanded] = useState(true);
 
     const links = [
-        { name: "My Dashboard", href: "/sunne/dashboard", icon: LayoutDashboard, highlight: false },
-        { name: "Call History", href: "/sunne/calls", icon: History, highlight: false },
-        { name: "My Earnings", href: "/sunne/earnings", icon: Wallet, highlight: false },
-        { name: "My Profile", href: "/sunne/profile", icon: User, highlight: false },
-        { name: "Settings", href: "/sunne/settings", icon: Settings, highlight: false },
+        { name: "My Dashboard", href: "/provider/dashboard", icon: LayoutDashboard, highlight: false },
+        { name: "Call History", href: "/provider/calls", icon: History, highlight: false },
+        { name: "My Earnings", href: "/provider/earnings", icon: Wallet, highlight: false },
+        { name: "My Profile", href: "/provider/profile", icon: User, highlight: false },
+        { name: "Settings", href: "/provider/settings", icon: Settings, highlight: false },
     ];
 
     return (
@@ -54,21 +54,21 @@ export default function ListenerSidebar() {
             {/* Toggle Button */}
             <button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="absolute -right-4 top-6 w-9 h-9 bg-emerald-500 border-2 border-white rounded-full flex items-center justify-center text-white shadow-lg z-[500] transition-all hover:scale-110 active:scale-95 group/toggle"
+                className="absolute -right-4 top-6 w-9 h-9 bg-slate-900 border-2 border-white rounded-full flex items-center justify-center text-white shadow-lg z-[500] transition-all hover:scale-110 active:scale-95 group/toggle"
             >
                 {isExpanded ? <PanelLeftClose size={18} /> : <PanelLeftOpen size={18} />}
             </button>
 
             {/* Brand */}
             <div className={`shrink-0 p-6 ${isExpanded ? 'px-6' : 'px-0 flex justify-center'}`}>
-                <Link href="/sunne/dashboard" className="flex items-center gap-3">
+                <Link href="/provider/dashboard" className="flex items-center gap-3">
                     <div className="flex items-center justify-center w-9 h-9 shrink-0 rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden">
                         <img src="/logo.png" alt="BigSuno" className="w-full h-full object-cover" />
                     </div>
                     {isExpanded && (
                         <div className="flex flex-col min-w-0">
                             <span className="text-sm font-black text-slate-900 tracking-tighter leading-tight uppercase">BigSuno</span>
-                            <span className="text-[9px] font-black text-emerald-600 uppercase tracking-widest mt-[-2px]">Listener</span>
+                            <span className="text-[9px] font-black text-indigo-600 uppercase tracking-widest mt-[-2px]">Provider Hub</span>
                         </div>
                     )}
                 </Link>
@@ -87,8 +87,8 @@ export default function ListenerSidebar() {
                                 className={cn(
                                     "flex items-center h-11 rounded-xl transition-all duration-200 group/item",
                                     isExpanded ? "px-4" : "justify-center",
-                                    isActive ? "bg-white text-emerald-600 shadow-sm border border-emerald-50" : "text-slate-500 hover:bg-slate-50/50 hover:text-slate-900",
-                                    link.highlight && !isActive && "text-emerald-500"
+                                    isActive ? "bg-indigo-50 text-indigo-600 shadow-sm border border-indigo-50" : "text-slate-500 hover:bg-slate-50/50 hover:text-slate-900",
+                                    link.highlight && !isActive && "text-indigo-500"
                                 )}
                             >
                                 <Icon size={18} className={cn("shrink-0", isActive ? "scale-110" : "group-hover/item:scale-110")} />
@@ -110,7 +110,7 @@ export default function ListenerSidebar() {
                     className={cn(
                         "flex items-center gap-3 h-10 rounded-xl transition-all duration-200 group w-full",
                         isExpanded ? "px-4" : "justify-center",
-                        "text-slate-400 hover:text-rose-600 hover:bg-rose-50"
+                        "text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"
                     )}
                 >
                     <LogOut size={16} />
@@ -122,11 +122,11 @@ export default function ListenerSidebar() {
                     className={cn(
                         "flex items-center gap-3 h-10 rounded-xl transition-all duration-200 group w-full",
                         isExpanded ? "px-4" : "justify-center",
-                        "text-emerald-400 hover:text-emerald-600 hover:bg-emerald-50 border border-emerald-50 bg-white"
+                        "text-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 border border-indigo-50 bg-white"
                     )}
                 >
                     <Sparkles size={16} className="animate-pulse" />
-                    {isExpanded && <span className="text-[11px] font-black uppercase tracking-widest leading-none mt-0.5">How it Works?</span>}
+                    {isExpanded && <span className="text-[11px] font-black uppercase tracking-widest leading-none mt-0.5">Quick Guide</span>}
                 </button>
             </div>
         </aside>

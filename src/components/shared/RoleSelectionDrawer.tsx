@@ -47,8 +47,8 @@ export default function RoleSelectionDrawer({ isOpen, onClose, roles }: RoleSele
       setActiveRole(role);
       
       let targetPath = '/';
-      if (role === 'sunane_wala') targetPath = '/sunane/home';
-      else if (role === 'sunne_wala') targetPath = '/sunne/dashboard';
+      if (role === 'seeker') targetPath = '/seeker/home';
+      else if (role === 'provider') targetPath = '/provider/dashboard';
       else if (role === 'admin') targetPath = '/admin/dashboard';
       
       router.push(targetPath);
@@ -60,31 +60,31 @@ export default function RoleSelectionDrawer({ isOpen, onClose, roles }: RoleSele
 
   const PANEL_OPTIONS = [
     { 
-      id: 'sunane_wala' as Role,
-      name: "Speaker", 
-      subtitle: "Hum Sunayenge",
-      icon: Heart, 
-      color: "text-rose-600", 
-      bg: "bg-rose-50",
-      border: "border-rose-100"
-    },
-    { 
-      id: 'sunne_wala' as Role,
-      name: "Listener", 
-      subtitle: "Hum Sunenge",
-      icon: Phone, 
-      color: "text-emerald-600", 
-      bg: "bg-emerald-50",
-      border: "border-emerald-100"
-    },
-    { 
-      id: 'admin' as Role,
-      name: "Admin", 
-      subtitle: "System Control",
+      id: 'seeker' as Role,
+      name: "Client Space", 
+      subtitle: "Professional Consultation",
       icon: ShieldCheck, 
+      color: "text-slate-900", 
+      bg: "bg-slate-50",
+      border: "border-slate-100"
+    },
+    { 
+      id: 'provider' as Role,
+      name: "Expert Hub", 
+      subtitle: "Business Management",
+      icon: Zap, 
       color: "text-indigo-600", 
       bg: "bg-indigo-50",
       border: "border-indigo-100"
+    },
+    { 
+      id: 'admin' as Role,
+      name: "System Control", 
+      subtitle: "Platform Administration",
+      icon: ShieldCheck, 
+      color: "text-slate-900", 
+      bg: "bg-slate-900 text-white",
+      border: "border-slate-800"
     },
   ];
 
@@ -110,8 +110,8 @@ export default function RoleSelectionDrawer({ isOpen, onClose, roles }: RoleSele
         
         <div className="flex items-center justify-between mb-8 mt-4">
           <div>
-            <h2 className="text-3xl font-black tracking-tight text-slate-900">Hum Kahan Chalein?</h2>
-            <p className="text-base text-slate-500 font-medium tracking-tight">Apna rasta chuniye ✨</p>
+            <h2 className="text-3xl font-black tracking-tight text-slate-900 italic">Select Portal</h2>
+            <p className="text-base text-slate-500 font-medium tracking-tight">Access your workspace ✨</p>
           </div>
           <button 
             onClick={onClose}
@@ -129,12 +129,12 @@ export default function RoleSelectionDrawer({ isOpen, onClose, roles }: RoleSele
                 onClick={() => handleChoose(option.id)}
                 className={`w-full group relative flex items-center gap-6 p-6 rounded-[2.5rem] border transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] bg-white ${option.border} hover:shadow-xl`}
               >
-                <div className={`w-14 h-14 rounded-2xl ${option.bg} flex items-center justify-center ${option.color} transition-transform group-hover:scale-110 shadow-sm`}>
+                <div className={`w-14 h-14 rounded-2xl ${option.bg} flex items-center justify-center ${option.color} transition-transform group-hover:scale-110 shadow-sm overflow-hidden`}>
                   <option.icon size={24} strokeWidth={2.5} />
                 </div>
                 
                 <div className="flex-1 text-left">
-                  <h4 className="font-bold text-lg text-slate-900 leading-tight">{option.name}</h4>
+                  <h4 className="font-bold text-lg text-slate-900 leading-tight italic">{option.name}</h4>
                   <p className="text-[10px] font-black uppercase tracking-widest mt-0.5 opacity-70">{option.subtitle}</p>
                 </div>
 
@@ -147,9 +147,10 @@ export default function RoleSelectionDrawer({ isOpen, onClose, roles }: RoleSele
         </div>
 
         <p className="text-center mt-8 text-[10px] text-slate-400 font-black uppercase tracking-widest">
-          Premium Experience by BigSuno
+          Premium Access by BigSuno
         </p>
       </div>
     </div>
   );
 }
+

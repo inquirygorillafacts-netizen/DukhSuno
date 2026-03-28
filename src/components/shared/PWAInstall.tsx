@@ -73,7 +73,7 @@ export default function PWAInstall({ renderTrigger }: Props) {
   return (
     <>
       {/* Dynamic Trigger */}
-      {renderTrigger && renderTrigger(() => setShowSheet(true), !!deferredPrompt)}
+      {renderTrigger && renderTrigger(() => setShowSheet(true), isInstalled ? false : !!deferredPrompt)}
 
       {/* Benefits Slide-up Sheet */}
       {showSheet && (

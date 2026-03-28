@@ -4,29 +4,34 @@ import React, { useState, useEffect } from 'react';
 import { 
   LayoutGrid, Phone, User, Wallet, Heart, 
   Moon, Sun, Radio, ChevronRight, Search, 
-  History, Sparkles, Download
+  History, Sparkles, Download, Menu, Bell, X
 } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/auth-store';
 import PWAInstall from './shared/PWAInstall';
 import WelcomeTour from './shared/WelcomeTour';
 import { Spinner } from './ui/spinner';
+import InstallDetailsSheet from './shared/InstallDetailsSheet';
+import PanelSwitcher from './shared/PanelSwitcher';
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { user, activeRole, showTour, setShowTour } = useAuthStore();
+  const router = useRouter();
+  const { user, activeRole, showTour, setShowTour, isAuthenticated } = useAuthStore();
   const [isLive, setIsLive] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [showInstallSheet, setShowInstallSheet] = useState(false);
 
   const path = pathname || '';
   const isFullPage = path === '/' ||
                     path === '/login' || 
+                    path === '/select-role' ||
                     path === '/blocked' ||
                     path.includes('onboarding') ||
                     path.startsWith('/admin') ||
-                    path.startsWith('/sunne') ||
-                    path.startsWith('/sunane');
+                    path.startsWith('/provider') ||
+                    path.startsWith('/seeker');
 
   useEffect(() => {
     setMounted(true);
@@ -47,10 +52,11 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
 
   const activeTab = getActiveTab();
 
-  // Unified Navigation Items (YouTube Style)
+  // Unified Navigation Items
   const navItems = [
     { id: 'home', label: 'Home', href: '/home', icon: <Search /> },
     { id: 'history', label: 'Call', href: '/history', icon: <History /> },
+    { id: 'install', label: 'Install', onClick: () => setShowInstallSheet(true), icon: <Download /> },
     { id: 'wallet', label: 'Wallet', href: '/wallet', icon: <Wallet /> },
     { id: 'me', label: 'Me', href: '/me', icon: <User /> },
   ];
@@ -80,10 +86,11 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
               {navItems.map((item) => (
                 <SidebarLink 
                    key={item.id}
-                   href={item.href} 
+                   href={item.href || '#'} 
                    active={activeTab === item.id} 
                    icon={item.icon} 
                    label={item.label} 
+                   onClick={item.onClick}
                 />
               ))}
             </nav>
@@ -113,10 +120,10 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
 
           {/* मुख्य कंटेंट (Main Content) */}
           <main className="flex-1 flex flex-col min-h-screen overflow-y-auto" suppressHydrationWarning>
-            <div className="flex-1 w-full max-w-[1240px] mx-auto p-3 md:p-6 lg:p-8 pb-32" suppressHydrationWarning>
-              <header className="flex justify-between items-center mb-6 px-2 lg:px-0">
+            <div className="flex-1 w-full max-w-[1400px] mx-auto p-3 md:p-6 lg:p-8 pb-32" suppressHydrationWarning>
+              <header className="flex justify-between items-center mb-8">
                 <div>
-                  <h2 className="text-lg md:text-xl font-black text-slate-900 tracking-tighter uppercase leading-none">
+                  <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tighter uppercase leading-none">
                     {activeTab === 'home' && "Home"}
                     {activeTab === 'history' && "Call History"}
                     {activeTab === 'wallet' && "My Wallet"}
@@ -131,11 +138,12 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
                 </div>
                 
                 <div className="flex items-center gap-4">
+                   <PanelSwitcher />
                    <div 
-                      className="w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center border border-slate-100 text-slate-900 font-black shadow-sm overflow-hidden"
+                      className="w-10 h-10 rounded-xl flex items-center justify-center border border-slate-100 text-slate-900 font-black shadow-sm overflow-hidden"
                       style={{ backgroundColor: user?.avatarUrl?.split(':')[2] || '#ffffff' }}
                    >
-                      {user?.avatarUrl?.includes(':') ? user.avatarUrl.split(':')[1] : '😊'}
+                      {user?.avatarUrl?.includes(':') ? user.avatarUrl.split(':')[1] : (user?.displayName === 'Seeker' ? '👤' : '😊')}
                    </div>
                 </div>
               </header>
@@ -146,19 +154,35 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
             </div>
           </main>
 
-          {/* मोबाइल नेविगेशन (Mobile Bottom Nav) */}
-          <nav className="lg:hidden fixed bottom-0 left-0 w-full glass bg-white/95 border-t border-slate-100 px-6 pt-2 pb-5 flex justify-between items-center z-[100] backdrop-blur-xl">
+          {/* मोबाइल नेविगेशन (Bottom Nav) */}
+          <nav className="lg:hidden fixed bottom-0 left-0 w-full glass bg-white/95 border-t border-slate-100 px-4 pt-2 pb-5 flex justify-between items-center z-[100] backdrop-blur-xl">
             {navItems.map(item => (
-              <NavIconButton key={item.id} href={item.href} active={activeTab === item.id} icon={item.icon} label={item.label} />
+              item.onClick ? (
+                <button 
+                  key={item.id} 
+                  onClick={item.onClick}
+                  className="flex flex-col items-center gap-1.5 text-slate-300 active:text-indigo-600 transition-all"
+                >
+                  {React.cloneElement(item.icon as any, { size: 22, strokeWidth: 2 })}
+                  <span className="text-[10px] font-black uppercase tracking-widest leading-none">{item.label}</span>
+                </button>
+              ) : (
+                <NavIconButton key={item.id} href={item.href || '#'} active={activeTab === item.id} icon={item.icon} label={item.label} />
+              )
             ))}
           </nav>
+
+          {/* Install Details Sheet */}
+          {showInstallSheet && (
+             <InstallDetailsSheet onClose={() => setShowInstallSheet(false)} />
+          )}
         </>
       )}
 
       {/* Global Welcome Tour */}
       {showTour && (
         <WelcomeTour 
-          role="sunane_wala" // Defaulting to Seeker for tour
+          role="seeker"
           onClose={handleTourClose} 
         />
       )}
@@ -168,20 +192,32 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
 
 const AuroraBackground = () => (
   <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10 opacity-[0.15]" suppressHydrationWarning>
-    <div className="absolute top-[-10%] left-[-5%] w-[600px] h-[600px] bg-rose-400 rounded-full blur-[120px] animate-blob" suppressHydrationWarning />
-    <div className="absolute bottom-[-5%] right-[-5%] w-[500px] h-[500px] bg-[#ff4d6d] rounded-full blur-[120px] animate-blob-delay" suppressHydrationWarning />
+    <div className="absolute top-[-10%] left-[-5%] w-[600px] h-[600px] bg-indigo-400 rounded-full blur-[120px] animate-blob" suppressHydrationWarning />
+    <div className="absolute bottom-[-5%] right-[-5%] w-[500px] h-[500px] bg-slate-600 rounded-full blur-[120px] animate-blob-delay" suppressHydrationWarning />
     <div className="absolute top-[40%] left-[30%] w-[300px] h-[300px] bg-indigo-400 rounded-full blur-[120px] animate-blob opacity-50" suppressHydrationWarning />
   </div>
 );
 
-const SidebarLink = ({ active, icon, label, href }: { active: boolean, icon: React.ReactNode, label: string, href: string }) => (
-  <Link href={href} className={`w-full flex items-center gap-4 p-4 rounded-[1.5rem] font-black transition-all group ${active ? 'bg-rose-50 text-[#ff4d6d] shadow-sm' : 'text-slate-400 hover:bg-slate-50'}`}>
-    <div className={`transition-transform duration-500 ${active ? 'scale-110' : 'group-hover:scale-110'}`}>
-       {React.cloneElement(icon as any, { size: 20, strokeWidth: active ? 2.5 : 2 })}
-    </div>
-    <span className="text-xs uppercase tracking-widest">{label}</span>
-  </Link>
-);
+const SidebarLink = ({ active, icon, label, href, onClick }: { active: boolean, icon: React.ReactNode, label: string, href: string, onClick?: () => void }) => {
+  if (onClick) {
+    return (
+      <button onClick={onClick} className={`w-full flex items-center gap-4 p-4 rounded-[1.5rem] font-black transition-all group ${active ? 'bg-indigo-50 text-indigo-600 shadow-sm' : 'text-slate-400 hover:bg-slate-50'}`}>
+        <div className={`transition-transform duration-500 ${active ? 'scale-110' : 'group-hover:scale-110'}`}>
+           {React.cloneElement(icon as any, { size: 20, strokeWidth: active ? 2.5 : 2 })}
+        </div>
+        <span className="text-xs uppercase tracking-widest">{label}</span>
+      </button>
+    );
+  }
+  return (
+    <Link href={href} className={`w-full flex items-center gap-4 p-4 rounded-[1.5rem] font-black transition-all group ${active ? 'bg-rose-50 text-[#ff4d6d] shadow-sm' : 'text-slate-400 hover:bg-slate-50'}`}>
+      <div className={`transition-transform duration-500 ${active ? 'scale-110' : 'group-hover:scale-110'}`}>
+         {React.cloneElement(icon as any, { size: 20, strokeWidth: active ? 2.5 : 2 })}
+      </div>
+      <span className="text-xs uppercase tracking-widest">{label}</span>
+    </Link>
+  );
+};
 
 const NavIconButton = ({ active, icon, label, href }: { active: boolean, icon: React.ReactNode, label: string, href: string }) => (
   <Link href={href} className={`flex flex-col items-center gap-1.5 transition-all ${active ? 'text-[#ff4d6d]' : 'text-slate-300'}`}>

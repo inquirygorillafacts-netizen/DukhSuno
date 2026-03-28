@@ -35,7 +35,8 @@ export async function POST(req: Request) {
 
     if (calculatedHash !== hash) {
       console.error('Hash mismatch! Potential fraud attempt.');
-      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_URL || 'https://dukhsuno.com'}/payment/failed?error=hash_mismatch`);
+      const baseUrl = process.env.NEXT_PUBLIC_URL || 'https://bigsuno.app';
+      return NextResponse.redirect(`${baseUrl}/payment/failed?error=hash_mismatch`);
     }
 
     if (status === 'success') {
@@ -88,7 +89,8 @@ export async function POST(req: Request) {
           });
 
           console.log(`Automatic session created for ${userId} -> ${listenerId}: ${sessionId}`);
-          return NextResponse.redirect(`${process.env.NEXT_PUBLIC_URL}/call/${sessionId}?autoStart=true`);
+          const baseUrl = process.env.NEXT_PUBLIC_URL || 'https://bigsuno.app';
+          return NextResponse.redirect(`${baseUrl}/call/${sessionId}?autoStart=true`);
         }
       } else if (type === 'direct_session') {
         // Create session
@@ -103,10 +105,12 @@ export async function POST(req: Request) {
         });
       }
       
+      const baseUrl = process.env.NEXT_PUBLIC_URL || 'https://bigsuno.app';
       console.log(`Payment success: ${txnid}, ₹${amount}, user: ${userId}, type: ${type}`);
-      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_URL}/payment/success?txnid=${txnid}&type=${type}`);
+      return NextResponse.redirect(`${baseUrl}/payment/success?txnid=${txnid}&type=${type}`);
     } else {
-      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_URL}/payment/failed?txnid=${txnid}`);
+      const baseUrl = process.env.NEXT_PUBLIC_URL || 'https://bigsuno.app';
+      return NextResponse.redirect(`${baseUrl}/payment/failed?txnid=${txnid}`);
     }
   } catch (error) {
     console.error('Webhook error:', error);

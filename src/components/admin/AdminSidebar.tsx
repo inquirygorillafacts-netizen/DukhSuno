@@ -142,7 +142,7 @@ export default function AdminSidebar() {
                     className={cn(
                         "flex items-center gap-3 h-10 rounded-xl transition-all duration-200 group w-full",
                         isExpanded ? "px-4" : "justify-center",
-                        "text-slate-400 hover:text-rose-600 hover:bg-rose-50"
+                        "text-slate-400 hover:text-indigo-600 hover:bg-white"
                     )}
                 >
                     <LogOut size={16} />

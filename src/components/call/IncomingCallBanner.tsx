@@ -14,7 +14,7 @@ export function IncomingCallBanner() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    if (!user?.uid || !user?.roles?.includes('sunne_wala')) return;
+    if (!user?.uid || !user?.roles?.includes('provider')) return;
 
     // Listen for sessions where I am the listener and it's currently ringing
     const q = query(
@@ -134,3 +134,4 @@ export function IncomingCallBanner() {
     </div>
   );
 }
+

@@ -1,8 +1,10 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useState, useRef, useEffect } from "react";
+
+import { useRouter, usePathname } from "next/navigation";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import { 
     ChevronDown, 
     ShieldCheck, 
@@ -20,28 +22,29 @@ const PANELS = [
         icon: ShieldCheck, 
         color: "text-indigo-600", 
         bg: "bg-indigo-50",
-        description: "System oversight & management"
+        description: "Global system administration"
     },
     { 
-        name: "Listener Panel", 
-        href: "/sunne/dashboard", 
+        name: "Provider Dashboard", 
+        href: "/provider/dashboard", 
         icon: Headphones, 
-        color: "text-emerald-600", 
-        bg: "bg-emerald-50",
-        description: "Earn money by listening"
+        color: "text-slate-900", 
+        bg: "bg-slate-100",
+        description: "Professional consultant portal"
     },
     { 
-        name: "Speaker Panel", 
-        href: "/sunane/home", 
+        name: "Client Space", 
+        href: "/seeker/home", 
         icon: MessageCircle, 
-        color: "text-rose-600", 
-        bg: "bg-rose-50",
-        description: "Share your heart, find peace"
+        color: "text-indigo-600", 
+        bg: "bg-indigo-50",
+        description: "Access professional support"
     },
 ];
 
 export default function PanelSwitcher() {
     const pathname = usePathname();
+    const router = useRouter();
     const { user, hasRole } = useAuthStore();
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
@@ -50,8 +53,8 @@ export default function PanelSwitcher() {
     const availablePanels = PANELS.filter(panel => {
         if (panel.name === "Owner Portal") return user?.owner === true;
         if (panel.name === "Admin Portal") return hasRole('admin');
-        if (panel.name === "Listener Panel") return hasRole('sunne_wala');
-        if (panel.name === "Speaker Panel") return hasRole('sunane_wala');
+        if (panel.name === "Listener Panel") return hasRole('provider');
+        if (panel.name === "Speaker Panel") return hasRole('seeker');
         return true;
     });
 
@@ -108,10 +111,18 @@ export default function PanelSwitcher() {
                             const segment = panel.href.split('/')[1];
                             const isActive = pathname.startsWith(`/${segment}`);
                             return (
-                                <Link
+                                <button
                                     key={panel.name}
-                                    href={panel.href}
-                                    className={`flex items-center gap-4 p-3 rounded-2xl transition-all group ${
+                                    onClick={async () => {
+                                        const nextRole = segment === 'seeker' ? 'seeker' : (segment === 'provider' ? 'provider' : 'admin');
+                                        if (user) {
+                                            await updateDoc(doc(db, 'users', user.uid), { activeRole: nextRole });
+                                            useAuthStore.getState().setUser({ ...user, activeRole: nextRole as any });
+                                        }
+                                        router.push(panel.href);
+                                        setIsOpen(false);
+                                    }}
+                                    className={`w-full flex items-center gap-4 p-3 rounded-2xl transition-all group text-left ${
                                         isActive ? 'bg-slate-50 border border-slate-100' : 'hover:bg-slate-50'
                                     }`}
                                 >
@@ -120,14 +131,14 @@ export default function PanelSwitcher() {
                                     </div>
                                     <div className="flex-1">
                                         <p className={`text-sm font-bold ${isActive ? 'text-slate-900' : 'text-slate-600 group-hover:text-slate-900'}`}>
-                                            {panel.name}
+                                            {panel.name === 'Speaker Panel' ? 'Seeker Panel' : panel.name}
                                         </p>
                                         <p className="text-[10px] text-slate-400 font-medium leading-tight line-clamp-1">
                                             {panel.description}
                                         </p>
                                     </div>
                                     {isActive && <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />}
-                                </Link>
+                                </button>
                             );
                         })}
                     </div>
@@ -143,3 +154,4 @@ export default function PanelSwitcher() {
         </div>
     );
 }
+

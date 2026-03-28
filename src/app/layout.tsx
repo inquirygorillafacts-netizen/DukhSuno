@@ -24,6 +24,7 @@ export const viewport = {
 
 import { PresenceProvider } from "@/components/PresenceProvider";
 import { MainLayout } from "@/components/MainLayout";
+import { AuthGuard } from "@/components/auth/AuthGuard";
 
 export default function RootLayout({
   children,
@@ -33,11 +34,13 @@ export default function RootLayout({
   return (
     <html lang="hi" className="light" suppressHydrationWarning>
       <body className="antialiased selection:bg-rose-100 selection:text-rose-900" suppressHydrationWarning>
-        <PresenceProvider>
-          <MainLayout>
-            {children}
-          </MainLayout>
-        </PresenceProvider>
+        <AuthGuard>
+          <PresenceProvider>
+            <MainLayout>
+              {children}
+            </MainLayout>
+          </PresenceProvider>
+        </AuthGuard>
       </body>
     </html>
   );

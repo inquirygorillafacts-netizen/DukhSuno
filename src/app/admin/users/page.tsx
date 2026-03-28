@@ -164,8 +164,8 @@ export default function AdminUsersPage() {
                { id: 'all', label: 'All Users', count: users.length },
                { id: 'owner', label: 'Owners', count: users.filter(u => u.owner).length },
                { id: 'admin', label: 'Admins', count: users.filter(u => u.roles?.includes('admin')).length },
-               { id: 'listener', label: 'Sunne Wale', count: users.filter(u => u.roles?.includes('sunne_wala') || u.roles?.includes('listener')).length },
-               { id: 'speaker', label: 'Sunane Wale', count: users.filter(u => u.roles?.includes('sunane_wala') || u.roles?.includes('speaker')).length },
+               { id: 'listener', label: 'Sunne Wale', count: users.filter(u => u.roles?.includes('provider') || u.roles?.includes('listener')).length },
+               { id: 'speaker', label: 'Sunane Wale', count: users.filter(u => u.roles?.includes('seeker') || u.roles?.includes('speaker')).length },
                { id: 'blocked', label: 'Blocked', count: users.filter(u => u.isBlocked).length },
            ].map((pill) => (
                <button
@@ -321,3 +321,4 @@ export default function AdminUsersPage() {
     </div>
   );
 }
+

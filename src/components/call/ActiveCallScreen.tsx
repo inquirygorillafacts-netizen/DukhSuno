@@ -58,7 +58,7 @@ export function ActiveCallScreen({
         if (data.isVideoUnlocked && !isVideoUnlocked) {
           // Trigger WebRTC Upgrade if not already done
           if (handler) {
-             const isCaller = useAuthStore.getState().activeRole === 'sunane_wala';
+             const isCaller = useAuthStore.getState().activeRole === 'seeker';
              await upgradeToVideo(sessionId, handler, isCaller);
              setupUpgradeListener(sessionId, handler, isCaller);
           }
@@ -188,3 +188,4 @@ export function ActiveCallScreen({
     </div>
   );
 }
+

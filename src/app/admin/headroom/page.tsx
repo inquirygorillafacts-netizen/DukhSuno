@@ -30,7 +30,7 @@ export default function AdminHeadRoom() {
         const listenersQ = query(
             collection(db, 'users'),
             where('isAvailable', '==', true),
-            where('roles', 'array-contains', 'sunne_wala')
+            where('roles', 'array-contains', 'provider')
         );
         const unsubscribeListeners = onSnapshot(listenersQ, (snapshot) => {
             const list = snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() } as BigSunoUser));
@@ -347,3 +347,4 @@ export default function AdminHeadRoom() {
         </div>
     );
 }
+

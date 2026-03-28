@@ -28,7 +28,7 @@ export function PublicProfileView({ provider }: { provider: BigSunoUser }) {
       setShowLogin(true);
     } else {
       // Logic to start payment/call process
-      router.push(`/sunane/home?provider=${provider.uid}`);
+      router.push(`/seeker/home?provider=${provider.uid}`);
     }
   };
 
@@ -59,13 +59,12 @@ export function PublicProfileView({ provider }: { provider: BigSunoUser }) {
             {/* Avatar */}
             <div className="relative shrink-0 mx-auto md:mx-0">
               <div className="w-40 h-40 md:w-52 md:h-52 rounded-[3.5rem] border-8 border-white bg-white shadow-2xl overflow-hidden flex items-center justify-center">
-                {provider.avatarUrl ? (
-                  <img src={provider.avatarUrl.startsWith('emoji:') ? '' : provider.avatarUrl} alt="Provider" className="w-full h-full object-cover" />
+                {provider.avatarUrl && !provider.avatarUrl.startsWith('emoji:') ? (
+                  <img src={provider.avatarUrl} alt="Provider" className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full bg-slate-100 flex items-center justify-center text-8xl">👤</div>
-                )}
-                {provider.avatarUrl?.startsWith('emoji:') && (
-                  <div className="text-8xl">{provider.avatarUrl.split(':')[1]}</div>
+                  <div className="w-full h-full bg-slate-100 flex items-center justify-center text-8xl">
+                    {provider.avatarUrl?.startsWith('emoji:') ? provider.avatarUrl.split(':')[1] : '👤'}
+                  </div>
                 )}
               </div>
               {provider.isVerified && (
@@ -168,3 +167,4 @@ export function PublicProfileView({ provider }: { provider: BigSunoUser }) {
     </div>
   );
 }
+

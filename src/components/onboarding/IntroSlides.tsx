@@ -15,43 +15,43 @@ interface Slide {
 const slides: Slide[] = [
   {
     id: 1,
-    title: 'BigSuno में आपका स्वागत है ✨',
-    subtitle: 'एक "International Level" विज़न',
-    description: 'यहाँ आप सिर्फ एक लिसनर नहीं, बल्कि एक बदलाव लाने वाले इंसान (Changemaker) हैं।',
-    icon: <Heart size={48} className="text-rose-500 animate-heartbeat" />,
-    color: 'from-rose-50 to-rose-100',
+    title: 'Welcome to BigSuno ✨',
+    subtitle: 'A Global Corporate Vision',
+    description: 'Join a premium network of professional consultants and strategic experts driving global impact.',
+    icon: <ShieldCheck size={48} className="text-indigo-600 animate-pulse" />,
+    color: 'from-slate-50 to-indigo-50',
   },
   {
     id: 2,
-    title: 'अपनी पहचान चुनें 🌟',
-    subtitle: 'Listener, Mentor, Guider, या Influencer',
-    description: 'आप जिस भी कैटेगरी में बेस्ट हैं, वहां से शुरुआत करें और लोगों की मदद करें।',
-    icon: <Star size={48} className="text-amber-500 animate-bounce" />,
-    color: 'from-amber-50 to-amber-100',
+    title: 'Define Your Path 🌟',
+    subtitle: 'Consultant, Coach, or Specialist',
+    description: 'Choose your professional niche and leverage your expertise to solve high-value business challenges.',
+    icon: <Star size={48} className="text-indigo-600" />,
+    color: 'from-slate-50 to-indigo-50',
   },
   {
     id: 3,
-    title: 'शानदार कमाई करें 💸',
-    subtitle: 'Earn on Your Own Terms',
-    description: 'जितना ज़्यादा आप सुनेंगे, उतना ही ज़्यादा आप कमाएंगे। पूरी पारदर्शिता के साथ।',
-    icon: <Wallet size={48} className="text-emerald-500 animate-pulse" />,
-    color: 'from-emerald-50 to-emerald-100',
+    title: 'Global Revenue Scale 💸',
+    subtitle: 'Monetize Your Expertise',
+    description: 'Build a high-yield professional practice with transparent earnings and seamless global payments.',
+    icon: <Wallet size={48} className="text-indigo-600" />,
+    color: 'from-slate-50 to-indigo-50',
   },
   {
     id: 4,
-    title: 'Verified Tag पायें ✅',
-    subtitle: 'जैसे Instagram और YouTube पर',
-    description: 'एक बार एडमिन ने आपको वैरिफाई कर लिया, तो आपकी प्रोफाइल पर दिखेगा चमकता हुआ टिक।',
-    icon: <ShieldCheck size={48} className="text-blue-500" />,
-    color: 'from-blue-50 to-blue-100',
+    title: 'Trusted Certification ✅',
+    subtitle: 'Build Professional Authority',
+    description: 'Get officially certified by our board to earn the "Verified" badge and build instant trust with clients.',
+    icon: <ShieldCheck size={48} className="text-indigo-600" />,
+    color: 'from-slate-50 to-indigo-50',
   },
   {
     id: 5,
-    title: 'शुरुआत करने के लिए तैयार? 🚀',
-    subtitle: 'बस 2 मिनट में अपनी एप्लीकेशन भरें',
-    description: 'आपका नाम, नंबर और कैटेगरी - बस इतना ही चाहिए शुरू करने के लिए।',
-    icon: <Sparkles size={48} className="text-indigo-500" />,
-    color: 'from-indigo-50 to-indigo-100',
+    title: 'Ready to Launch? 🚀',
+    subtitle: '2-Minute Onboarding',
+    description: 'Complete your professional profile and start your journey as a BigSuno Certified Provider today.',
+    icon: <Sparkles size={48} className="text-indigo-600 animate-bounce" />,
+    color: 'from-slate-900 to-indigo-950',
   },
 ];
 
@@ -119,16 +119,20 @@ export function IntroSlides({ onComplete }: { onComplete: () => void }) {
           )}
           <button 
             onClick={next}
-            className="flex-1 h-18 bg-white text-slate-900 rounded-3xl font-black text-[18px] shadow-2xl shadow-black/5 flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98]"
+            className={`flex-1 h-18 rounded-3xl font-black text-[18px] shadow-2xl flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] ${
+              currentSlide === slides.length - 1 
+                ? 'bg-indigo-600 text-white shadow-indigo-500/20' 
+                : 'bg-white text-slate-900 shadow-black/5'
+            }`}
           >
-            <span>{currentSlide === slides.length - 1 ? 'शुरू करें 🎉' : 'आगे बढ़ें'}</span>
+            <span>{currentSlide === slides.length - 1 ? 'Launch 🎉' : 'Next Step'}</span>
             <ArrowRight size={22} />
           </button>
         </div>
       </div>
       
       <p className="mt-8 text-[12px] font-black text-slate-300 uppercase tracking-[0.3em]">
-        BIGSUNO V3.0 • PREMIUM EXPERIENCE
+        BIGSUNO V4.0 • CORPORATE EXPERIENCE
       </p>
     </div>
   );

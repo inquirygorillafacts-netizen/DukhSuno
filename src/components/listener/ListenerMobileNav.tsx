@@ -18,10 +18,10 @@ export default function ListenerMobileNav() {
     const { setShowTour } = useAuthStore();
 
     const links = [
-        { name: "Home", href: "/sunne/dashboard", icon: LayoutDashboard },
-        { name: "Calls", href: "/sunne/calls", icon: History },
-        { name: "Wallet", href: "/sunne/earnings", icon: Wallet },
-        { name: "Me", href: "/sunne/profile", icon: User },
+        { name: "Home", href: "/provider/dashboard", icon: LayoutDashboard },
+        { name: "Calls", href: "/provider/calls", icon: History },
+        { name: "Wallet", href: "/provider/earnings", icon: Wallet },
+        { name: "Me", href: "/provider/profile", icon: User },
     ];
 
     return (
@@ -56,3 +56,4 @@ export default function ListenerMobileNav() {
         </nav>
     );
 }
+

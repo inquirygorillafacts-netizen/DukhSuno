@@ -67,6 +67,13 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
               return;
             }
 
+            // Path-based Role Enforcement
+            if (!canAccessPath(userData, pathname)) {
+                redirectToDashboard(userData);
+                finalize();
+                return;
+            }
+
             // Redirect from login/root to dashboard
             if (pathname === '/login' || pathname === '/') {
                 redirectToDashboard(userData);
@@ -74,21 +81,13 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
                 return;
             }
 
-            // Onboarding Check: If no roles, redirect to selection
-            if ((!userData.roles || userData.roles.length === 0) && 
-                pathname !== '/select-role' && !pathname.includes('onboarding')) {
-              router.push('/select-role');
-            }
-
-            // Path-based Role Enforcement
-            if (!canAccessPath(userData, pathname)) {
-                redirectToDashboard(userData);
-            }
+            // Onboarding Check: If no roles, the user shouldn't exist without them now, 
+            // but for safety we'll handle it during the redirect
+            
           } else {
             // User exists in Auth but not in Firestore (incomplete registration)
-            if (pathname !== '/select-role' && !pathname.includes('onboarding')) {
-              router.push('/select-role');
-            }
+            // We should let them be for a moment, they'll likely be created by the Login page 
+            // or redirected to a safe place.
           }
         } catch (error) {
           console.error('AuthGuard error:', error);
@@ -101,7 +100,9 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
         setUser(null);
         finalize();
         // Redirect to login if on a protected page
-        if (pathname !== '/login' && pathname !== '/' && !pathname.includes('onboarding')) {
+        const safePublicPaths = ['/login', '/', '/select-role'];
+        const isSafe = safePublicPaths.includes(pathname) || pathname.includes('onboarding');
+        if (!isSafe) {
           router.push('/login');
         }
       }
@@ -114,18 +115,34 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
     const canAccessPath = (u: BigSunoUser, path: string) => {
       const roles = u.roles || [];
+      
+      // Auto-allow seeker content if roles are missing or empty
+      if (roles.length === 0 && path.startsWith('/seeker')) return true;
+
+      // Admin Check
       if (path.startsWith('/admin') && !roles.includes('admin')) return false;
-      if (path.startsWith('/sunne') && !roles.includes('sunne_wala')) return false;
-      if (path.startsWith('/sunane') && !roles.includes('sunane_wala')) return false;
+      
+      // Provider Check
+      if (path.startsWith('/provider') && !roles.includes('provider')) return false;
+      
+      // Seeker Check
+      if (path.startsWith('/seeker') && !roles.includes('seeker')) return false;
+      
+      // Role Selection Check: Authenticated users without roles should still be able to access seeker panel
+      const isInternalPanel = path.startsWith('/seeker') || path.startsWith('/provider') || path === '/history' || path === '/wallet' || path === '/me';
+      if (isInternalPanel && roles.length === 0 && !path.startsWith('/seeker')) return false;
+
       return true;
     };
 
     const redirectToDashboard = (u: BigSunoUser) => {
-      const activeRole = u.activeRole || (u.roles && u.roles[0]);
+      const roles = u.roles || [];
+      // If no roles, default strictly to seeker
+      const activeRole = u.activeRole || (roles.includes('seeker') ? 'seeker' : (roles[0] || 'seeker'));
+      
       if (activeRole === 'admin') router.push('/admin/dashboard');
-      else if (activeRole === 'sunne_wala') router.push('/sunne/dashboard');
-      else if (activeRole === 'sunane_wala') router.push('/sunane/home');
-      else router.push('/select-role');
+      else if (activeRole === 'provider') router.push('/provider/dashboard');
+      else router.push('/seeker/home');
     };
 
     return () => unsubscribe();
@@ -157,3 +174,4 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
   return <>{children}</>;
 }
+

@@ -9,6 +9,20 @@ const nextConfig: NextConfig = {
     maxInactiveAge: 60 * 60 * 1000,
     pagesBufferLength: 20,
   },
+  async redirects() {
+    return [
+      {
+        source: '/sunane/:path*',
+        destination: '/seeker/:path*',
+        permanent: true,
+      },
+      {
+        source: '/sunne/:path*',
+        destination: '/provider/:path*',
+        permanent: true,
+      },
+    ];
+  },
   webpack: (config, { dev, isServer }) => {
     if (dev && !isServer) {
       config.cache = {

@@ -11,23 +11,38 @@ import React from 'react';
 
 export default function SelectRolePage() {
   const router = useRouter();
-  const { user, setUser } = useAuthStore();
+  const { user, setUser, setActiveRole } = useAuthStore();
   const [selected, setSelected] = useState<Role | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleContinue = async () => {
-    if (!selected || !user) return;
+    if (!selected) return;
+    
+    // Safety check for user
+    if (!user) {
+      console.error("Auth Error: No user data found in store. Please refresh.");
+      alert("Something went wrong. Please refresh the page and try again.");
+      return;
+    }
+
     setLoading(true);
     try {
-      await updateDoc(doc(db, 'users', user.uid), {
+      console.log("Updating role for user:", user.uid, "to:", selected);
+      
+      const userRef = doc(db, 'users', user.uid);
+      await updateDoc(userRef, {
         roles: arrayUnion(selected),
         activeRole: selected,
       });
+      
+      // Update both user object and explicit activeRole state
       setUser({ ...user, roles: [...(user.roles || []), selected], activeRole: selected });
-      if (selected === 'sunane_wala') {
-        router.push('/onboarding/sunane');
+      setActiveRole(selected);
+      
+      if (selected === 'seeker') {
+        router.push('/seeker/home');
       } else {
-        router.push('/onboarding/sunne');
+        router.push('/onboarding/provider');
       }
     } catch (error) {
       console.error('Error setting role:', error);
@@ -54,19 +69,19 @@ export default function SelectRolePage() {
 
         <div className="space-y-4">
           <RoleCard 
-            selected={selected === 'sunane_wala'}
+            selected={selected === 'seeker'}
             icon={<Heart />} 
-            title="Speaker" 
-            subtitle="I need to talk" 
-            onClick={() => setSelected('sunane_wala')} 
+            title="Seeker" 
+            subtitle="I want to talk & share" 
+            onClick={() => setSelected('seeker')} 
             color="rose" 
           />
           <RoleCard 
-            selected={selected === 'sunne_wala'}
+            selected={selected === 'provider'}
             icon={<Phone />} 
-            title="Listener" 
-            subtitle="I want to listen" 
-            onClick={() => setSelected('sunne_wala')} 
+            title="Provider" 
+            subtitle="I offer help & guidance" 
+            onClick={() => setSelected('provider')} 
             color="indigo" 
           />
         </div>
@@ -113,3 +128,4 @@ const RoleCard = ({ icon, title, subtitle, onClick, color, selected }: { icon: R
     )}
   </div>
 );
+

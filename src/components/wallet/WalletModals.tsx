@@ -34,6 +34,7 @@ export default function WalletModals({ isOpen, onClose, type, amountNeeded = 300
         body: JSON.stringify({
           amount: payAmount,
           userId: user.uid,
+          type: type, // Passed correctly now
           firstName: user.displayName || 'BigSuno User',
           email: user.email || 'user@bigsuno.app',
           productInfo: type === 'add_money' ? 'Wallet Topup' : 'Session Payment'

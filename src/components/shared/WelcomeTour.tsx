@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Heart, Sparkles, Shield, Wallet, Users, ArrowRight, X, Phone, CheckCircle2 } from 'lucide-react';
 
 interface WelcomeTourProps {
-  role: 'sunne_wala' | 'sunane_wala';
+  role: 'provider' | 'seeker';
   onClose: () => void;
 }
 
@@ -18,7 +18,7 @@ export default function WelcomeTour({ role, onClose }: WelcomeTourProps) {
     return () => clearTimeout(timer);
   }, []);
 
-  const slides = role === 'sunne_wala' ? [
+  const slides = role === 'provider' ? [
     {
       title: "आपकी पहचान, आपका राज़ 🔒",
       description: "BigSuno पर आपकी पहचान 100% गुप्त रहती है। कोई भी आपका नाम या मोबाइल नंबर नहीं देख पाएगा।",
@@ -138,3 +138,4 @@ export default function WelcomeTour({ role, onClose }: WelcomeTourProps) {
     </div>
   );
 }
+

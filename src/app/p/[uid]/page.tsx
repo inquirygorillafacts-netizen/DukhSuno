@@ -57,16 +57,22 @@ export default async function PublicProfilePage({ params }: Props) {
   }
 
   const data = doc.data();
+  
+  // Helper to safely serialize Firebase Timestamps to ISO strings
+  const serializeTimestamp = (ts: any) => {
+    if (!ts) return undefined;
+    if (typeof ts.toDate === 'function') return ts.toDate().toISOString();
+    return ts; // Already a string or number
+  };
+
   // Serialize for Client Component (Firebase Timestamps -> ISO Strings)
   const provider = {
     ...data,
     uid: doc.id,
-    registeredAt: data?.registeredAt?.toDate?.() 
-      ? data.registeredAt.toDate().toISOString() 
-      : (data?.registeredAt || new Date().toISOString()),
-    updatedAt: data?.updatedAt?.toDate?.() 
-      ? data.updatedAt.toDate().toISOString() 
-      : undefined,
+    createdAt: serializeTimestamp(data?.createdAt),
+    registeredAt: serializeTimestamp(data?.registeredAt) || new Date().toISOString(),
+    updatedAt: serializeTimestamp(data?.updatedAt),
+    lastActive: serializeTimestamp(data?.lastActive),
   } as unknown as BigSunoUser;
 
   return <PublicProfileView provider={provider} />;

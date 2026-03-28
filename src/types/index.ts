@@ -1,6 +1,6 @@
 // ─── BigSuno — Shared Types ─────────────────────
 
-export type Role = 'sunane_wala' | 'sunne_wala' | 'admin';
+export type Role = 'seeker' | 'provider' | 'admin';
 
 export type VerificationStatus = 'pending' | 'verified' | 'rejected';
 
@@ -60,13 +60,17 @@ export interface Plan {
 }
 
 // ─── Provider Types ───
-export type ProviderType = 'influencer' | 'mentor' | 'listener' | 'coach';
+export type ProviderType = 'influencer' | 'mentor' | 'listener' | 'coach' | 'expert' | 'consultant' | 'counselor' | 'specialist';
 
 export const PROVIDER_TYPE_LABELS: Record<ProviderType, string> = {
-  influencer: 'Influencer ✨',
-  mentor: 'Mentor 🎓',
-  coach: 'Coach 🏅',
-  listener: 'Listener 👂',
+  influencer: 'Expert ✨',
+  mentor: 'Consultant 🎓',
+  coach: 'Specialist 🏅',
+  listener: 'Counselor 👂',
+  expert: 'Expert ✨',
+  consultant: 'Consultant 🎓',
+  counselor: 'Counselor 👂',
+  specialist: 'Specialist 🏅',
 };
 
 // ─── User (Firestore users/{userId}) ───
@@ -81,11 +85,11 @@ export interface BigSunoUser {
   providerType?: ProviderType; // New: Categorization for unified feed
   createdAt: Date;
 
-  // Sunane Wala fields
+  // Seeker fields
   creditBalance: number;
   totalCallMinutes: number;
 
-  // Sunne Wala fields
+  // Provider fields
   headline: string;
   bio: string;
   specialties: Specialty[];
@@ -188,6 +192,7 @@ export interface ListenerCard {
   cheapestPlan: { price: number; minutes: number } | null;
   username: string;
   isBlocked: boolean;
+  providerType?: ProviderType;
 }
 
 // ─── Avatar Options (for sunane wala onboarding) ───
@@ -205,3 +210,4 @@ export const AVATAR_OPTIONS = [
   { emoji: '🐚', bg: '#EBF7F1' }, { emoji: '🎪', bg: '#FBF5E4' },
   { emoji: '🧩', bg: '#EBF1FB' }, { emoji: '🌟', bg: '#FCF0EB' },
 ] as const;
+

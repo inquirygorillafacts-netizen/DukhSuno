@@ -19,7 +19,7 @@ function ProviderCard({ provider }: { provider: ListenerCardType }) {
       <div className="glass bg-white p-4 rounded-[2.5rem] border border-white relative group transition-all duration-500 hover:scale-[1.02] cursor-pointer shadow-sm hover:shadow-2xl">
         <div className="flex items-start justify-between mb-4">
           <div className="relative">
-             <div className="w-16 h-16 rounded-2xl bg-rose-50 flex items-center justify-center text-3xl shadow-inner overflow-hidden border border-white/50 group-hover:rotate-3 transition-transform">
+             <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center text-3xl shadow-inner overflow-hidden border border-slate-100 group-hover:rotate-3 transition-transform">
                 {provider.avatarUrl?.includes(':') ? provider.avatarUrl.split(':')[1] : '👤'}
              </div>
              {provider.isAvailable && (
@@ -37,12 +37,12 @@ function ProviderCard({ provider }: { provider: ListenerCardType }) {
 
         <div className="space-y-1 mb-4">
           <div className="flex items-center gap-1.5">
-            <h3 className="text-sm font-black text-slate-900 truncate tracking-tight uppercase">{provider.displayName}</h3>
+            <h3 className="text-sm font-black text-slate-900 truncate tracking-tight uppercase italic">{provider.displayName}</h3>
             {provider.isVerified && (
-               <ShieldCheck size={14} fill="#3b82f6" className="text-white shrink-0" />
+               <ShieldCheck size={14} fill="#4f46e5" className="text-white shrink-0" />
             )}
           </div>
-          <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest truncate italic">{provider.headline || "Digital Dost 💙"}</p>
+          <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest truncate italic">{provider.headline || "Digital Expert 💼"}</p>
         </div>
 
         {/* Categories / Tags */}
@@ -54,13 +54,13 @@ function ProviderCard({ provider }: { provider: ListenerCardType }) {
 
         <div className="flex items-center justify-between pt-3 border-t border-slate-50">
            <div>
-              <p className="text-[7px] font-black text-slate-400 uppercase tracking-[0.2em] leading-none mb-1.5">Starts At</p>
+              <p className="text-[7px] font-black text-slate-400 uppercase tracking-[0.2em] leading-none mb-1.5">Fee Starts At</p>
               <div className="flex items-baseline gap-1">
-                 <span className="text-[10px] font-black text-[#ff4d6d]">₹</span>
-                 <p className="text-xl font-black text-[#ff4d6d] tracking-tighter leading-none">{provider.cheapestPlan?.price || 50}</p>
+                 <span className="text-[10px] font-black text-indigo-600">₹</span>
+                 <p className="text-xl font-black text-indigo-600 tracking-tighter leading-none italic">{provider.cheapestPlan?.price || 50}</p>
               </div>
            </div>
-           <div className="w-10 h-10 rounded-xl bg-[#ff4d6d] text-white flex items-center justify-center shadow-lg shadow-rose-200 group-hover:scale-110 group-hover:rotate-6 transition-all">
+           <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all">
               <Phone size={16} fill="currentColor" />
            </div>
         </div>
@@ -80,7 +80,7 @@ export default function HomePage() {
     { id: 'all', label: 'All', icon: <Sparkles size={14} /> },
     { id: 'influencer', label: 'Influencer', icon: <TrendingUp size={14} /> },
     { id: 'mentor', label: 'Mentor/Coach', icon: <Star size={14} /> },
-    { id: 'listener', label: 'Listener', icon: <Heart size={14} /> },
+    { id: 'listener', label: 'Expert Partner', icon: <ShieldCheck size={14} /> },
   ];
 
   useEffect(() => {
@@ -91,7 +91,7 @@ export default function HomePage() {
         if (selectedCategory !== 'all') params.append('category', selectedCategory);
         if (searchQuery) params.append('query', searchQuery);
         
-        const resp = await fetch(`/api/listeners?${params.toString()}`);
+        const resp = await fetch(`/api/providers?${params.toString()}`);
         const data = await resp.json();
         
         if (data.listeners) {
@@ -111,13 +111,13 @@ export default function HomePage() {
       
       {/* Search Header */}
       <section className="relative group max-w-2xl mx-auto w-full">
-         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff4d6d] transition-colors" size={18} />
+         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors" size={18} />
          <input 
            type="text" 
-           placeholder="Talash karein apne guide ko..."
+           placeholder="Search for your business partner..."
            value={searchQuery}
            onChange={(e) => setSearchQuery(e.target.value)}
-           className="w-full h-14 glass bg-white/70 border-2 border-white rounded-3xl px-12 text-sm font-black shadow-xl shadow-slate-200/50 focus:outline-none focus:ring-4 focus:ring-[#ff4d6d]/10 transition-all placeholder:text-slate-300 tracking-tight"
+           className="w-full h-14 glass bg-white/70 border-2 border-white rounded-3xl px-12 text-sm font-black shadow-xl shadow-slate-200/50 focus:outline-none focus:ring-4 focus:ring-indigo-600/10 transition-all placeholder:text-slate-300 tracking-tight"
          />
          <div className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-slate-900 rounded-2xl flex items-center justify-center text-white shadow-lg active:scale-90 transition-all">
             <Filter size={16} />
@@ -134,14 +134,14 @@ export default function HomePage() {
              />
              <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/40 to-transparent p-10 flex flex-col justify-center">
                 <div className="flex items-center gap-2 mb-2">
-                   <div className="h-0.5 w-6 bg-[#ff4d6d] rounded-full" />
-                   <p className="text-[10px] font-black text-[#ff4d6d] uppercase tracking-[0.4em]">Feature Selection</p>
+                   <div className="h-0.5 w-6 bg-indigo-500 rounded-full" />
+                   <p className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.4em]">Corporate Solutions</p>
                 </div>
-                <h3 className="text-3xl md:text-5xl font-black text-white italic tracking-tighter leading-none mb-4">
-                  Dil Ki Baat, <br/> Sunne Koi <span className="text-[#ff4d6d]">Khaas</span>.
+                <h3 className="text-3xl md:text-5xl font-black text-white italic tracking-tighter leading-none mb-4 uppercase">
+                  Expert Advice, <br/> Verified <span className="text-indigo-500">Insights</span>.
                 </h3>
-                <button className="w-fit px-6 py-2.5 bg-white rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-900 hover:bg-[#ff4d6d] hover:text-white transition-all transition-bounce">
-                  Explore Experts
+                <button className="w-fit px-6 py-2.5 bg-white rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-900 hover:bg-indigo-600 hover:text-white transition-all transition-bounce">
+                  Explore Specialists
                 </button>
              </div>
          </div>
@@ -174,10 +174,10 @@ export default function HomePage() {
          <div className="flex items-center justify-between px-2">
             <div className="flex items-center gap-2">
                <div className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse border-2 border-green-200" />
-               <h4 className="text-[11px] font-black uppercase tracking-[0.45em] text-slate-400">Trending Now</h4>
+               <h4 className="text-[11px] font-black uppercase tracking-[0.45em] text-slate-400">Featured Today</h4>
             </div>
-            <Link href="/home" className="text-[10px] font-black text-[#ff4d6d] uppercase tracking-widest flex items-center gap-1 hover:gap-2 transition-all">
-               Sab Dekhein <ArrowRight size={14} />
+            <Link href="/home" className="text-[10px] font-black text-indigo-600 uppercase tracking-widest flex items-center gap-1 hover:gap-2 transition-all">
+               View All <ArrowRight size={14} />
             </Link>
          </div>
 
@@ -193,8 +193,8 @@ export default function HomePage() {
                   <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center shadow-xl mb-6">
                     <Sparkles className="text-slate-200" size={40} />
                   </div>
-                  <p className="text-slate-400 font-black uppercase tracking-widest italic text-xs">Abhi koi upalabd nahi hai.</p>
-                  <p className="text-slate-300 text-[10px] mt-2">Kripya tag ya search badlein.</p>
+                  <p className="text-slate-400 font-black uppercase tracking-widest italic text-xs">No experts matching your search.</p>
+                  <p className="text-slate-300 text-[10px] mt-2">Try adjusting your filters or search query.</p>
                </div>
             )}
          </div>

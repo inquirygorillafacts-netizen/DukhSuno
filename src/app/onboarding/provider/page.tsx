@@ -24,7 +24,7 @@ export default function SmartEarningOnboarding() {
     age: '',
     gender: '',
     bio: '',
-    category: 'Listener',
+    category: 'Listener', // Values: Listener, Influencer, Mentor, Coach
     languages: ['Hindi'],
     payoutQR: '',
     phoneNumber: ''
@@ -32,22 +32,22 @@ export default function SmartEarningOnboarding() {
 
   const slides = [
     {
-      title: 'Welcome to BigSuno Earning',
-      desc: 'Join our elite circle of providers and start monetizing your time and expertise.',
+      title: 'Welcome to BigSuno Professional',
+      desc: 'Join our elite network of professional providers and offer your expertise to those in need.',
       icon: <img src="/logo.png" alt="BigSuno" className="w-12 h-12 object-contain" />,
-      bullets: ['Flexible Hours', 'Verified Payments', 'Global Reach']
+      bullets: ['Professional Growth', 'Secure Payments', 'Verified Status']
     },
     {
-       title: 'Set Your Own Rates',
-       desc: 'Choose from flexible session plans. You decide what your time is worth.',
+       title: 'Establish Your Presence',
+       desc: 'Set professional session rates and manage your consultant profile with ease.',
        icon: <Wallet className="text-indigo-500 w-12 h-12" />,
-       bullets: ['Instant Payouts', '10% Platform Fee', 'Transparent Earnings']
+       bullets: ['Instant Payouts', 'Competitive Fees', 'Revenue Tracking']
     },
     {
-       title: 'Build Your Reputation',
-       desc: 'Get reviews and ratings from seekers to grow your profile and reach more people.',
+       title: 'Build Corporate Trust',
+       desc: 'Enhance your professional standing through verified reviews and rankings.',
        icon: <ShieldCheck className="text-indigo-600 w-12 h-12" />,
-       bullets: ['Verified Badge', 'Elite Status', 'Support 24/7']
+       bullets: ['Identity Verification', 'Professional Badge', 'Priority Support']
     }
   ];
 
@@ -62,7 +62,8 @@ export default function SmartEarningOnboarding() {
         const userRef = doc(db, 'users', user.uid);
         const updateData = {
             ...formData,
-            roles: Array.from(new Set([...(user.roles || []), 'provider', 'listener'])),
+            providerType: formData.category.toLowerCase(), // Save as 'listener', 'influencer', etc.
+            roles: Array.from(new Set([...(user.roles || []), 'provider'])),
             activeRole: 'provider',
             isProvider: true,
             availableBalance: 0,
@@ -71,7 +72,7 @@ export default function SmartEarningOnboarding() {
         };
         await updateDoc(userRef, updateData);
         setUser({ ...user, ...updateData } as any);
-        router.push('/home');
+        router.push('/provider/dashboard'); // Corrected path
     } catch (err) {
         console.error(err);
         alert('Galti ho gayi check karein internet.');
@@ -234,7 +235,7 @@ export default function SmartEarningOnboarding() {
                     <div className="space-y-3">
                         <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-5">Service Category</label>
                         <div className="grid grid-cols-2 gap-3">
-                            {['Mentor', 'Listener', 'Influencer', 'Seeker'].map(cat => (
+                            {['Mentor', 'Listener', 'Influencer', 'Coach'].map(cat => (
                                 <button
                                     key={cat}
                                     onClick={() => setFormData({...formData, category: cat})}
@@ -297,14 +298,25 @@ export default function SmartEarningOnboarding() {
                  </div>
 
                  <div className="space-y-6">
+                         <div className="grid grid-cols-2 gap-3">
+                             {['Consultant', 'Counselor', 'Expert', 'Specialist'].map(cat => (
+                                 <button
+                                     key={cat}
+                                     onClick={() => setFormData({...formData, category: cat})}
+                                     className={`py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all ${formData.category === cat ? 'bg-slate-900 text-white border-slate-900 shadow-xl' : 'bg-slate-50 border-slate-100 text-slate-400 hover:border-slate-300'}`}
+                                 >
+                                     {cat}
+                                 </button>
+                             ))}
+                         </div>
                     <div className="border-2 border-dashed border-slate-200 rounded-[3rem] p-10 flex flex-col items-center justify-center gap-4 bg-slate-50 group hover:bg-emerald-50/30 hover:border-emerald-200 transition-all cursor-pointer">
                         <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                             <Upload className="text-slate-300 group-hover:text-emerald-500" />
                         </div>
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 group-hover:text-emerald-600">Upload UPI QR Screenshot</span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 group-hover:text-emerald-600">Upload Professional Payout QR</span>
                     </div>
 
-                    <p className="text-[9px] text-slate-400 text-center font-bold uppercase tracking-widest leading-loose">Required for instant withdrawals. <br/> BigSuno takes 0 platform fees for 1st month! 🎉</p>
+                    <p className="text-[9px] text-slate-400 text-center font-bold uppercase tracking-widest leading-loose">Required for secure professional withdrawals. <br/> BigSuno offers 0% platform fee for the first month! 🎉</p>
                  </div>
 
                  <button 
