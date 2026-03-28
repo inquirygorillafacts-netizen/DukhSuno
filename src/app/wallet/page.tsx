@@ -1,14 +1,20 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { CreditCard, ArrowUpRight, ArrowDownLeft, Plus, Wallet, Sparkles, CheckCircle2, Clock } from 'lucide-react';
 import WalletModals from '@/components/wallet/WalletModals';
+import PaymentStatusModal from '@/components/wallet/PaymentStatusModal';
 import { db } from '@/lib/firebase';
 import { collection, query, where, onSnapshot, orderBy, limit, doc, addDoc, serverTimestamp, runTransaction } from 'firebase/firestore';
 import { useAuthStore } from '@/stores/auth-store';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 
-export default function WalletPage() {
+function WalletContent() {
   const { user } = useAuthStore();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
   const [modalType, setModalType] = useState<'add_money' | 'hybrid_pay' | null>(null);
   const [balance, setBalance] = useState<number>(0);
   const [lifetimeEarnings, setLifetimeEarnings] = useState<number>(0);
@@ -16,8 +22,19 @@ export default function WalletPage() {
   const [payoutRequest, setPayoutRequest] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
+  // Payment Status from URL
+  const paymentStatus = searchParams.get('payment') as 'success' | 'failed' | null;
+  const txnid = searchParams.get('txnid') || '';
+  const amount = searchParams.get('amount') || '';
+
+  const closePaymentModal = () => {
+    // Clear query params without full reload
+    router.replace(pathname);
+  };
+
   useEffect(() => {
     if (!user?.uid) return;
+    // ... (rest of the useEffect remains same)
 
     // 1. Listen to User Balance
     const unsubUser = onSnapshot(doc(db, 'users', user.uid), (snap) => {
@@ -120,6 +137,13 @@ export default function WalletPage() {
           isOpen={!!modalType} 
           onClose={() => setModalType(null)} 
           type={modalType || 'add_money'} 
+        />
+
+        <PaymentStatusModal 
+           status={paymentStatus}
+           txnid={txnid}
+           amount={amount}
+           onClose={closePaymentModal}
         />
 
         {/* 1. Header (Admin Style) */}
@@ -238,5 +262,17 @@ export default function WalletPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function WalletPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-slate-200 border-t-slate-900 rounded-full animate-spin" />
+      </div>
+    }>
+      <WalletContent />
+    </Suspense>
   );
 }

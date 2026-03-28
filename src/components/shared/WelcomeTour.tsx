@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Heart, Sparkles, Shield, Wallet, Users, ArrowRight, X, Phone, CheckCircle2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Heart, Sparkles, Shield, Wallet, Users, ArrowRight, X, Phone, CheckCircle2, Star, Zap } from 'lucide-react';
 
 interface WelcomeTourProps {
   role: 'provider' | 'seeker';
@@ -10,57 +11,56 @@ interface WelcomeTourProps {
 
 export default function WelcomeTour({ role, onClose }: WelcomeTourProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    // Small delay to allow layout to mount for a smooth entry
-    const timer = setTimeout(() => setIsVisible(true), 500);
-    return () => clearTimeout(timer);
-  }, []);
 
   const slides = role === 'provider' ? [
     {
-      title: "आपकी पहचान, आपका राज़ 🔒",
-      description: "BigSuno पर आपकी पहचान 100% गुप्त रहती है। कोई भी आपका नाम या मोबाइल नंबर नहीं देख पाएगा।",
-      icon: <Shield size={32} className="text-rose-500" />,
-      tag: "PRIVACY FIRST",
-      color: "bg-rose-50"
-    },
-    {
-      title: "सुनें और कमाएं ₹₹ 💰",
-      description: "दूसरों की बातें सुनकर आप महीने के ₹20,000 से ₹30,000 तक कमा सकते हैं। घर बैठे अपनी सेवा शुरू करें।",
+      title: "Paisa Kamaein... ❤️",
+      description: "Dusro ki baatein sun kar aap mahine ke ₹20,000 se ₹30,000 tak kama sakte hain. Aaj hi shuru karein.",
       icon: <Wallet size={32} className="text-emerald-500" />,
       tag: "EARNINGS",
-      color: "bg-emerald-50"
+      color: "bg-emerald-50",
+      accent: "bg-emerald-500"
     },
     {
-      title: "बढ़ती हुई कम्युनिटी! 🇮🇳",
-      description: "पूरे भारत से लोग BigSuno से जुड़ रहे हैं। आप भी इस मददगार कम्युनिटी का हिस्सा बनें।",
-      icon: <Users size={32} className="text-indigo-500" />,
+      title: "Aapki Privacy, Hamara Vaada 🔒",
+      description: "BigSuno par aapka mobile number aur asli naam kabhi kisi ko nahi dikhaya jayega. Be-khauf baat karein.",
+      icon: <Shield size={32} className="text-indigo-500" />,
+      tag: "100% SECURE",
+      color: "bg-indigo-50",
+      accent: "bg-indigo-500"
+    },
+    {
+      title: "Bharat Ki Sabse Badi Community 🇮🇳",
+      description: "Hazaaroo log rozana BigSuno par sukoon paate hain. Aap bhi is nek kaam ka hissa banein.",
+      icon: <Users size={32} className="text-rose-500" />,
       tag: "COMMUNITY",
-      color: "bg-indigo-50"
+      color: "bg-rose-50",
+      accent: "bg-[#ff4d6d]"
     }
   ] : [
     {
-      title: "दिल खोल कर बात करें 🛡️",
-      description: "यहाँ आप बिना किसी डर के अपने दिल की बात कह सकते हैं। हम आपके भरोसे की 100% कद्र करते हैं।",
+      title: "Dil Ki Har Baat Kahien 🛡️",
+      description: "Yahan aap bina kisi darr ke baat kar sakte hain. Aapka bharosa hamari sabse badi taqat hai.",
       icon: <Shield size={32} className="text-rose-500" />,
       tag: "SAFE SPACE",
-      color: "bg-rose-50"
+      color: "bg-rose-50",
+      accent: "bg-[#ff4d6d]"
     },
     {
-      title: "पूरे भारत का भरोसा 🤝",
-      description: "हज़ारों लोग रोज़ाना BigSuno पर सुकून पाते हैं। यहाँ हर भाषा और हर राज्य के लोग मौजूद हैं।",
-      icon: <Users size={48} className="text-indigo-500" />,
+      title: "Bharat Ka Sabse Masoom App 🤝",
+      description: "Hazaroo log rozana sukoon ki talash mein yahan aate hain. Har bhasha aur har rajya ke dost milenge.",
+      icon: <Users size={32} className="text-indigo-500" />,
       tag: "MOST TRUSTED",
-      color: "bg-indigo-50"
+      color: "bg-indigo-50",
+      accent: "bg-indigo-500"
     },
     {
-      title: "सुकून पाने की मंज़िल ✨",
-      description: "भारत के कोने-कोने से लोग इस ऐप से जुड़े हैं। आज ही अपने दिल का बोझ हल्का करें और सुखी रहें।",
+      title: "Sukoon Paane Ki Manzil ✨",
+      description: "Apne dil ka bojh halka karein aur khush rahein. BigSuno hamesha aapke saath hai.",
       icon: <Heart size={32} className="text-[#ff4d6d]" />,
       tag: "HAPPY LIVES",
-      color: "bg-rose-50"
+      color: "bg-rose-50",
+      accent: "bg-[#ff4d6d]"
     }
   ];
 
@@ -68,74 +68,118 @@ export default function WelcomeTour({ role, onClose }: WelcomeTourProps) {
     if (currentSlide < slides.length - 1) {
       setCurrentSlide(s => s + 1);
     } else {
-      setIsVisible(false);
-      setTimeout(onClose, 300);
+      onClose();
     }
   };
 
-  if (!isVisible) return null;
-
   return (
-    <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 md:p-6 backdrop-blur-2xl bg-slate-900/60 transition-all duration-500">
-      {/* Container: Premium & Responsive */}
-      <div 
-        className="w-full max-w-[420px] bg-white rounded-[2.5rem] shadow-2xl relative overflow-hidden flex flex-col items-center justify-between p-8 md:p-10 animate-in zoom-in-95 fade-in duration-500"
+    <div className="fixed inset-0 z-[6000] flex items-center justify-center p-4 md:p-6 overflow-hidden">
+      {/* Backdrop */}
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+        className="absolute inset-0 bg-slate-900/70 backdrop-blur-2xl"
+      />
+      
+      {/* Card Container */}
+      <motion.div 
+        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.9, opacity: 0, y: 20 }}
+        className="w-full max-w-[440px] bg-white rounded-[3rem] shadow-2xl relative overflow-hidden flex flex-col items-center p-10 md:p-12 z-10 border border-slate-100"
       >
+        {/* Dynamic Progress Indicator */}
+        <div className="absolute top-0 left-0 w-full h-2 flex">
+           {slides.map((_, i) => (
+             <div 
+               key={i} 
+               className={`h-full transition-all duration-700 ease-in-out ${i <= currentSlide ? slides[currentSlide].accent : 'bg-slate-100'}`}
+               style={{ width: `${100 / slides.length}%` }}
+             />
+           ))}
+        </div>
+
         {/* Close Button */}
         <button 
-          onClick={() => { setIsVisible(false); setTimeout(onClose, 300); }}
-          className="absolute top-8 right-8 w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:text-rose-500 transition-all active:scale-90"
+          onClick={onClose}
+          className="absolute top-8 right-8 w-11 h-11 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 hover:text-slate-900 transition-all active:scale-90 border border-slate-100"
         >
           <X size={20} />
         </button>
 
-        {/* Top Tag */}
-        <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-4 ${slides[currentSlide].color} text-slate-900`}>
-           {slides[currentSlide].tag}
-        </div>
+        {/* Floating Decoration */}
+        <div className="absolute -top-10 -left-10 w-40 h-40 bg-indigo-50/50 rounded-full blur-3xl" />
+        <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-rose-50/50 rounded-full blur-3xl" />
 
-        {/* Content Area */}
-        <div className="flex-1 flex flex-col items-center justify-center text-center space-y-8 animate-in slide-in-from-right-10 duration-500">
-           <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-inner ${slides[currentSlide].color}`}>
-              {slides[currentSlide].icon}
-           </div>
-           
-           <div className="space-y-4">
-              <h2 className="text-[24px] md:text-[28px] font-black text-slate-900 leading-tight tracking-tighter italic">
-                {slides[currentSlide].title}
-              </h2>
-              <p className="text-slate-500 text-[14px] md:text-[15px] font-medium leading-relaxed italic px-4">
-                {slides[currentSlide].description}
-              </p>
-           </div>
-        </div>
+        <AnimatePresence mode="wait">
+           <motion.div 
+             key={currentSlide}
+             initial={{ x: 20, opacity: 0 }}
+             animate={{ x: 0, opacity: 1 }}
+             exit={{ x: -20, opacity: 0 }}
+             transition={{ duration: 0.4, ease: "circOut" }}
+             className="flex-1 flex flex-col items-center text-center space-y-10 relative z-10"
+           >
+              {/* Badge */}
+              <div className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.3em] ${slides[currentSlide].color} ${slides[currentSlide].accent.replace('bg-', 'text-')} border border-white shadow-sm`}>
+                 {slides[currentSlide].tag}
+              </div>
 
-        {/* Footer: Progress & Button */}
-        <div className="w-full mt-10 space-y-8">
-           <div className="flex justify-center gap-2">
-              {slides.map((_, i) => (
-                <div 
-                  key={i} 
-                  className={`h-1.5 rounded-full transition-all duration-500 ${currentSlide === i ? 'w-10 bg-[#ff4d6d]' : 'w-3 bg-slate-100'}`} 
-                />
-              ))}
-           </div>
+              {/* Icon Circle */}
+              <div className="relative">
+                 <div className={`w-24 h-24 rounded-[2.5rem] flex items-center justify-center shadow-inner relative z-10 overflow-hidden ${slides[currentSlide].color}`}>
+                    {slides[currentSlide].icon}
+                    <motion.div 
+                       animate={{ 
+                         scale: [1, 1.2, 1],
+                         rotate: [0, 5, -5, 0]
+                       }}
+                       transition={{ duration: 4, repeat: Infinity }}
+                       className="absolute inset-0 bg-white/40 blur-xl pointer-events-none"
+                    />
+                 </div>
+                 <Sparkles className="absolute -top-2 -right-2 text-amber-400 w-6 h-6 animate-pulse" />
+              </div>
+              
+              {/* Text Content */}
+              <div className="space-y-4">
+                 <h2 className="text-[28px] md:text-[32px] font-black text-slate-900 leading-tight tracking-tighter uppercase italic">
+                   {slides[currentSlide].title}
+                 </h2>
+                 <p className="text-slate-500 text-[15px] md:text-[16px] font-medium leading-relaxed italic px-2">
+                   "{slides[currentSlide].description}"
+                 </p>
+              </div>
+           </motion.div>
+        </AnimatePresence>
 
+        {/* Footer Actions */}
+        <div className="w-full mt-12 space-y-8 relative z-10">
            <button 
               onClick={handleNext}
-              className="w-full h-16 bg-slate-900 text-white rounded-2xl font-black text-[15px] shadow-xl shadow-slate-200 flex items-center justify-center gap-4 transition-all active:scale-95 group hover:bg-[#ff4d6d]"
+              className="w-full h-20 bg-slate-900 text-white rounded-[2rem] font-black text-[15px] shadow-2xl shadow-indigo-100 flex items-center justify-center gap-4 transition-all active:scale-95 group hover:bg-black uppercase tracking-[0.2em]"
            >
-              <span className="uppercase tracking-widest">{currentSlide === slides.length - 1 ? 'Chaliye Shuru Karein' : 'Aage Badhein'}</span>
-              <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+              <span>{currentSlide === slides.length - 1 ? 'Chaliye Shuru Karein' : 'Agla Step'}</span>
+              <ArrowRight size={22} className="group-hover:translate-x-1 transition-transform" />
            </button>
-        </div>
 
-        {/* Aurora Decoration */}
-        <div className="absolute top-0 left-0 w-full h-full pointer-events-none -z-10 opacity-[0.4]">
-           <div className={`absolute -top-20 -left-20 w-64 h-64 rounded-full blur-[80px] opacity-30 ${slides[currentSlide].color === 'bg-rose-50' ? 'bg-rose-400' : slides[currentSlide].color === 'bg-emerald-50' ? 'bg-emerald-400' : 'bg-indigo-400'}`} />
+           <div className="flex items-center justify-center gap-4">
+              <div className="flex items-center gap-1 opacity-20">
+                 <Star size={10} className="fill-current text-indigo-500" />
+                 <Star size={10} className="fill-current text-indigo-500" />
+                 <Star size={10} className="fill-current text-indigo-500" />
+              </div>
+              <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.4em]">Official Onboarding</p>
+              <div className="flex items-center gap-1 opacity-20">
+                 <Star size={10} className="fill-current text-indigo-500" />
+                 <Star size={10} className="fill-current text-indigo-500" />
+                 <Star size={10} className="fill-current text-indigo-500" />
+              </div>
+           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
-

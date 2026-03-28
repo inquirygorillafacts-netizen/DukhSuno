@@ -1,9 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, HelpCircle, ChevronDown, ChevronUp, MessageCircle, 
-  Users, Shield, PhoneCall, IndianRupee, Star 
+  Users, Shield, PhoneCall, IndianRupee, Star,
+  Wallet, CheckCircle2, Zap, User, TrendingUp, Image, Wifi, Info,
+  Sparkles,
+  Heart
 } from 'lucide-react';
 
 interface SupportSheetProps {
@@ -88,89 +92,141 @@ const FAQS = [
   }
 ];
 
-// Fallback Icons
-import { Wallet, CheckCircle2, Zap, User, TrendingUp, Image, Wifi, Info } from 'lucide-react';
-
 export default function SupportSheet({ onClose }: SupportSheetProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <div className="fixed inset-0 z-[1100] flex items-end md:items-center justify-center bg-slate-900/40 backdrop-blur-xl transition-all duration-500 p-0 md:p-6">
-      <div className="w-full max-w-[550px] bg-white rounded-t-[3rem] md:rounded-[3rem] shadow-2xl relative overflow-hidden flex flex-col h-[85vh] md:h-auto md:max-h-[85vh] animate-in slide-in-from-bottom-5 duration-500">
+    <AnimatePresence>
+      <div className="fixed inset-0 z-[5000] flex items-end md:items-center justify-center p-0 md:p-6 overflow-hidden">
+        {/* Backdrop */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={onClose}
+          className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+        />
         
-        {/* Header */}
-        <div className="p-8 pb-4 flex items-center justify-between sticky top-0 bg-white z-10">
-           <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                 <HelpCircle className="text-rose-500" size={24} />
-                 <h3 className="text-[28px] font-black text-slate-900 tracking-tighter uppercase italic">Help & FAQ ✨</h3>
-              </div>
-              <p className="text-[12px] text-slate-400 font-medium px-1 tracking-tight">Pehle in FAQs ko padhein, shayad aapka jawab yahi ho!</p>
-           </div>
-           <button onClick={onClose} className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:text-rose-500 active:scale-90 transition-all border border-slate-100">
-              <X size={24} />
-           </button>
-        </div>
+        {/* Content Card */}
+        <motion.div 
+          initial={{ y: "100%", opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: "100%", opacity: 0 }}
+          transition={{ type: "spring", damping: 30, stiffness: 200 }}
+          className="w-full max-w-xl bg-white rounded-t-[3rem] md:rounded-[3rem] relative z-10 shadow-2xl flex flex-col h-[90vh] md:h-auto md:max-h-[85vh] border border-slate-100"
+        >
+          {/* Header Branding */}
+          <div className="h-2 w-full bg-gradient-to-r from-rose-500 via-[#ff4d6d] to-indigo-500" />
 
-        {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto p-8 pt-4 space-y-4 custom-scrollbar">
-           {FAQS.map((faq, i) => (
-             <div key={i} className={`rounded-3xl border transition-all duration-300 ${openIndex === i ? 'border-rose-100 bg-rose-50/30' : 'border-slate-50 bg-white hover:border-slate-200'}`}>
-                <button 
-                  onClick={() => setOpenIndex(openIndex === i ? null : i)}
-                  className="w-full p-5 flex items-center justify-between text-left group"
-                >
-                   <div className="flex items-center gap-4">
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-sm transition-all ${openIndex === i ? 'bg-white' : 'bg-slate-50'}`}>
-                         {faq.icon}
-                      </div>
-                      <span className={`text-[15px] font-black tracking-tight ${openIndex === i ? 'text-slate-900' : 'text-slate-600'}`}>
-                        {faq.q}
-                      </span>
+          {/* Header */}
+          <div className="p-8 md:p-10 pb-6 flex items-center justify-between sticky top-0 bg-white/95 backdrop-blur-md z-20">
+             <div className="space-y-1">
+                <div className="flex items-center gap-3">
+                   <div className="w-10 h-10 bg-rose-50 rounded-xl flex items-center justify-center text-rose-500 shadow-inner">
+                      <HelpCircle size={24} />
                    </div>
-                   {openIndex === i ? <ChevronUp size={20} className="text-rose-500" /> : <ChevronDown size={20} className="text-slate-300" />}
-                </button>
-                {openIndex === i && (
-                  <div className="px-5 pb-6 pl-19 animate-in slide-in-from-top-2 duration-300">
-                     <p className="text-[14px] text-slate-500 font-medium leading-relaxed italic">
-                        {faq.a}
-                     </p>
-                  </div>
-                )}
+                   <h3 className="text-[28px] md:text-[32px] font-black text-slate-900 tracking-tighter uppercase leading-none mt-1">
+                     Help & FAQ
+                   </h3>
+                </div>
+                <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] px-1 italic">Solutions for every query ✨</p>
              </div>
-           ))}
-        </div>
+             <button 
+                onClick={onClose} 
+                className="w-12 h-12 rounded-2xl bg-slate-50 hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-900 transition-all active:scale-95 border border-slate-100"
+             >
+                <X size={24} />
+             </button>
+          </div>
 
-        {/* Support Footer */}
-        <div className="p-8 bg-slate-50 border-t border-slate-100 space-y-4 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)]">
-           <div className="grid grid-cols-2 gap-4">
-              <a 
-                href="https://wa.me/918302829465" 
-                target="_blank" 
-                className="flex flex-col items-center justify-center p-6 bg-white border border-emerald-100 rounded-[2rem] gap-2 group hover:shadow-xl hover:shadow-emerald-500/10 transition-all active:scale-95"
-              >
-                 <div className="w-12 h-12 bg-emerald-500 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-200 group-hover:scale-110 transition-transform">
-                    <MessageCircle size={24} />
-                 </div>
-                 <span className="text-[11px] font-black uppercase tracking-widest text-emerald-600">WhatsApp Help</span>
-              </a>
+          {/* Scrollable Content */}
+          <div className="flex-1 overflow-y-auto p-6 md:p-8 pt-2 space-y-4 custom-scrollbar">
+             {FAQS.map((faq, i) => (
+               <div key={i} className={`rounded-3xl border transition-all duration-300 ${openIndex === i ? 'border-indigo-100 bg-indigo-50/20' : 'border-slate-50 bg-white hover:border-slate-200'}`}>
+                  <button 
+                    onClick={() => setOpenIndex(openIndex === i ? null : i)}
+                    className="w-full p-5 flex items-center justify-between text-left group"
+                  >
+                     <div className="flex items-center gap-4">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-sm transition-all ${openIndex === i ? 'bg-white scale-110' : 'bg-slate-50 opacity-70'}`}>
+                           {faq.icon}
+                        </div>
+                        <span className={`text-[14px] md:text-[15px] font-black uppercase tracking-tight leading-snug ${openIndex === i ? 'text-slate-900' : 'text-slate-600'}`}>
+                          {faq.q}
+                        </span>
+                     </div>
+                     {openIndex === i ? (
+                        <div className="w-8 h-8 rounded-full bg-indigo-100/50 flex items-center justify-center text-indigo-500">
+                           <ChevronUp size={18} />
+                        </div>
+                     ) : (
+                        <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-300">
+                           <ChevronDown size={18} />
+                        </div>
+                     )}
+                  </button>
+                  <AnimatePresence>
+                     {openIndex === i && (
+                       <motion.div 
+                         initial={{ height: 0, opacity: 0 }}
+                         animate={{ height: "auto", opacity: 1 }}
+                         exit={{ height: 0, opacity: 0 }}
+                         className="overflow-hidden"
+                       >
+                          <div className="px-5 pb-6 ml-14">
+                             <p className="text-[13px] md:text-[14px] text-slate-500 font-medium leading-relaxed italic border-l-2 border-indigo-200 pl-4 py-1">
+                                {faq.a}
+                             </p>
+                          </div>
+                       </motion.div>
+                     )}
+                  </AnimatePresence>
+               </div>
+             ))}
+          </div>
 
-              <button 
-                onClick={() => alert('Joining Community... 👥')}
-                className="flex flex-col items-center justify-center p-6 bg-white border border-rose-100 rounded-[2rem] gap-2 group hover:shadow-xl hover:shadow-rose-500/10 transition-all active:scale-95"
-              >
-                 <div className="w-12 h-12 bg-rose-500 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-rose-200 group-hover:scale-110 transition-transform">
-                    <Users size={24} />
-                 </div>
-                 <span className="text-[11px] font-black uppercase tracking-widest text-rose-600">Join Community</span>
-              </button>
-           </div>
-           
-           <p className="text-[10px] text-slate-400 font-medium text-center uppercase tracking-widest italic pt-2">
-              BigSuno is here for you 24/7 ❤️ Made in India
-           </p>
-        </div>
+          {/* Support Footer */}
+          <div className="p-8 md:p-10 bg-slate-50/50 border-t border-slate-100 space-y-6">
+             <div className="grid grid-cols-2 gap-4">
+                <a 
+                  href="https://wa.me/918302829465" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex flex-col items-center justify-center p-6 bg-white border border-slate-100 rounded-[2.5rem] gap-2 group hover:shadow-2xl hover:shadow-emerald-500/10 transition-all active:scale-95"
+                >
+                   <div className="w-12 h-12 bg-emerald-500 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-200 group-hover:scale-110 transition-transform">
+                      <MessageCircle size={24} />
+                   </div>
+                   <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600">WhatsApp</span>
+                </a>
+
+                <button 
+                  onClick={() => alert('Joining Community... 👥')}
+                  className="flex flex-col items-center justify-center p-6 bg-white border border-slate-100 rounded-[2.5rem] gap-2 group hover:shadow-2xl hover:shadow-rose-500/10 transition-all active:scale-95"
+                >
+                   <div className="w-12 h-12 bg-rose-500 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-rose-200 group-hover:scale-110 transition-transform">
+                      <Users size={24} />
+                   </div>
+                   <span className="text-[10px] font-black uppercase tracking-widest text-rose-600">Community</span>
+                </button>
+             </div>
+             
+             <div className="flex flex-col items-center gap-2">
+                <div className="flex items-center gap-2">
+                   <div className="h-px w-8 bg-slate-200" />
+                   <Sparkles size={12} className="text-amber-400" />
+                   <div className="h-px w-8 bg-slate-200" />
+                </div>
+                <p className="text-[9px] text-slate-400 font-black text-center uppercase tracking-[0.4em] italic leading-none">
+                  BigSuno v3.0 Official Support
+                </p>
+                <div className="flex items-center gap-2 text-rose-500/30">
+                   <Heart size={8} className="fill-current" />
+                </div>
+             </div>
+          </div>
+        </motion.div>
       </div>
-    </div>
+    </AnimatePresence>
   );
 }

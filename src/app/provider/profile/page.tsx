@@ -13,16 +13,13 @@ import {
   Heart, 
   LogOut,
   ChevronRight,
-  X,
-  Download,
-  Clock,
   MessageCircle,
-  Users,
+  Clock,
   HelpCircle
 } from 'lucide-react';
 import { SPECIALTY_LABELS } from '@/types';
 import React, { useState } from 'react';
-import { QRCodeSVG } from 'qrcode.react';
+import PremiumQRModal from '@/components/shared/PremiumQRModal';
 
 export default function SunneProfilePage() {
   const { user, logout } = useAuthStore();
@@ -216,72 +213,12 @@ export default function SunneProfilePage() {
         </div>
       </div>
 
-      {/* QR MODAL */}
-      {showQr && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/60 backdrop-blur-md animate-in fade-in duration-300">
-           <div className="w-full max-w-sm bg-white rounded-[3rem] p-10 relative animate-in zoom-in duration-300 shadow-2xl">
-              <button 
-                onClick={() => setShowQr(false)}
-                className="absolute top-6 right-8 text-slate-300 hover:text-slate-900 transition-colors"
-              >
-                <X size={24} strokeWidth={3} />
-              </button>
-              
-              <div className="text-center space-y-6">
-                <div className="space-y-2">
-                  <h3 className="text-2xl font-black text-slate-900 tracking-tighter">Apna QR Code 📲</h3>
-                  <p className="text-[12px] font-bold text-slate-400 uppercase tracking-widest">Ise apne doston ke saath share karein</p>
-                </div>
-
-                <div className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 inline-block shadow-inner">
-                  <QRCodeSVG 
-                    value={`https://bigsuno.app/p/${user?.uid}`}
-                    size={200}
-                    level="H"
-                    includeMargin={true}
-                    imageSettings={{
-                      src: "emoji:👤",
-                      x: undefined,
-                      y: undefined,
-                      height: 40,
-                      width: 40,
-                      excavate: true,
-                    }}
-                  />
-                </div>
-
-                <div className="space-y-3">
-                  <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">bigsuno.app/p/{user?.uid}</p>
-                  <button 
-                    onClick={() => {
-                      const svg = document.querySelector('svg');
-                      if (svg) {
-                        const svgData = new XMLSerializer().serializeToString(svg);
-                        const canvas = document.createElement("canvas");
-                        const ctx = canvas.getContext("2d");
-                        const img = new Image();
-                        img.onload = () => {
-                          canvas.width = img.width;
-                          canvas.height = img.height;
-                          ctx?.drawImage(img, 0, 0);
-                          const pngFile = canvas.toDataURL("image/png");
-                          const downloadLink = document.createElement("a");
-                          downloadLink.download = "BigSuno-QR.png";
-                          downloadLink.href = pngFile;
-                          downloadLink.click();
-                        };
-                        img.src = "data:image/svg+xml;base64," + btoa(svgData);
-                      }
-                    }}
-                    className="w-full h-14 bg-slate-900 text-white rounded-2xl font-black text-[12px] uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl shadow-slate-200"
-                  >
-                    <Download size={18} /> Download QR
-                  </button>
-                </div>
-              </div>
-           </div>
-        </div>
-      )}
+      {/* PREMIUM QR MODAL */}
+      <PremiumQRModal 
+        isOpen={showQr}
+        onClose={() => setShowQr(false)}
+        user={user}
+      />
 
     </div>
   );

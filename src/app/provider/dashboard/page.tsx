@@ -30,7 +30,7 @@ import { doc, updateDoc, onSnapshot, query, collection, where, limit, orderBy } 
 import { db } from '@/lib/firebase';
 import type { Session } from '@/types';
 import React from 'react';
-import QRShareSheet from '@/components/shared/QRShareSheet';
+import PremiumQRModal from '@/components/shared/PremiumQRModal';
 import SupportSheet from '@/components/shared/SupportSheet';
 
 export default function SunneDashboardPage() {
@@ -254,7 +254,11 @@ export default function SunneDashboardPage() {
 
 
       {/* Sheets */}
-      {showQR && <QRShareSheet user={user} onClose={() => setShowQR(false)} />}
+      <PremiumQRModal 
+        isOpen={showQR}
+        onClose={() => setShowQR(false)}
+        user={user}
+      />
       {showSupport && <SupportSheet onClose={() => setShowSupport(false)} />}
 
     </div>

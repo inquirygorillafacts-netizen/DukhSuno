@@ -43,16 +43,16 @@ export async function getAppConfig(): Promise<AppConfig> {
       ...doc.data()
     } as TwilioAccount));
 
-    // Merge with process.env as fallback
+    // Merge with process.env as FIRST PRIORITY for local development
     const config: AppConfig = {
-      PAYU_KEY: firestoreConfig.PAYU_KEY || process.env.PAYU_KEY,
-      PAYU_SALT: firestoreConfig.PAYU_SALT || process.env.PAYU_SALT,
-      PAYU_BASE_URL: firestoreConfig.PAYU_BASE_URL || process.env.PAYU_BASE_URL,
-      TWILIO_ACCOUNT_SID: firestoreConfig.TWILIO_ACCOUNT_SID || process.env.TWILIO_ACCOUNT_SID,
-      TWILIO_AUTH_TOKEN: firestoreConfig.TWILIO_AUTH_TOKEN || process.env.TWILIO_AUTH_TOKEN,
-      TWILIO_PHONE_NUMBER: firestoreConfig.TWILIO_PHONE_NUMBER || process.env.TWILIO_PHONE_NUMBER,
+      ...firestoreConfig,
+      PAYU_KEY: process.env.PAYU_KEY || firestoreConfig.PAYU_KEY,
+      PAYU_SALT: process.env.PAYU_SALT || firestoreConfig.PAYU_SALT,
+      PAYU_BASE_URL: process.env.PAYU_BASE_URL || firestoreConfig.PAYU_BASE_URL,
+      TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID || firestoreConfig.TWILIO_ACCOUNT_SID,
+      TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN || firestoreConfig.TWILIO_AUTH_TOKEN,
+      TWILIO_PHONE_NUMBER: process.env.TWILIO_PHONE_NUMBER || firestoreConfig.TWILIO_PHONE_NUMBER,
       twilioAccounts: twilioAccounts,
-      ...firestoreConfig 
     };
 
     cachedConfig = config;

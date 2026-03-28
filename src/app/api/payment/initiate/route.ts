@@ -5,7 +5,7 @@ import { getAppConfig } from '@/lib/config';
 export async function POST(req: Request) {
   try {
     const reqBody = await req.json();
-    const { amount, userId, type, listenerId } = reqBody;
+    const { amount, userId, type, listenerId, firstName, email, productInfo } = reqBody;
     const config = await getAppConfig();
 
     const txnid = `DS_${Date.now()}_${Math.floor(Math.random() * 1000)}_${userId.slice(0, 6)}`;
@@ -26,13 +26,28 @@ export async function POST(req: Request) {
     const udf5 = reqBody.planPrice?.toString() || '';
     const udf6 = reqBody.planMinutes?.toString() || '';
 
-    // Correct PayU Hash String: key|txnid|amount|productinfo|firstname|email|udf1|udf2|udf3|udf4|udf5|udf6|udf7|udf8|udf9|udf10|salt
-    const hashStr = `${key}|${txnid}|${amount}|BigSuno|User|anon@bigsuno.app|${udf1}|${udf2}|${udf3}|${udf4}|${udf5}|${udf6}|||||${salt}`;
+    // BharatPWA uses: key|txnid|amount|productinfo|firstname|email|||||||||||salt
+    // We integrate our UDFs for database logic but maintain the same core structure.
+    const pInfo = productInfo || 'BigSuno';
+    const fName = firstName || 'User';
+    const eMail = email || 'anon@bigsuno.app';
+    
+    // Hash sequence: key|txnid|amount|productinfo|firstname|email|udf1|udf2|udf3|udf4|udf5|udf6|udf7|udf8|udf9|udf10|salt
+    const hashStr = `${key}|${txnid}|${amount}|${pInfo}|${fName}|${eMail}|${udf1}|${udf2}|${udf3}|${udf4}|${udf5}|${udf6}|||||${salt}`;
     const hash = crypto.createHash('sha512').update(hashStr).digest('hex');
 
-    // PayU URL construction: prioritize config, fallback to production
     const baseUrl = config.PAYU_BASE_URL || 'https://secure.payu.in';
+    console.log('--- PayU Initiation Debug ---');
+    console.log('Config PAYU_BASE_URL:', config.PAYU_BASE_URL);
+    console.log('Base URL resolved:', baseUrl);
+    
     const payuUrl = baseUrl.includes('/_payment') ? baseUrl : `${baseUrl.replace(/\/$/, '')}/_payment`;
+    console.log('Final PayU URL:', payuUrl);
+    console.log('-----------------------------');
+
+    const host = req.headers.get('host');
+    const protocol = req.headers.get('x-forwarded-proto') || 'http';
+    const origin = `${protocol}://${host}`;
 
     return NextResponse.json({
       url: payuUrl,
@@ -41,12 +56,12 @@ export async function POST(req: Request) {
         txnid,
         amount,
         hash,
-        productinfo: 'BigSuno',
-        firstname: 'User',
-        email: 'anon@bigsuno.app',
+        productinfo: pInfo,
+        firstname: fName,
+        email: eMail,
         phone: '9999999999',
-        surl: `${process.env.NEXT_PUBLIC_URL}/api/payment/webhook`,
-        furl: `${process.env.NEXT_PUBLIC_URL}/api/payment/webhook`,
+        surl: `${origin}/api/payment/payu/success`,
+        furl: `${origin}/api/payment/payu/failure`,
         udf1: udf1,
         udf2: udf2,
         udf3: udf3,
@@ -56,6 +71,7 @@ export async function POST(req: Request) {
       }
     });
   } catch (error) {
+    console.error('Payment initiation error:', error);
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }

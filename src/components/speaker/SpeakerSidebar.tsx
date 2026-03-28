@@ -34,7 +34,6 @@ export default function SpeakerSidebar() {
         { name: "My Home", href: "/seeker/home", icon: Home },
         { name: "My Wallet", href: "/seeker/wallet", icon: Wallet },
         { name: "My Profile", href: "/seeker/profile", icon: User },
-        { name: "Settings", href: "/seeker/settings", icon: Settings },
     ];
 
     return (
