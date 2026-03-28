@@ -51,12 +51,23 @@ export default function SmartEarningOnboarding() {
     }
   ];
 
+  const isStepValid = (currentStep: number) => {
+    switch (currentStep) {
+      case 1: case 2: case 3: return true; // Intro slides
+      case 4: return formData.phoneNumber.length === 10;
+      case 5: return formData.displayName.length >= 3 && formData.age.length >= 2 && formData.gender !== '';
+      case 6: return formData.category !== '' && formData.languages.length > 0 && formData.bio.trim().length >= 10;
+      case 7: return formData.payoutQR !== ''; // Placeholder for now, will make it a required interaction
+      default: return false;
+    }
+  };
+
   const handleNext = () => {
-    if (step < 7) setStep(step + 1);
+    if (isStepValid(step) && step < 7) setStep(step + 1);
   };
 
   const finalizeOnboarding = async () => {
-    if (!user?.uid) return;
+    if (!user?.uid || !isStepValid(7)) return;
     setLoading(true);
     try {
         const userRef = doc(db, 'users', user.uid);
@@ -72,7 +83,7 @@ export default function SmartEarningOnboarding() {
         };
         await updateDoc(userRef, updateData);
         setUser({ ...user, ...updateData } as any);
-        router.push('/provider/dashboard'); // Corrected path
+        router.push('/provider/dashboard'); 
     } catch (err) {
         console.error(err);
         alert('Galti ho gayi check karein internet.');
@@ -80,6 +91,7 @@ export default function SmartEarningOnboarding() {
         setLoading(false);
     }
   };
+
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex items-center justify-center p-6 relative overflow-hidden font-body">
@@ -155,9 +167,10 @@ export default function SmartEarningOnboarding() {
 
                  <button 
                    onClick={handleNext}
-                   className="w-full bg-slate-900 text-white h-16 rounded-2xl text-[10px] uppercase tracking-[0.25em] font-black hover:bg-black transition-all shadow-xl shadow-slate-200 flex items-center justify-center gap-3"
+                   disabled={!isStepValid(4)}
+                   className="w-full bg-slate-900 text-white h-16 rounded-2xl text-[10px] uppercase tracking-[0.25em] font-black hover:bg-black transition-all shadow-xl shadow-slate-200 flex items-center justify-center gap-3 disabled:opacity-30 disabled:cursor-not-allowed"
                  >
-                   <span>Verify OTP</span>
+                   <span>Verify Number</span>
                    <ArrowRight size={18} />
                  </button>
               </div>
@@ -218,7 +231,8 @@ export default function SmartEarningOnboarding() {
 
               <button 
                  onClick={handleNext}
-                 className="w-full bg-slate-900 text-white h-16 rounded-2xl text-[10px] uppercase tracking-[0.25em] font-black shadow-xl shadow-slate-200 flex items-center justify-center gap-3"
+                 disabled={!isStepValid(5)}
+                 className="w-full bg-slate-900 text-white h-16 rounded-2xl text-[10px] uppercase tracking-[0.25em] font-black shadow-xl shadow-slate-200 flex items-center justify-center gap-3 disabled:opacity-30 disabled:cursor-not-allowed"
                >
                  <span>Next Details</span>
                  <ArrowRight size={18} />
@@ -281,7 +295,8 @@ export default function SmartEarningOnboarding() {
 
                  <button 
                     onClick={handleNext}
-                    className="w-full bg-slate-900 text-white h-16 rounded-2xl text-[10px] uppercase tracking-[0.25em] font-black shadow-xl"
+                    disabled={!isStepValid(6)}
+                    className="w-full bg-slate-900 text-white h-16 rounded-2xl text-[10px] uppercase tracking-[0.25em] font-black shadow-xl disabled:opacity-30 disabled:cursor-not-allowed"
                   >
                     <span>Almost There</span>
                     <ArrowRight size={18} />
@@ -298,22 +313,16 @@ export default function SmartEarningOnboarding() {
                  </div>
 
                  <div className="space-y-6">
-                         <div className="grid grid-cols-2 gap-3">
-                             {['Consultant', 'Counselor', 'Expert', 'Specialist'].map(cat => (
-                                 <button
-                                     key={cat}
-                                     onClick={() => setFormData({...formData, category: cat})}
-                                     className={`py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all ${formData.category === cat ? 'bg-slate-900 text-white border-slate-900 shadow-xl' : 'bg-slate-50 border-slate-100 text-slate-400 hover:border-slate-300'}`}
-                                 >
-                                     {cat}
-                                 </button>
-                             ))}
-                         </div>
-                    <div className="border-2 border-dashed border-slate-200 rounded-[3rem] p-10 flex flex-col items-center justify-center gap-4 bg-slate-50 group hover:bg-emerald-50/30 hover:border-emerald-200 transition-all cursor-pointer">
-                        <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                            <Upload className="text-slate-300 group-hover:text-emerald-500" />
+                    <div 
+                        onClick={() => setFormData({...formData, payoutQR: 'verified_qr_placeholder'})}
+                        className={`border-2 border-dashed rounded-[3rem] p-10 flex flex-col items-center justify-center gap-4 transition-all cursor-pointer group ${formData.payoutQR ? 'bg-emerald-50 border-emerald-500' : 'border-slate-200 bg-slate-50 hover:bg-emerald-50/30 hover:border-emerald-200'}`}
+                    >
+                        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg transition-transform group-hover:scale-110 ${formData.payoutQR ? 'bg-emerald-500 text-white' : 'bg-white text-slate-300'}`}>
+                            {formData.payoutQR ? <Check size={24} /> : <Upload className="group-hover:text-emerald-500" />}
                         </div>
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 group-hover:text-emerald-600">Upload Professional Payout QR</span>
+                        <span className={`text-[10px] font-black uppercase tracking-widest ${formData.payoutQR ? 'text-emerald-700' : 'text-slate-400 group-hover:text-emerald-600'}`}>
+                            {formData.payoutQR ? 'QR Verified Successfully' : 'Upload Professional Payout QR'}
+                        </span>
                     </div>
 
                     <p className="text-[9px] text-slate-400 text-center font-bold uppercase tracking-widest leading-loose">Required for secure professional withdrawals. <br/> BigSuno offers 0% platform fee for the first month! 🎉</p>
@@ -321,8 +330,8 @@ export default function SmartEarningOnboarding() {
 
                  <button 
                    onClick={finalizeOnboarding}
-                   disabled={loading}
-                   className="w-full bg-emerald-500 text-white h-16 rounded-2xl text-[10px] uppercase tracking-[0.25em] font-black hover:bg-emerald-600 transition-all shadow-xl shadow-emerald-100 flex items-center justify-center gap-3 disabled:opacity-50"
+                   disabled={loading || !isStepValid(7)}
+                   className="w-full bg-emerald-500 text-white h-16 rounded-2xl text-[10px] uppercase tracking-[0.25em] font-black hover:bg-emerald-600 transition-all shadow-xl shadow-emerald-100 flex items-center justify-center gap-3 disabled:opacity-30 disabled:cursor-not-allowed"
                  >
                    {loading ? 'Processing...' : (
                        <>
