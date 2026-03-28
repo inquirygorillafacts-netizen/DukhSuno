@@ -17,6 +17,20 @@ const firebaseConfig = {
 
 const hasConfig = !!process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
 
+// Enhanced Diagnostics for the USER:
+if (typeof window !== 'undefined' && !hasConfig) {
+  const missing = [
+    !process.env.NEXT_PUBLIC_FIREBASE_API_KEY && 'NEXT_PUBLIC_FIREBASE_API_KEY',
+    !process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN && 'NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN',
+    !process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID && 'NEXT_PUBLIC_FIREBASE_PROJECT_ID',
+    !process.env.NEXT_PUBLIC_FIREBASE_APP_ID && 'NEXT_PUBLIC_FIREBASE_APP_ID'
+  ].filter(Boolean);
+  
+  if (missing.length > 0) {
+    console.error(`🚨 DISASTER: Firebase configuration missing in PRODUCTION bundle! 🚨\nMissing variables: ${missing.join(', ')}\n👉 Go to Netlify -> Site configuration -> Environment variables -> Add these and RE-DEPLOY (Clear cache).`);
+  }
+}
+
 /**
  * Creates a defensive proxy for service objects to provide better 
  * debugging info if environment variables are missing at build-time.
