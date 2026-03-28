@@ -1,9 +1,9 @@
 // ─── Firebase Client Config ─────────────────────
-import { initializeApp, getApps } from 'firebase/app';
-import { getAuth, GoogleAuthProvider } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
-import { getDatabase } from 'firebase/database';
-import { getStorage } from 'firebase/storage';
+import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
+import { getAuth, Auth, GoogleAuthProvider } from 'firebase/auth';
+import { getFirestore, Firestore } from 'firebase/firestore';
+import { getDatabase, Database } from 'firebase/database';
+import { getStorage, FirebaseStorage } from 'firebase/storage';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -15,14 +15,19 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Initialize Firebase (prevent duplicate initialization)
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+const hasConfig = !!process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
 
-export const auth = getAuth(app);
+// Initialize Firebase (prevent duplicate initialization)
+// During build time on Netlify, if env vars are missing, we provide a placeholder app
+const app: FirebaseApp = hasConfig 
+  ? (getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0])
+  : ({ name: '[DEFAULT]', options: {}, automaticDataCollectionEnabled: false } as any);
+
+export const auth: Auth = hasConfig ? getAuth(app) : {} as any;
 export const googleProvider = new GoogleAuthProvider();
-export const db = getFirestore(app);
-export const rtdb = getDatabase(app);
+export const db: Firestore = hasConfig ? getFirestore(app) : {} as any;
+export const rtdb: Database = hasConfig ? getDatabase(app) : {} as any;
 export { onDisconnect } from 'firebase/database';
-export const storage = getStorage(app);
+export const storage: FirebaseStorage = hasConfig ? getStorage(app) : {} as any;
 
 export default app;
