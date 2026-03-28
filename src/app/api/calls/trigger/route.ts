@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/firebase';
-import { doc, serverTimestamp, runTransaction } from 'firebase/firestore';
+import { adminDb } from '@/lib/firebase-admin';
 import { triggerVoiceAlert } from '@/lib/twilio';
 import { Expo } from 'expo-server-sdk';
+import * as admin from 'firebase-admin';
 
 const expo = new Expo();
 
@@ -10,11 +10,11 @@ export async function POST(req: Request) {
   try {
     const { sessionId, recipientId, callerName } = await req.json();
 
-    const result = await runTransaction(db, async (transaction) => {
-      const recipientRef = doc(db, 'users', recipientId);
+    const result = await adminDb.runTransaction(async (transaction) => {
+      const recipientRef = adminDb.collection('users').doc(recipientId);
       const recipientSnap = await transaction.get(recipientRef);
 
-      if (!recipientSnap.exists()) {
+      if (!recipientSnap.exists) {
         throw new Error('RECIPIENT_NOT_FOUND');
       }
 
@@ -38,7 +38,7 @@ export async function POST(req: Request) {
       // 3. Mark as Busy & Update timestamp
       transaction.update(recipientRef, { 
         inCall: true, 
-        lastCallTriggeredAt: serverTimestamp() 
+        lastCallTriggeredAt: admin.firestore.FieldValue.serverTimestamp() 
       });
 
       return recipient;
