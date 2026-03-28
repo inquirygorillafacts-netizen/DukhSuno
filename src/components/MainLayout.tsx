@@ -54,10 +54,10 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
 
   // Unified Navigation Items
   const navItems = [
-    { id: 'home', label: 'Home', href: '/home', icon: <Search /> },
+    { id: 'home', label: 'Home', href: '/seeker/home', icon: <Search /> },
     { id: 'history', label: 'Call', href: '/history', icon: <History /> },
     { id: 'install', label: 'Install', onClick: () => setShowInstallSheet(true), icon: <Download /> },
-    { id: 'wallet', label: 'Wallet', href: '/wallet', icon: <Wallet /> },
+    { id: 'wallet', label: 'Wallet', href: '/seeker/wallet', icon: <Wallet /> },
     { id: 'me', label: 'Me', href: '/me', icon: <User /> },
   ];
 

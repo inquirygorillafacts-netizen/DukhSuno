@@ -176,7 +176,7 @@ export default function HomePage() {
                <div className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse border-2 border-green-200" />
                <h4 className="text-[11px] font-black uppercase tracking-[0.45em] text-slate-400">Featured Today</h4>
             </div>
-            <Link href="/home" className="text-[10px] font-black text-indigo-600 uppercase tracking-widest flex items-center gap-1 hover:gap-2 transition-all">
+            <Link href="/seeker/home" className="text-[10px] font-black text-indigo-600 uppercase tracking-widest flex items-center gap-1 hover:gap-2 transition-all">
                View All <ArrowRight size={14} />
             </Link>
          </div>
