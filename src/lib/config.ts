@@ -24,6 +24,29 @@ let cachedConfig: AppConfig | null = null;
 let lastFetchTime = 0;
 const CACHE_TTL = 30000; // 30 seconds
 
+/**
+ * Helper to run a promise with a timeout
+ */
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, fallback: T, name: string): Promise<T> {
+  let timeoutHandle: NodeJS.Timeout;
+  const timeoutPromise = new Promise<T>((resolve) => {
+    timeoutHandle = setTimeout(() => {
+      console.warn(`[Config] ⏳ TIMEOUT: ${name} took longer than ${timeoutMs}ms. Using fallback.`);
+      resolve(fallback);
+    }, timeoutMs);
+  });
+
+  try {
+    const result = await Promise.race([promise, timeoutPromise]);
+    clearTimeout(timeoutHandle!);
+    return result;
+  } catch (error) {
+    clearTimeout(timeoutHandle!);
+    console.error(`[Config] ❌ ERROR in ${name}:`, error);
+    return fallback;
+  }
+}
+
 export async function getAppConfig(): Promise<AppConfig> {
   const now = Date.now();
   
@@ -31,14 +54,27 @@ export async function getAppConfig(): Promise<AppConfig> {
     return cachedConfig;
   }
 
+  const startTime = Date.now();
+  console.log('[Config] 🔄 Fetching fresh configuration...');
+
   try {
-    // 1. Fetch Global Secrets
-    const secretsDoc = await adminDb.collection('admin_config').doc('secrets').get();
+    // 1. Fetch Global Secrets with 5s timeout
+    const secretsDoc = await withTimeout(
+      adminDb.collection('admin_config').doc('secrets').get(),
+      5000,
+      { exists: false, data: () => ({}) } as any,
+      'Firestore Secrets Fetch'
+    );
     const firestoreConfig = secretsDoc.exists ? secretsDoc.data() as AppConfig : {};
     
-    // 2. Fetch Multi-Twilio Accounts
-    const twilioSnap = await adminDb.collection('admin_config').doc('twilio_config').collection('accounts').get();
-    const twilioAccounts: TwilioAccount[] = twilioSnap.docs.map(doc => ({
+    // 2. Fetch Multi-Twilio Accounts with 5s timeout
+    const twilioSnap = await withTimeout(
+      adminDb.collection('admin_config').doc('twilio_config').collection('accounts').get(),
+      5000,
+      { docs: [] } as any,
+      'Firestore Twilio Accounts Fetch'
+    );
+    const twilioAccounts: TwilioAccount[] = twilioSnap.docs.map((doc: any) => ({
       id: doc.id,
       ...doc.data()
     } as TwilioAccount));
@@ -55,11 +91,14 @@ export async function getAppConfig(): Promise<AppConfig> {
       twilioAccounts: twilioAccounts,
     };
 
+    const duration = Date.now() - startTime;
+    console.log(`[Config] ✅ Config loaded in ${duration}ms (Twilio SID: ${config.TWILIO_ACCOUNT_SID ? 'OK' : 'MISSING'})`);
+
     cachedConfig = config;
     lastFetchTime = now;
     return config;
   } catch (error) {
-    console.error('Error fetching config from Firestore:', error);
+    console.error('[Config] ❌ Fatal error fetching config:', error);
     return {
       PAYU_KEY: process.env.PAYU_KEY,
       PAYU_SALT: process.env.PAYU_SALT,
