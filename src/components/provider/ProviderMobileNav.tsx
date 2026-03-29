@@ -22,7 +22,7 @@ export default function ProviderMobileNav() {
     const links = [
         { name: "Home", href: "/provider/dashboard", icon: LayoutDashboard },
         { name: "Calls", href: "/provider/calls", icon: History },
-        { name: "Wallet", href: "/provider/wallet", icon: Wallet },
+        { name: "Earnings", href: "/provider/earnings", icon: Wallet },
         { name: "Me", href: "/provider/profile", icon: User },
     ];
 

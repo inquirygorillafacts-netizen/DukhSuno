@@ -32,8 +32,7 @@ export default function ProviderSidebar() {
     const links = [
         { name: "My Dashboard", href: "/provider/dashboard", icon: LayoutDashboard, highlight: false },
         { name: "Call History", href: "/provider/calls", icon: History, highlight: false },
-        { name: "My Earnings", href: "/provider/earnings", icon: Wallet, highlight: false },
-        { name: "My Wallet", href: "/provider/wallet", icon: IndianRupee, highlight: false },
+        { name: "My Earnings", href: "/provider/earnings", icon: IndianRupee, highlight: false },
         { name: "My Profile", href: "/provider/profile", icon: User, highlight: false },
         { name: "Settings", href: "/provider/settings", icon: Settings, highlight: false },
     ];
