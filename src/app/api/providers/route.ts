@@ -7,7 +7,8 @@ export async function GET(req: Request) {
     const sortBy = searchParams.get('sort') || 'all';
     const gender = searchParams.get('gender');
     const specialty = searchParams.get('specialty');
-    const type = searchParams.get('type'); // New: 'influencer', 'mentor', etc.
+    const type = searchParams.get('type') || searchParams.get('category'); // Handle both aliases
+    const queryStr = searchParams.get('query')?.toLowerCase(); // For search
     const page = parseInt(searchParams.get('page') || '1');
     const pageSize = parseInt(searchParams.get('pageSize') || '20');
 
@@ -75,9 +76,13 @@ export async function GET(req: Request) {
       page,
       pageSize,
     });
-  } catch (error) {
-    console.error('Fetch Listeners Error:', error);
-    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+  } catch (error: any) {
+    console.error('Fetch Listeners Error DETAILS:', error);
+    // Return specific error if it's a missing index (useful for user)
+    if (error.message?.includes('index')) {
+      return NextResponse.json({ error: 'Firestore index required. Check server logs.', details: error.message }, { status: 500 });
+    }
+    return NextResponse.json({ error: 'Server error: ' + error.message }, { status: 500 });
   }
 }
 

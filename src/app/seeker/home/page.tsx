@@ -5,7 +5,7 @@ import { collection, query, where, limit, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { MOOD_TAGS, SPECIALTY_LABELS, PROVIDER_TYPE_LABELS } from '@/types';
 import type { ListenerCard as ListenerCardType, Specialty, ProviderType } from '@/types';
-import { Search, Sparkles, Star, Phone, Heart, Filter, ShieldCheck, Play, ArrowRight, TrendingUp, Zap } from 'lucide-react';
+
 import Link from 'next/link';
 import React from 'react';
 import { useAuthStore } from '@/stores/auth-store';
@@ -75,6 +75,7 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const categories = [
     { id: 'all', label: 'All', icon: <Sparkles size={14} /> },
@@ -98,11 +99,15 @@ export default function HomePage() {
         const resp = await fetch(`/api/providers?${params.toString()}`);
         const data = await resp.json();
         
-        if (data.listeners) {
+        if (resp.status === 500) {
+          setErrorMsg(data.error || 'Server error fetching providers');
+        } else if (data.listeners) {
           setProviders(data.listeners);
+          setErrorMsg(null);
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error('Error fetching providers:', err);
+        setErrorMsg('Network error fetching providers');
       } finally {
         setLoading(false);
       }
@@ -198,6 +203,14 @@ export default function HomePage() {
                ))
             ) : providers.length > 0 ? (
                providers.map(p => <ProviderCard key={p.uid} provider={p} />)
+            ) : errorMsg ? (
+               <div className="col-span-full py-24 text-center glass bg-rose-50/50 rounded-[3.5rem] border-dashed border-2 border-rose-100 flex flex-col items-center">
+                  <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center shadow-xl mb-6 text-rose-500">
+                    <AlertCircle size={40} />
+                  </div>
+                  <p className="text-rose-600 font-black uppercase tracking-widest italic text-xs">Error: {errorMsg}</p>
+                  <p className="text-rose-400 text-[10px] mt-2">हमारे सर्वर पर कोई तकनीकी समस्या है, कृपया एडमिन से संपर्क करें।</p>
+               </div>
             ) : (
                <div className="col-span-full py-24 text-center glass bg-white/30 rounded-[3.5rem] border-dashed border-2 border-slate-100 flex flex-col items-center">
                   <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center shadow-xl mb-6">
