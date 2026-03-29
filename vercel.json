@@ -8,5 +8,11 @@
   ],
   "env": {
     "NEXT_PUBLIC_BASE_URL": "https://bigsuno.app"
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/admin/cron/cleanup-sessions",
+      "schedule": "*/10 * * * *"
+    }
+  ]
 }

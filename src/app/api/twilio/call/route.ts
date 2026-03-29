@@ -26,15 +26,21 @@ export async function POST(req: Request) {
       if (!userSnap.empty) {
         const userData = userSnap.docs[0].data();
         if (userData.isBlocked) {
-            // console.error(`[Twilio Call] ❌ Blocked attempted call from ${phoneNumber}`);
             return NextResponse.json({ 
                 error: 'We apologize, but your account has been restricted. You cannot make calls.' 
             }, { status: 403 });
         }
         finalAccountId = userData.twilioAccountId;
       }
+      
+      // If after checking the linked user, we STILL don't have an account ID, it means this number
+      // is completely unverified or has no Twilio Account mapped to it yet. We must force manual selection.
+      if (!finalAccountId) {
+          return NextResponse.json({ 
+                error: 'This number is not linked to any Twilio account yet. Please select an account from the dropdown manually.' 
+          }, { status: 400 });
+      }
     }
-    // console.log(`[Twilio Call] 🔍 Routing complete in ${Date.now() - routingStart}ms`);
 
     // Credentials Lookup
     const credsStart = Date.now();
@@ -55,17 +61,14 @@ export async function POST(req: Request) {
 
     // Twilio Call Initiation
     const twilioStart = Date.now();
-    const host = req.headers.get('host');
-    const protocol = (host?.includes('localhost')) ? 'http' : 'https';
-    const finalHost = host || (process.env.VERCEL_URL ? process.env.VERCEL_URL : 'localhost:3000');
-    const baseUrl = `${protocol}://${finalHost}`;
-    const audioUrl = `${baseUrl}/ringtone.mp3`;
 
-    // console.log(`[Twilio Call] 📞 Initiating real call to ${phoneNumber} from ${twilioNumber}`);
+    // Use <Say> to ensure local testing doesn't fail due to inaccessible local mp3 URLs
     const call = await client.calls.create({
        twiml: `
         <Response>
-          <Play>${audioUrl}</Play>
+          <Say voice="alice" language="hi-IN">Hello! Aapko Big Suno app par ek nayi call aayi hai. Kripya app open karein.</Say>
+          <Pause length="1"/>
+          <Say voice="alice" language="hi-IN">Hello! Aapko Big Suno app par ek nayi call aayi hai. Kripya app open karein.</Say>
           <Hangup/>
         </Response>
        `,

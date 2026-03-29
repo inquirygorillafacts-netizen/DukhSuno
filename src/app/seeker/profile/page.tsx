@@ -29,11 +29,9 @@ export default function SunaneProfilePage() {
   };
 
   const menuItems = [
-    { label: 'प्रोफ़ाइल एडिट करें', icon: <User size={18} />, href: '/seeker/profile/edit' },
-    { label: 'सेशन का इतिहास', icon: <Clock size={18} />, href: '#' },
-    { label: 'सूचनाएं (Notifications)', icon: <Bell size={18} />, href: '#' },
-    { label: 'गोपनीयता नीति (Privacy)', icon: <ShieldCheck size={18} />, href: '#' },
-    { label: 'सहायता और संपर्क', icon: <HelpCircle size={18} />, href: '#' },
+    { label: 'Notifications', icon: <Bell size={18} />, href: '#' },
+    { label: 'Privacy Policy', icon: <ShieldCheck size={18} />, href: '#' },
+    { label: 'Help & Support', icon: <HelpCircle size={18} />, href: '#' },
   ];
 
   return (
@@ -72,8 +70,8 @@ export default function SunaneProfilePage() {
                  <Sparkles size={20} className="text-indigo-600 fill-current" />
               </div>
               <div className="text-left">
-                 <h4 className="text-sm md:text-base font-black text-slate-900 leading-none mb-1 uppercase tracking-tighter">Provider Bano</h4>
-                 <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest">Join our professional network</p>
+                 <h4 className="text-sm md:text-base font-black text-slate-900 leading-none mb-1 uppercase tracking-tighter">Become a Provider</h4>
+                 <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest">Start earning with your expertise</p>
               </div>
            </div>
            <ChevronRight size={18} className="text-indigo-300 group-hover:translate-x-1 transition-transform" />

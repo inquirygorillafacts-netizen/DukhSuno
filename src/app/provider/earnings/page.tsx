@@ -1,6 +1,7 @@
 'use client';
 
 import { useAuthStore } from '@/stores/auth-store';
+import { useRouter } from 'next/navigation';
 import { IndianRupee, TrendingUp, ArrowUpRight, Sparkles } from 'lucide-react';
 import React from 'react';
 
@@ -9,6 +10,7 @@ import { db } from '@/lib/firebase';
 
 export default function SunneEarningsPage() {
   const { user } = useAuthStore();
+  const router = useRouter();
 
   const [sessions, setSessions] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -43,7 +45,7 @@ export default function SunneEarningsPage() {
           <IndianRupee className="w-8 h-8 md:w-12 md:h-12 text-[#ff4d6d]/20 -mr-1 md:-mr-2" strokeWidth={3} />
           <span>{user?.availableBalance || 0}</span>
         </h3>
-        <button onClick={() => alert('Withdrawal request system is being finalized! 💸')} className="w-full py-4 rounded-xl bg-[#ff4d6d] text-white font-black text-sm shadow-xl shadow-rose-200 hover:bg-rose-500 transition-all active:scale-95 hover:-translate-y-1 flex items-center justify-center gap-3 uppercase tracking-widest">
+        <button onClick={() => router.push('/provider/wallet')} className="w-full py-4 rounded-xl bg-[#ff4d6d] text-white font-black text-sm shadow-xl shadow-rose-200 hover:bg-rose-500 transition-all active:scale-95 hover:-translate-y-1 flex items-center justify-center gap-3 uppercase tracking-widest">
            <ArrowUpRight size={18} strokeWidth={3} />
            Withdraw to UPI
         </button>

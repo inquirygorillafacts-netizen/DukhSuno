@@ -13,7 +13,8 @@ import {
     PanelLeftClose,
     PanelLeftOpen,
     Sparkles,
-    Download
+    Download,
+    IndianRupee
 } from "lucide-react";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
@@ -32,6 +33,7 @@ export default function ProviderSidebar() {
         { name: "My Dashboard", href: "/provider/dashboard", icon: LayoutDashboard, highlight: false },
         { name: "Call History", href: "/provider/calls", icon: History, highlight: false },
         { name: "My Earnings", href: "/provider/earnings", icon: Wallet, highlight: false },
+        { name: "My Wallet", href: "/provider/wallet", icon: IndianRupee, highlight: false },
         { name: "My Profile", href: "/provider/profile", icon: User, highlight: false },
         { name: "Settings", href: "/provider/settings", icon: Settings, highlight: false },
     ];

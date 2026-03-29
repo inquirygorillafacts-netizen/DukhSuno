@@ -38,18 +38,16 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
-const IMGBB_API_KEY = '5d09e5ee9352ef1356e409b302061099';
-
 async function uploadToImgBB(file: File): Promise<string> {
   const formData = new FormData();
   formData.append('image', file);
-  const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+  const res = await fetch('/api/upload-qr', {
     method: 'POST',
     body: formData,
   });
   const data = await res.json();
-  if (data.success) return data.data.url;
-  throw new Error('Upload failed');
+  if (data.url) return data.url;
+  throw new Error(data.error || 'Upload failed');
 }
 
 export default function WalletPage() {
@@ -106,7 +104,7 @@ export default function WalletPage() {
     });
 
     // Fetch Platform Config
-    const unsubscribeConfig = onSnapshot(doc(db, 'settings', 'platform'), (snap) => {
+    const unsubscribeConfig = onSnapshot(doc(db, 'config', 'platform'), (snap) => {
       if (snap.exists()) {
         const data = snap.data();
         setCommission(data.defaultCommissionRate || 0.02);

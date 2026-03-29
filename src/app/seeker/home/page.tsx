@@ -78,9 +78,13 @@ export default function HomePage() {
 
   const categories = [
     { id: 'all', label: 'All', icon: <Sparkles size={14} /> },
+    { id: 'listener', label: 'Listener', icon: <Heart size={14} /> },
     { id: 'influencer', label: 'Influencer', icon: <TrendingUp size={14} /> },
     { id: 'mentor', label: 'Mentor/Coach', icon: <Star size={14} /> },
-    { id: 'listener', label: 'Expert Partner', icon: <ShieldCheck size={14} /> },
+    { id: 'sex-health', label: 'Sex Health', icon: <ShieldCheck size={14} /> },
+    { id: 'gm-expert', label: 'GM Expert', icon: <Sparkles size={14} /> },
+    { id: 'romantic', label: 'Romantic', icon: <Heart size={14} /> },
+    { id: 'other', label: 'Other', icon: <Star size={14} /> },
   ];
 
   useEffect(() => {

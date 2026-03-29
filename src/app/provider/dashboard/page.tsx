@@ -189,10 +189,9 @@ export default function SunneDashboardPage() {
         />
         <StatBox
           label="Success Rate"
-          value="98%"
+          value={`${sessions.length > 0 ? Math.round((sessions.filter((s: any) => s.status === 'completed').length / sessions.length) * 100) : 0}%`}
           icon={<Sparkles />}
           color="indigo"
-          trend="+2%"
         />
         <StatBox
           label="Platform Fee"

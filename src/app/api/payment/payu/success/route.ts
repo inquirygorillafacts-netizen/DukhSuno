@@ -49,13 +49,13 @@ export async function POST(req: Request) {
         const userDoc = await userRef.get();
         if (userDoc.exists) {
           const userData = userDoc.data() || {};
-          const currentBalance = userData.availableBalance || userData.balance || userData.creditBalance || 0;
+          const currentBalance = userData.creditBalance || userData.availableBalance || userData.balance || 0;
           const newBalance = Number(currentBalance) + parseFloat(amount);
           
           await userRef.update({
-            availableBalance: newBalance,
-            balance: newBalance,
-            creditBalance: newBalance, // Sync for legacy
+            creditBalance: newBalance,
+            availableBalance: newBalance, // Sync for legacy readers
+            balance: newBalance,          // Sync for legacy readers
             updatedAt: new Date(),
           });
           

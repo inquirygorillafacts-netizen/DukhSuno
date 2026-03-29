@@ -25,7 +25,7 @@ export default function AdminMobileNav() {
         { name: "Users", href: "/admin/users", icon: Users },
         { name: "Verify", href: "/admin/verification", icon: ShieldCheck },
         { name: "Money", href: "/admin/payments", icon: Wallet },
-        { name: "Twilio", href: "/admin/twilio", icon: Database },
+        { name: "Twilio Pool", href: "/admin/settings/twilio-manager", icon: Database },
         { name: "Config", href: "/admin/settings", icon: Settings },
         { name: "Audit", href: "/admin/logs", icon: Terminal },
     ];

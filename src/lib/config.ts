@@ -117,14 +117,33 @@ export async function getAppConfig(): Promise<AppConfig> {
 export async function getTwilioCredentials(accountId?: string): Promise<{ sid: string, token: string, from: string }> {
   const config = await getAppConfig();
   
-  if (accountId && config.twilioAccounts) {
-    const acc = config.twilioAccounts.find(a => a.id === accountId);
+  // 1. DATABASE PRIORITY (Strictly rely on Firestore Twilio Pool)
+  if (config.twilioAccounts && config.twilioAccounts.length > 0) {
+    let acc;
+    
+    // Try finding the exactly requested account
+    if (accountId) {
+      acc = config.twilioAccounts.find(a => a.id === accountId);
+    }
+    
+    // If no account ID provided, or the provided one was deleted, find any ACTIVE account in DB
+    if (!acc) {
+      acc = config.twilioAccounts.find(a => a.isActive === true);
+    }
+
+    // If no active ones exist, just forcefully pick the first one in the DB
+    if (!acc) {
+      acc = config.twilioAccounts[0];
+    }
+
     if (acc) {
+      console.log(`[Twilio Routing] 🌐 Using DATABASE Account: ${acc.name} (${acc.id})`);
       return { sid: acc.accountSid, token: acc.authToken, from: acc.phoneNumber };
     }
   }
 
-  // Fallback to legacy/default config
+  // 2. FALLBACK ONLY IF DATABASE IS 100% EMPTY
+  console.warn('[Twilio Routing] ⚠️ Database is empty! Falling back to legacy .env variables.');
   return {
     sid: config.TWILIO_ACCOUNT_SID || '',
     token: config.TWILIO_AUTH_TOKEN || '',

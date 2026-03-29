@@ -54,9 +54,9 @@ export function IncomingCallBanner() {
     }
 
     try {
-      // Update session status to active
+      // Don't set active here! WebRTC onConnected will handle it. Just set acceptedAt
       await updateDoc(doc(db, 'sessions', incomingCall.id), {
-        status: 'active',
+        status: 'connecting',
         acceptedAt: new Date()
       });
       
@@ -80,6 +80,14 @@ export function IncomingCallBanner() {
         endedAt: new Date(),
         missedBy: 'listener'
       });
+      
+      // Auto-refund trigger
+      fetch('/api/sessions/missed', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId: incomingCall.id })
+      }).catch(console.error);
+
       setIncomingCall(null);
     } catch (err) {
       console.error('Failed to reject call:', err);

@@ -74,7 +74,14 @@ export default function PWAInstall({ renderTrigger }: Props) {
   return (
     <>
       {/* Dynamic Trigger */}
-      {renderTrigger && renderTrigger(() => setShowSheet(true), isInstalled ? false : !!deferredPrompt)}
+      {renderTrigger && renderTrigger(() => {
+        if (deferredPrompt) {
+          // Directly trigger browser install prompt
+          handleInstallClick();
+        } else {
+          setShowSheet(true);
+        }
+      }, isInstalled ? false : !!deferredPrompt)}
 
       {/* Benefits Slide-up Sheet */}
       <AnimatePresence>
@@ -163,7 +170,7 @@ export default function PWAInstall({ renderTrigger }: Props) {
                        onClick={handleInstallClick}
                        className="w-full h-20 bg-slate-900 text-white rounded-[2.5rem] font-black text-[18px] shadow-2xl shadow-indigo-100 flex items-center justify-center gap-4 transition-all active:scale-95 group hover:bg-black uppercase tracking-[0.2em]"
                     >
-                       <span>Abhi Install Karein</span>
+                       <span>Install Now</span>
                        <ArrowRight size={24} className="group-hover:translate-x-1 transition-transform" />
                     </button>
                     

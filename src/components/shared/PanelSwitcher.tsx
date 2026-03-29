@@ -64,9 +64,20 @@ export default function PanelSwitcher() {
         return pathname.startsWith(`/${segment}`);
     }) || availablePanels[0] || PANELS[2];
 
-    // If only one panel is available, don't show the switcher as there's nowhere to switch to
+    // If only one panel is available, show a static label (no dropdown)
     if (availablePanels.length <= 1) {
-        return null;
+        const singlePanel = availablePanels[0] || PANELS[2]; // Default to Client Space
+        return (
+            <div className="flex items-center gap-3 px-4 py-2 bg-white border border-slate-200 rounded-2xl shadow-sm">
+                <div className={`w-8 h-8 rounded-xl ${singlePanel.bg} flex items-center justify-center ${singlePanel.color} border border-white shadow-sm shrink-0`}>
+                    <singlePanel.icon size={18} strokeWidth={2.5} />
+                </div>
+                <div className="text-left">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Context</p>
+                    <p className="text-xs font-black text-slate-900 tracking-tight leading-none uppercase">{singlePanel.name.split(' ')[0]}</p>
+                </div>
+            </div>
+        );
     }
 
     // Close dropdown on navigation

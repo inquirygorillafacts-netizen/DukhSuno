@@ -5,23 +5,16 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
     Home,
-    Search,
     Wallet,
     User,
-    Settings,
     LogOut,
     PanelLeftClose,
     PanelLeftOpen,
-    MessageCircle,
-    Heart,
-    Sparkles,
-    Activity,
     Download,
     History
 } from "lucide-react";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import { useAuthStore } from "@/stores/auth-store";
 import PWAInstall from "../shared/PWAInstall";
 
 function cn(...classes: (string | boolean | undefined)[]) {
@@ -30,7 +23,6 @@ function cn(...classes: (string | boolean | undefined)[]) {
 
 export default function SeekerSidebar() {
     const pathname = usePathname();
-    const { setShowTour } = useAuthStore();
     const [isExpanded, setIsExpanded] = useState(true);
 
     const links = [
@@ -103,21 +95,8 @@ export default function SeekerSidebar() {
                 </nav>
             </div>
 
-            {/* Bottom Section */}
-            <div className={`shrink-0 p-4 border-t border-slate-100 bg-indigo-50/20 ${isExpanded ? 'block' : 'hidden'}`}>
-                <div className="p-4 rounded-2xl bg-white border border-indigo-100 shadow-sm flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
-                        <Activity size={18} />
-                    </div>
-                    <div>
-                        <p className="text-[9px] font-black text-indigo-400 uppercase tracking-widest leading-none mb-1">Need Guidance?</p>
-                        <p className="text-[10px] font-bold text-indigo-600 tracking-tight leading-none italic">"Connect with Experts"</p>
-                    </div>
-                </div>
-            </div>
-
-            {/* Logout */}
-            <div className="shrink-0 p-4 border-t border-slate-100 bg-slate-50/30">
+            {/* Bottom Section — Logout + Install only */}
+            <div className="shrink-0 p-4 border-t border-slate-100 bg-slate-50/30 space-y-2">
                 <button
                     onClick={async () => { await signOut(auth); window.location.href = "/login"; }}
                     className={cn(
@@ -130,24 +109,12 @@ export default function SeekerSidebar() {
                     {isExpanded && <span className="text-[11px] font-black uppercase tracking-widest leading-none mt-0.5">Logout</span>}
                 </button>
 
-                <button
-                    onClick={() => setShowTour(true)}
-                    className={cn(
-                        "flex items-center gap-3 h-10 rounded-xl transition-all duration-200 group w-full",
-                        isExpanded ? "px-4" : "justify-center",
-                        "text-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 border border-indigo-50 bg-white shadow-sm"
-                    )}
-                >
-                    <Sparkles size={16} className="animate-pulse" />
-                    {isExpanded && <span className="text-[11px] font-black uppercase tracking-widest leading-none mt-0.5">How it Works?</span>}
-                </button>
-
                 <PWAInstall 
                   renderTrigger={(onClick: () => void, isVisible: boolean) => isVisible && (
                     <button 
                       onClick={onClick}
                       className={cn(
-                          "w-full flex items-center gap-3 h-10 mt-2 rounded-xl transition-all duration-200 group bg-slate-900 shadow-md",
+                          "w-full flex items-center gap-3 h-10 rounded-xl transition-all duration-200 group bg-slate-900 shadow-md",
                           isExpanded ? "px-4" : "justify-center"
                       )}
                     >
@@ -160,4 +127,3 @@ export default function SeekerSidebar() {
         </aside>
     );
 }
-

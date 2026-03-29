@@ -6,12 +6,18 @@ import ProviderHeader from "./ProviderHeader";
 import ProviderMobileNav from "./ProviderMobileNav";
 import { IncomingCallBanner } from "@/components/call/IncomingCallBanner";
 import { AuthGuard } from "@/components/auth/AuthGuard";
+import { syncPresence } from "@/lib/presence";
+import { useEffect } from "react";
 
 export default function ProviderLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
+    useEffect(() => {
+        syncPresence();
+    }, []);
+
     return (
         <AuthGuard>
             <div className="flex h-screen bg-slate-50 text-slate-900 overflow-hidden font-jakarta">

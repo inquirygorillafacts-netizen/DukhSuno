@@ -30,6 +30,14 @@ export async function POST(req: Request) {
       }, { status: 403 });
     }
 
+    // BALANCE CHECK: Prevent free calls
+    const currentBalance = callerData?.creditBalance || 0;
+    if (currentBalance < planPrice) {
+      return NextResponse.json({ 
+        error: 'Insufficient balance. Please recharge your wallet.' 
+      }, { status: 400 });
+    }
+
     // 3. Get Platform Config (Centralized Commission)
     const { getPlatformConfig } = await import('@/lib/config-admin');
     const config = await getPlatformConfig();
@@ -38,6 +46,9 @@ export async function POST(req: Request) {
     // 4. Create Session (No pre-deduction, no pre-booked transaction)
     const session = {
       sessionId,
+      callerId: userId, // Added for compatibility with existing UI
+      callerName: callerData?.displayName || 'Seeker',
+      callerAvatar: callerData?.avatarUrl || 'emoji:👤',
       userId,
       listenerId,
       planId,

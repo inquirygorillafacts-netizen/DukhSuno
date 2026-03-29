@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { collection, query, where, getDocs, limit, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/stores/auth-store';
 import { SPECIALTY_LABELS } from '@/types';
@@ -59,22 +59,37 @@ export default function ProfessionalProfilePage() {
             return;
         }
 
+        const balance = user.creditBalance || 0;
+        if (balance < selectedPlan.price) {
+            alert(`Insufficient balance. Please add at least ₹${selectedPlan.price - balance} more credits to start this session.`);
+            router.push('/seeker/wallet');
+            return;
+        }
+
         setInitiating(true);
         try {
-            const sessionRef = await addDoc(collection(db, 'sessions'), {
-                callerId: user.uid,
-                callerName: user.displayName || 'Anonymous Client',
-                callerAvatar: user.avatarUrl || 'emoji:👤',
-                listenerId: listener.uid,
-                status: 'ringing',
-                planId: selectedPlan.id,
-                planMinutes: selectedPlan.minutes,
-                planPrice: selectedPlan.price,
-                createdAt: serverTimestamp(),
-                isVideoUnlocked: false,
+            const res = await fetch('/api/sessions/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: user.uid,
+                    listenerId: listener.uid,
+                    planId: selectedPlan.id,
+                    planMinutes: selectedPlan.minutes,
+                    planPrice: selectedPlan.price,
+                })
             });
 
-            router.push(`/call/${sessionRef.id}`);
+            const data = await res.json();
+            if (data.error) {
+                alert(data.error);
+                setInitiating(false);
+                return;
+            }
+
+            if (data.sessionId) {
+                router.push(`/call/${data.sessionId}`);
+            }
         } catch (err) {
             console.error("Failed to start session:", err);
             alert("Unable to start consultation. Please try again.");

@@ -3,20 +3,27 @@ import { adminDb } from '@/lib/firebase-admin';
 
 export async function GET(req: Request) {
   try {
-    const adminSecret = req.headers.get('x-admin-secret');
-    if (adminSecret !== (process.env.ADMIN_SECRET_KEY || 'dev-secret-key')) {
-        return NextResponse.json({ error: 'Unauthorized Access' }, { status: 401 });
-    }
     const { searchParams } = new URL(req.url);
     const type = searchParams.get('type');
 
     if (type === 'twilio_accounts') {
       const snap = await adminDb.collection('admin_config').doc('twilio_config').collection('accounts').get();
-      const accounts = snap.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
+      // SECURITY: Only return safe UI identifiers (id, name, isActive). NEVER return authToken to the client!
+      const accounts = snap.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          name: data.name,
+          isActive: data.isActive
+        };
+      });
       return NextResponse.json({ accounts });
+    }
+
+    // Require admin secret for other config GET operations
+    const adminSecret = req.headers.get('x-admin-secret');
+    if (adminSecret !== (process.env.ADMIN_SECRET_KEY || 'dev-secret-key')) {
+        return NextResponse.json({ error: 'Unauthorized Access' }, { status: 401 });
     }
 
     const doc = await adminDb.collection('settings').doc('platform').get();

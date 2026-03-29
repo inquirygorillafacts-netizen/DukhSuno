@@ -20,12 +20,13 @@ export async function POST(req: Request) {
 
       const recipient = recipientSnap.data() as any;
       
-      // 1. Atomic Busy & Holiday Check
+      // 1. Atomic Busy & Availability Check
       if (recipient.inCall) {
         throw new Error('RECIPIENT_BUSY');
       }
-      if (recipient.isOnHoliday) {
-        throw new Error('RECIPIENT_ON_HOLIDAY');
+      // UI toggles 'isAvailable'. If false, provider is not taking calls.
+      if (recipient.isAvailable === false) {
+        throw new Error('RECIPIENT_OFFLINE'); 
       }
 
       // 2. Prevent Spamming (Rate limit: 1 call per 5 seconds per listener)
@@ -45,12 +46,21 @@ export async function POST(req: Request) {
     });
 
     const recipient = result as any;
-    const lastActive = recipient.lastActive?.toDate() || new Date(0);
-    const now = new Date();
-    const isRecentlyActive = (now.getTime() - lastActive.getTime()) < 60000;
+    
+    // FETCH REAL PRESENCE FROM RTDB (Fix for PR-1)
+    const { adminRtdb } = await import('@/lib/firebase-admin');
+    const presenceSnap = await adminRtdb.ref(`presence/${recipientId}`).once('value');
+    const presenceData = presenceSnap.val();
+    
+    const isOnline = presenceData?.online === true;
+    const lastSeenStr = presenceData?.lastSeen || '';
+    const lastSeenTime = lastSeenStr ? new Date(lastSeenStr).getTime() : 0;
+    
+    const nowTime = Date.now();
+    const isRecentlyActive = isOnline && (nowTime - lastSeenTime) < 120000; // 2 minutes
 
     // Multi-Cross Decision Logic
-    if (recipient.isOnline && isRecentlyActive) {
+    if (isOnline && isRecentlyActive) {
       if (recipient.platform === 'mobile' && recipient.fcmToken) {
         await sendPushNotification(recipient.fcmToken, {
           type: 'incoming_call',
@@ -70,7 +80,7 @@ export async function POST(req: Request) {
     }
   } catch (error: any) {
     console.error('Call trigger error:', error);
-    if (['RECIPIENT_BUSY', 'RECIPIENT_ON_HOLIDAY', 'CALL_TOO_FREQUENT', 'RECIPIENT_NOT_FOUND'].includes(error.message)) {
+    if (['RECIPIENT_BUSY', 'RECIPIENT_OFFLINE', 'CALL_TOO_FREQUENT', 'RECIPIENT_NOT_FOUND'].includes(error.message)) {
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
     return NextResponse.json({ error: 'INTERNAL_ERROR' }, { status: 500 });

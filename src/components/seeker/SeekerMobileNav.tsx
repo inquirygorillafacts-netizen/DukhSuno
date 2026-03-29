@@ -5,26 +5,21 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { 
     Home, 
-    Search, 
     Wallet, 
     User, 
-    MessageCircle,
-    Sparkles,
     History,
     Download
 } from "lucide-react";
-import { useAuthStore } from "@/stores/auth-store";
 import PWAInstall from "../shared/PWAInstall";
 
 export default function SeekerMobileNav() {
     const pathname = usePathname();
-    const { setShowTour } = useAuthStore();
 
     const links = [
         { name: "Home", href: "/seeker/home", icon: Home },
         { name: "History", href: "/seeker/history", icon: History },
         { name: "Wallet", href: "/seeker/wallet", icon: Wallet },
-        { name: "Me", href: "/seeker/profile", icon: User },
+        { name: "Profile", href: "/seeker/profile", icon: User },
     ];
 
     return (
@@ -37,10 +32,10 @@ export default function SeekerMobileNav() {
                         key={link.name}
                         href={link.href}
                         className={`flex flex-col items-center gap-1 transition-all duration-300 ${
-                            isActive ? "text-rose-600 scale-110" : "text-slate-400"
+                            isActive ? "text-indigo-600 scale-110" : "text-slate-400"
                         }`}
                     >
-                        <Icon size={20} className={isActive ? "fill-rose-100" : ""} />
+                        <Icon size={20} className={isActive ? "fill-indigo-100" : ""} />
                         <span className="text-[10px] font-bold uppercase tracking-tighter">
                             {link.name}
                         </span>
@@ -48,14 +43,6 @@ export default function SeekerMobileNav() {
                 );
             })}
 
-            {/* Intro Button (Static) */}
-            <button
-                onClick={() => setShowTour(true)}
-                className="flex flex-col items-center gap-1 text-rose-400 animate-pulse active:scale-95 transition-all"
-            >
-                <Sparkles size={20} />
-                <span className="text-[10px] font-bold uppercase tracking-tighter">Intro</span>
-            </button>
             <PWAInstall 
                 renderTrigger={(onClick: () => void, isVisible: boolean) => isVisible && (
                     <button 
@@ -63,11 +50,10 @@ export default function SeekerMobileNav() {
                         className="flex flex-col items-center gap-1 text-slate-800 active:scale-95 transition-all"
                     >
                         <Download size={20} />
-                        <span className="text-[10px] font-bold uppercase tracking-tighter">App</span>
+                        <span className="text-[10px] font-bold uppercase tracking-tighter">Install</span>
                     </button>
                 )}
             />
         </nav>
     );
 }
-

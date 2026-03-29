@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
 import twilio from 'twilio';
-import { getAppConfig } from '@/lib/config';
+import { getTwilioCredentials } from '@/lib/config';
 
 export async function GET(req: Request) {
   const startTime = Date.now();
   try {
-    const config = await getAppConfig();
-    const client = twilio(config.TWILIO_ACCOUNT_SID, config.TWILIO_AUTH_TOKEN);
+    // Rely on database Twilio accounts instead of .env.local
+    const { sid, token } = await getTwilioCredentials();
+    const client = twilio(sid, token);
 
     const { searchParams } = new URL(req.url);
     const phoneNumber = searchParams.get('phoneNumber');
@@ -28,8 +29,8 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   const startTime = Date.now();
   try {
-    const config = await getAppConfig();
-    const client = twilio(config.TWILIO_ACCOUNT_SID, config.TWILIO_AUTH_TOKEN);
+    const { sid, token } = await getTwilioCredentials();
+    const client = twilio(sid, token);
 
     const { phoneNumber, simulate = false } = await req.json();
 

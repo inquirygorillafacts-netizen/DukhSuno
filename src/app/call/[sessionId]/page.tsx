@@ -192,15 +192,16 @@ export default function CallPage({ params }: { params: Promise<{ sessionId: stri
   }, [user, activeRole, sessionId, session, listener]);
 
   // 3. Handle Auto-Cut and Call End State
+  const currentDuration = useCallStore((state) => state.sessionDuration);
   useEffect(() => {
     if (callState === 'active' && session) {
       const maxSeconds = (session.planMinutes || 5) * 60;
-      if (useCallStore.getState().sessionDuration >= maxSeconds) {
+      if (currentDuration >= maxSeconds) {
         console.log("Auto-cutting call...");
         handleEndCallRequest('auto');
       }
     }
-  }, [useCallStore.getState().sessionDuration, callState, session]);
+  }, [currentDuration, callState, session]);
 
   useEffect(() => {
     if (callState === 'ended') {
@@ -318,8 +319,42 @@ export default function CallPage({ params }: { params: Promise<{ sessionId: stri
     router.replace(activeRole === 'seeker' ? '/seeker/home' : '/provider/dashboard');
   };
 
-  const handleSkip = () => {
+  const handleSkip = async () => {
     setShowRating(false);
+    
+    // Process Provider Payment on Skip too
+    if (sessionId && session && activeRole === 'seeker') {
+      try {
+        const { runTransaction, doc, serverTimestamp } = await import('firebase/firestore');
+        const { db } = await import('@/lib/firebase');
+
+        await runTransaction(db, async (transaction) => {
+          const sessionRef = doc(db, 'sessions', sessionId);
+          const listenerRef = doc(db, 'users', session.listenerId);
+          
+          transaction.update(sessionRef, {
+            status: 'completed',
+            endedAt: serverTimestamp()
+          });
+
+          const listenerSnap = await transaction.get(listenerRef);
+          if (listenerSnap.exists()) {
+            const currentBalance = listenerSnap.data().availableBalance || 0;
+            const currentTotal = listenerSnap.data().totalEarnings || 0;
+            const net = session.listenerEarned || 0;
+            
+            transaction.update(listenerRef, {
+              inCall: false,
+              availableBalance: currentBalance + net,
+              totalEarnings: currentTotal + net
+            });
+          }
+        });
+      } catch (err) {
+        console.error("Failed to complete session payment on skip:", err);
+      }
+    }
+    
     resetCall();
     router.replace(activeRole === 'seeker' ? '/seeker/home' : '/provider/dashboard');
   };

@@ -55,7 +55,7 @@ export default function AdminSidebar() {
         {
             title: "Infrastructure",
             links: [
-                { name: "Twilio Settings", href: "/admin/twilio", icon: Database },
+                { name: "Twilio Pool", href: "/admin/settings/twilio-manager", icon: Database },
                 { name: "Global Config", href: "/admin/settings", icon: Settings },
                 { name: "System Audit", href: "/admin/logs", icon: Terminal },
             ]

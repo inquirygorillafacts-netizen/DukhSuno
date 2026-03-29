@@ -205,6 +205,23 @@ export default function SunneProfilePage() {
          <ChevronRight size={16} className="text-indigo-300 group-hover:translate-x-1 transition-transform" />
       </button>
 
+      {/* Settings Button (for mobile users) */}
+      <button 
+         onClick={() => router.push('/provider/settings')} 
+         className="w-full p-4 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between group hover:bg-slate-100 transition-all"
+      >
+         <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
+               <User size={20} className="text-slate-500" />
+            </div>
+            <div className="text-left">
+               <h4 className="font-bold text-sm leading-tight uppercase tracking-tighter">Settings</h4>
+               <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Account & Preferences</p>
+            </div>
+         </div>
+         <ChevronRight size={16} className="text-slate-300 group-hover:translate-x-1 transition-transform" />
+      </button>
+
       {/* Logout */}
       <div className="text-center pt-8">
         <button onClick={handleLogout} className="inline-flex items-center gap-3 text-[#ff4d6d] font-black uppercase tracking-[0.3em] text-xs hover:scale-105 transition-transform active:scale-95">

@@ -137,11 +137,12 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
     const redirectToDashboard = (u: BigSunoUser) => {
       const roles = u.roles || [];
-      // Prioritize 'provider' role if available, otherwise 'admin', then 'seeker'
+      // Default to seeker always — user can switch manually
       let activeRole = u.activeRole;
       
       if (!activeRole) {
-          if (roles.includes('provider')) activeRole = 'provider';
+          if (roles.includes('seeker')) activeRole = 'seeker';
+          else if (roles.includes('provider')) activeRole = 'provider';
           else if (roles.includes('admin')) activeRole = 'admin';
           else activeRole = 'seeker';
       }

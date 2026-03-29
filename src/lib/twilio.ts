@@ -1,15 +1,20 @@
 import twilio from 'twilio';
-import { getAppConfig } from './config';
+import { getTwilioCredentials } from './config';
+import { adminDb } from './firebase-admin';
 
 /**
  * Triggers an IVR voice call to the listener to alert them of an incoming call.
  * @param toPhoneNumber The listener's phone number.
  */
 export async function triggerVoiceAlert(toPhoneNumber: string) {
-  const config = await getAppConfig();
-  const accountSid = config.TWILIO_ACCOUNT_SID;
-  const authToken = config.TWILIO_AUTH_TOKEN;
-  const twilioNumber = config.TWILIO_PHONE_NUMBER;
+  // Smart Routing: Find the user to get their linked Twilio Account
+  let accountId: string | undefined = undefined;
+  const userSnap = await adminDb.collection('users').where('phoneNumber', '==', toPhoneNumber).limit(1).get();
+  if (!userSnap.empty) {
+    accountId = userSnap.docs[0].data().twilioAccountId;
+  }
+
+  const { sid: accountSid, token: authToken, from: twilioNumber } = await getTwilioCredentials(accountId);
 
   if (!accountSid || !authToken || !twilioNumber) {
     console.warn('Twilio credentials not set, skipping voice alert.');
@@ -19,12 +24,9 @@ export async function triggerVoiceAlert(toPhoneNumber: string) {
   const client = twilio(accountSid, authToken);
 
   try {
-    const { getBaseUrl } = await import('./utils');
-    const ringtoneUrl = `${getBaseUrl()}/ringtone.mp3`;
     const call = await client.calls.create({
       twiml: `<Response>
-                <Pause length="1"/>
-                <Play>${ringtoneUrl}</Play>
+                <Say voice="alice" language="hi-IN">Namaste! Big Suno par kisi seeker ne abhi aapko call kiya hai. Kripya turant app kholen.</Say>
                 <Pause length="1"/>
                 <Hangup/>
               </Response>`,
