@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { collection, query, where, limit, getDocs } from 'firebase/firestore';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { collection, query, where, limit, onSnapshot, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { MOOD_TAGS, SPECIALTY_LABELS, PROVIDER_TYPE_LABELS } from '@/types';
 import type { ListenerCard as ListenerCardType, Specialty, ProviderType } from '@/types';
@@ -108,7 +108,7 @@ function ProviderCard({ provider }: { provider: any }) {
 /* ─── MAIN PAGE ─── */
 export default function HomePage() {
   const { user } = useAuthStore();
-  const [providers, setProviders] = useState<any[]>([]);
+  const [allProviders, setAllProviders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -134,32 +134,83 @@ export default function HomePage() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
+  // ⚡ REAL-TIME PROVIDER LIST — Single Firestore onSnapshot listener
+  // Cost: 1 listener attachment + only re-fires when a provider doc changes
+  // Client-side filtering for category & search = ZERO extra Firestore queries
   useEffect(() => {
-    const fetchProviders = async () => {
-      setLoading(true);
-      try {
-        const params = new URLSearchParams();
-        if (selectedCategory !== 'all') params.append('category', selectedCategory);
-        if (debouncedSearch.trim()) params.append('query', debouncedSearch.trim());
-        
-        const resp = await fetch(`/api/providers?${params.toString()}`);
-        const data = await resp.json();
-        
-        if (resp.status === 500) {
-          setErrorMsg(data.error || 'Server error fetching providers');
-        } else if (data.listeners) {
-          setProviders(data.listeners);
-          setErrorMsg(null);
-        }
-      } catch (err: any) {
-        console.error('Error fetching providers:', err);
-        setErrorMsg('Network error fetching providers');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProviders();
-  }, [selectedCategory, debouncedSearch]);
+    setLoading(true);
+    setErrorMsg(null);
+
+    const q = query(
+      collection(db, 'users'),
+      where('roles', 'array-contains', 'provider'),
+      where('isVerified', '==', true),
+      where('isBlocked', '==', false),
+      orderBy('createdAt', 'desc'),
+      limit(50)
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const providers = snapshot.docs.map(doc => {
+        const data = doc.data();
+        const plans = data.plans || [];
+        const cheapestPlan = plans.length > 0 
+          ? [...plans].sort((a: any, b: any) => a.price - b.price)[0] 
+          : null;
+
+        return {
+          uid: doc.id,
+          displayName: data.displayName,
+          avatarUrl: data.avatarUrl,
+          headline: data.headline,
+          specialties: data.specialties || [],
+          ratingAvg: data.ratingAvg || 0,
+          ratingCount: data.ratingCount || 0,
+          totalSessions: data.totalSessions || 0,
+          isAvailable: data.isAvailable || false,
+          isVerified: data.isVerified || false,
+          gender: data.gender,
+          age: data.age,
+          cheapestPlan,
+          plans,
+          username: data.username,
+          isBlocked: data.isBlocked || false,
+          providerType: data.providerType,
+        };
+      });
+
+      setAllProviders(providers);
+      setLoading(false);
+      setErrorMsg(null);
+    }, (err) => {
+      console.error('Provider listener error:', err);
+      setErrorMsg('Error loading providers');
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []); // ← Single listener, never re-attached
+
+  // ⚡ CLIENT-SIDE FILTERING — Zero Firestore cost for category/search changes
+  const providers = useMemo(() => {
+    let filtered = allProviders;
+
+    // Category filter
+    if (selectedCategory !== 'all') {
+      filtered = filtered.filter(p => p.providerType === selectedCategory);
+    }
+
+    // Search filter
+    if (debouncedSearch.trim()) {
+      const q = debouncedSearch.trim().toLowerCase();
+      filtered = filtered.filter(p => 
+        (p.displayName || '').toLowerCase().includes(q)
+      );
+    }
+
+    return filtered;
+  }, [allProviders, selectedCategory, debouncedSearch]);
+
 
   const isSearchMode = searchQuery.trim().length > 0;
 

@@ -87,13 +87,8 @@ export default function WalletPage() {
    useEffect(() => {
       if (!user) return;
 
-      // Listen to User for real-time balance
-      const unsubscribeUser = onSnapshot(doc(db, 'users', user.uid), (docSnap) => {
-         if (docSnap.exists()) {
-            const data = docSnap.data();
-            setUser({ ...user, ...data });
-         }
-      });
+      // ⚡ Listen to User for real-time balance is NO LONGER NEEDED HERE
+      // AuthGuard already maintains `user` in Zustand in real-time.
 
       // Listen to Transactions
       const qTrans = query(
@@ -127,7 +122,6 @@ export default function WalletPage() {
       });
 
       return () => {
-         unsubscribeUser();
          unsubscribeTrans();
          unsubscribeReqs();
          unsubscribeConfig();

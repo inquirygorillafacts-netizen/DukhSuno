@@ -13,16 +13,8 @@ export default function WalletPage() {
   const [transactions, setTransactions] = useState<any[]>([]);
   const [txnLoading, setTxnLoading] = useState(true);
 
-  // Real-time user balance listener
-  useEffect(() => {
-    if (!user) return;
-    const unsubscribe = onSnapshot(doc(db, 'users', user.uid), (docSnap) => {
-      if (docSnap.exists()) {
-        setUser({ ...user, ...docSnap.data() });
-      }
-    });
-    return () => unsubscribe();
-  }, [user?.uid]);
+  // ⚡ AuthGuard's centralized listener maintains the user object and balance in real-time.
+  // No need for a separate user listener here.
 
   // Real-time transaction history listener (ADD MONEY ONLY)
   useEffect(() => {

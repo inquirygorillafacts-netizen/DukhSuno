@@ -1,13 +1,19 @@
 'use client';
 
 import React from 'react';
-import { Ban, ShieldAlert, LogOut } from 'lucide-react';
+import { Ban, ShieldAlert, LogOut, Loader2 } from 'lucide-react';
 import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/stores/auth-store';
 
 export default function BlockedPage() {
   const router = useRouter();
+  const { user } = useAuthStore();
+
+  // ⚡ REAL-TIME UNBLOCK: AuthGuard's centralized listener handles the redirect.
+  // If admin unblocks this user, AuthGuard will detect isBlocked=false and auto-redirect
+  // to the dashboard. No manual refresh needed!
 
   const handleSignOut = async () => {
     await signOut(auth);
@@ -37,16 +43,24 @@ export default function BlockedPage() {
         </h1>
         
         <p className="text-slate-400 text-sm leading-relaxed mb-8 font-medium italic">
-          "We have detected unusual or suspicious activity associated with your account. As a result, your access has been temporarily restricted for security purposes."
+          &quot;We have detected unusual or suspicious activity associated with your account. As a result, your access has been temporarily restricted for security purposes.&quot;
         </p>
 
-        <div className="bg-rose-500/5 border border-rose-500/10 rounded-2xl p-6 mb-10 text-left">
+        <div className="bg-rose-500/5 border border-rose-500/10 rounded-2xl p-6 mb-6 text-left">
           <div className="flex items-center gap-3 mb-3">
              <ShieldAlert size={18} className="text-rose-500" />
              <span className="text-xs font-black text-rose-500 uppercase tracking-widest">Security Advisory</span>
           </div>
           <p className="text-xs text-slate-300 font-medium leading-relaxed">
             If you believe this is an error, please contact BigSuno support immediately. Your profile data and communication features have been frozen until further notice.
+          </p>
+        </div>
+
+        {/* ⚡ Real-Time Monitoring Indicator */}
+        <div className="bg-emerald-500/5 border border-emerald-500/10 rounded-2xl p-4 mb-10 flex items-center justify-center gap-3">
+          <Loader2 size={14} className="text-emerald-400 animate-spin" />
+          <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">
+            Monitoring Account Status — Auto-redirect on Unblock
           </p>
         </div>
 

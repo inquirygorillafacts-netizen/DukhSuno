@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { collection, query, where, getDocs, limit, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, query, where, getDocs, limit, doc, onSnapshot, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/stores/auth-store';
 import { SPECIALTY_LABELS } from '@/types';
@@ -21,17 +21,18 @@ export default function ProfessionalProfilePage() {
     const [showBalanceModal, setShowBalanceModal] = useState(false);
     const [balanceGap, setBalanceGap] = useState(0);
 
+    // ⚡ REAL-TIME PROFILE: Initial lookup → then onSnapshot for live updates
     useEffect(() => {
-        async function fetchListener() {
+        let unsubscribe: (() => void) | null = null;
+        
+        async function initListener() {
             try {
-                // Support both UID and Username
                 const id = params.username as string;
                 let q = query(
                     collection(db, 'users'),
                     where('uid', '==', id),
                     limit(1)
                 );
-                
                 let snap = await getDocs(q);
                 
                 if (snap.empty) {
@@ -44,15 +45,28 @@ export default function ProfessionalProfilePage() {
                 }
 
                 if (!snap.empty) {
-                    setListener(snap.docs[0].data() as BigSunoUser);
+                    const docId = snap.docs[0].id;
+                    
+                    // Attach real-time listener on the found document
+                    unsubscribe = onSnapshot(doc(db, 'users', docId), (docSnap) => {
+                        if (docSnap.exists()) {
+                            setListener({ ...docSnap.data(), uid: docId } as BigSunoUser);
+                        }
+                        setLoading(false);
+                    });
+                } else {
+                    setLoading(false);
                 }
             } catch (err) {
                 console.error("Error fetching provider:", err);
-            } finally {
                 setLoading(false);
             }
         }
-        fetchListener();
+        initListener();
+        
+        return () => {
+            if (unsubscribe) unsubscribe();
+        };
     }, [params.username]);
 
     const handleCallClick = async () => {

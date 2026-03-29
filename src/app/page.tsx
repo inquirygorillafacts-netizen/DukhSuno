@@ -2,70 +2,60 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
-import { auth, db } from '@/lib/firebase';
 import { useAuthStore } from '@/stores/auth-store';
 import RoleSelectionDrawer from '@/components/shared/RoleSelectionDrawer';
-import type { BigSunoUser, Role } from '@/types';
+import type { Role } from '@/types';
 import { Spinner } from '@/components/ui/spinner';
 
 
 export default function SplashPage() {
   const router = useRouter();
-  const { setUser, setLoading } = useAuthStore();
-  const [show, setShow] = useState(true);
+  const { user, isLoading } = useAuthStore();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [userRoles, setUserRoles] = useState<Role[]>([]);
+  const [hasRedirected, setHasRedirected] = useState(false);
 
+  // ⚡ READS FROM ZUSTAND STORE — AuthGuard's centralized onSnapshot listener
+  // provides the user data. ZERO extra Firestore reads from the splash page.
   useEffect(() => {
-    const timer = setTimeout(() => {
-      const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-        if (firebaseUser) {
-          try {
-            const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
-            if (userDoc.exists()) {
-              const userData = userDoc.data() as BigSunoUser;
-              setUser(userData);
-              setUserRoles(userData.roles || []);
+    // Wait for AuthGuard to finish loading
+    if (isLoading) return;
+    if (hasRedirected) return;
 
-              if (!userData.roles || userData.roles.length === 0) {
-                // Auto-assign seeker if no roles
-                router.push('/seeker/home');
-              } else if (userData.roles.length === 1) {
-                const role = userData.roles[0];
-                if (role === 'provider') {
-                  router.push('/provider/dashboard');
-                } else if (role === 'seeker') {
-                  router.push('/seeker/home');
-                } else if (role === 'admin') {
-                  router.push('/admin/dashboard');
-                }
-              } else {
-                // Show role selection drawer instead of redirecting
-                setIsDrawerOpen(true);
-              }
-            } else {
-              // User exists in Auth but not Firestore -> Redirect to login to handle creation
-              // or handle it here. Login page is safer as it has the full newUser template.
-              router.push('/login');
-            }
-          } catch {
-            router.push('/login');
-          }
-        } else {
-          setUser(null);
-          setLoading(false);
-          router.push('/login');
+    // Give splash 1.5s minimum display for premium feel
+    const timer = setTimeout(() => {
+      if (!user) {
+        // Not logged in
+        router.push('/login');
+        setHasRedirected(true);
+        return;
+      }
+
+      const roles = user.roles || [];
+      setUserRoles(roles);
+
+      if (roles.length === 0) {
+        // Auto-assign seeker if no roles
+        router.push('/seeker/home');
+        setHasRedirected(true);
+      } else if (roles.length === 1) {
+        const role = roles[0];
+        if (role === 'provider') {
+          router.push('/provider/dashboard');
+        } else if (role === 'seeker') {
+          router.push('/seeker/home');
+        } else if (role === 'admin') {
+          router.push('/admin/dashboard');
         }
-        unsubscribe();
-      });
-    }, 2000); // 2s splash for premium feel
+        setHasRedirected(true);
+      } else {
+        // Multiple roles — show role selection drawer
+        setIsDrawerOpen(true);
+      }
+    }, 1500);
 
     return () => clearTimeout(timer);
-  }, [router, setUser, setLoading]);
-
-  if (!show) return null;
+  }, [user, isLoading, router, hasRedirected]);
 
   return (
     <div className="fixed inset-0 flex flex-col items-center justify-center z-50 overflow-hidden bg-[#fdfcff]" suppressHydrationWarning>

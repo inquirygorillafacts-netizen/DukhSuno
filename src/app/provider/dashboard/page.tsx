@@ -56,18 +56,16 @@ export default function SunneDashboardPage() {
   const [commissionRate, setCommissionRate] = useState(0.02);
   const router = useRouter();
 
+  // Sync local state with AuthGuard's real-time user object
+  useEffect(() => {
+    if (user) {
+      setIsLive(user.isAvailable || false);
+      setTotalCalls(user.totalSessions || 0);
+    }
+  }, [user]);
+
   useEffect(() => {
     if (!user) return;
-
-    // User profile listener
-    const unsubscribeUser = onSnapshot(doc(db, 'users', user.uid), (docSnap) => {
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        setUser({ ...user, ...data });
-        setIsLive(data.isAvailable);
-        setTotalCalls(data.totalSessions || 0);
-      }
-    });
 
     // Today's stats calculation
     const startOfDay = new Date();
@@ -120,7 +118,6 @@ export default function SunneDashboardPage() {
     });
 
     return () => {
-      unsubscribeUser();
       unsubscribeToday();
       unsubscribeRecent();
       unsubscribeSettings();
