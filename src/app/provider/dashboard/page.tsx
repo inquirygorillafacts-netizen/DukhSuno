@@ -26,7 +26,17 @@ import {
   Users
 } from 'lucide-react';
 import Link from 'next/link';
-import { doc, updateDoc, onSnapshot, query, collection, where, limit, orderBy } from 'firebase/firestore';
+import { 
+  doc, 
+  updateDoc, 
+  onSnapshot, 
+  query, 
+  collection, 
+  where, 
+  limit, 
+  orderBy, 
+  Timestamp 
+} from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Session } from '@/types';
 import React from 'react';
@@ -38,10 +48,12 @@ export default function SunneDashboardPage() {
   const [isLive, setIsLive] = useState(user?.isAvailable || false);
   const [isToggling, setIsToggling] = useState(false);
   const [sessions, setSessions] = useState<Session[]>([]);
+  const [todayEarnings, setTodayEarnings] = useState(0);
+  const [totalCalls, setTotalCalls] = useState(user?.totalSessions || 0);
+  const [successRate, setSuccessRate] = useState(100);
   const [showQR, setShowQR] = useState(false);
   const [showSupport, setShowSupport] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const [commissionRate, setCommissionRate] = useState(0.02); // Default
+  const [commissionRate, setCommissionRate] = useState(0.02);
   const router = useRouter();
 
   useEffect(() => {
@@ -53,32 +65,51 @@ export default function SunneDashboardPage() {
         const data = docSnap.data();
         setUser({ ...user, ...data });
         setIsLive(data.isAvailable);
+        setTotalCalls(data.totalSessions || 0);
       }
     });
 
-    // Pending call listener
-    const qPending = query(
+    // Today's stats calculation
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const qToday = query(
       collection(db, 'sessions'),
-      where('listenerId', '==', user.uid), // Keeping Firestore field for now to avoid breaking backend
-      where('status', '==', 'pending'),
-      limit(1)
+      where('listenerId', '==', user.uid),
+      where('createdAt', '>=', Timestamp.fromDate(startOfDay))
     );
-    const unsubscribePending = onSnapshot(qPending, (snapshot) => {
-      if (!snapshot.empty) {
-        router.push(`/call/${snapshot.docs[0].id}`);
+
+    const unsubscribeToday = onSnapshot(qToday, (snapshot) => {
+      let earned = 0;
+      let completed = 0;
+      const total = snapshot.size;
+
+      snapshot.docs.forEach(doc => {
+        const data = doc.data();
+        if (data.status === 'completed') {
+          earned += (data.listenerEarned || data.providerEarned || 0);
+          completed++;
+        }
+      });
+
+      setTodayEarnings(earned);
+      if (total > 0) {
+        setSuccessRate(Math.round((completed / total) * 100));
+      } else {
+        setSuccessRate(100);
       }
     });
 
-    // All calls listener
-    const qAll = query(
+    // Recent sessions preview (last 5)
+    const qRecent = query(
       collection(db, 'sessions'),
-      where('listenerId', '==', user.uid), // Keeping Firestore field
+      where('listenerId', '==', user.uid),
       orderBy('createdAt', 'desc'),
-      limit(5) 
+      limit(5)
     );
-    const unsubscribeAll = onSnapshot(qAll, (snapshot) => {
-      const allSessions = snapshot.docs.map(doc => ({ sessionId: doc.id, ...doc.data() } as any));
-      setSessions(allSessions);
+    const unsubscribeRecent = onSnapshot(qRecent, (snapshot) => {
+      const recentSessions = snapshot.docs.map(doc => ({ sessionId: doc.id, ...doc.data() } as any));
+      setSessions(recentSessions);
     });
 
     // Platform settings listener
@@ -90,8 +121,8 @@ export default function SunneDashboardPage() {
 
     return () => {
       unsubscribeUser();
-      unsubscribePending();
-      unsubscribeAll();
+      unsubscribeToday();
+      unsubscribeRecent();
       unsubscribeSettings();
     };
   }, [user?.uid]);
@@ -103,7 +134,6 @@ export default function SunneDashboardPage() {
 
     try {
       await updateDoc(doc(db, 'users', user.uid), { isAvailable: newStatus });
-      setIsLive(newStatus);
     } catch (err) {
       console.error('Toggle failed:', err);
     } finally {
@@ -113,9 +143,7 @@ export default function SunneDashboardPage() {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-700 slide-in-from-bottom-2">
-
-
-      {/* Live Toggle & Profile Actions Line */}
+      {/* Live Toggle Section */}
       <section className="p-6 md:p-8 glass bg-white rounded-[2.5rem] border border-white shadow-sm relative overflow-hidden">
         <div className={`absolute -right-20 -top-20 w-48 h-48 rounded-full blur-[100px] transition-colors duration-1000 ${isLive ? 'bg-emerald-500/10' : 'bg-rose-500/5'}`} />
 
@@ -150,7 +178,6 @@ export default function SunneDashboardPage() {
             </button>
           </div>
 
-          {/* Referral Link integrated inside the toggle card */}
           <div className="space-y-4 py-2">
             <div className="flex items-center gap-2 px-2">
               <Share size={12} className="text-slate-400" />
@@ -175,7 +202,6 @@ export default function SunneDashboardPage() {
               </div>
             </button>
           </div>
-
         </div>
       </section>
 
@@ -183,25 +209,25 @@ export default function SunneDashboardPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
         <StatBox
           label="Today's Earnings"
-          value={`₹${user?.totalEarnings || 0}`}
+          value={`₹${todayEarnings}`}
           icon={<IndianRupee />}
           color="emerald"
         />
         <StatBox
           label="Success Rate"
-          value={`${sessions.length > 0 ? Math.round((sessions.filter((s: any) => s.status === 'completed').length / sessions.length) * 100) : 0}%`}
+          value={`${successRate}%`}
           icon={<Sparkles />}
           color="indigo"
         />
         <StatBox
           label="Platform Fee"
-          value={`${(commissionRate * 100).toFixed(0)}%`}
+          value={`${Math.round(commissionRate * 100)}%`}
           icon={<Settings />}
           color="rose"
         />
         <StatBox
           label="Total Calls"
-          value={user?.totalSessions || 0}
+          value={totalCalls}
           icon={<PhoneIncoming />}
           color="slate"
         />
