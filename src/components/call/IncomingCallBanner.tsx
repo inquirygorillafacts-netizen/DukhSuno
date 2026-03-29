@@ -16,10 +16,16 @@ export function IncomingCallBanner() {
   useEffect(() => {
     if (!user?.uid || !user?.roles?.includes('provider')) return;
 
-    // Listen for sessions where I am the listener and it's currently ringing
+    // Evaluate listen IDs based on roles
+    const listenIds = [user.uid];
+    if (user.roles?.includes('admin')) {
+      listenIds.push('all_admins');
+    }
+
+    // Listen for sessions where this user (or all admins) is targeted and it's currently ringing
     const q = query(
       collection(db, 'sessions'),
-      where('listenerId', '==', user.uid),
+      where('listenerId', 'in', listenIds),
       where('status', '==', 'ringing'),
        limit(1)
     );
@@ -46,7 +52,7 @@ export function IncomingCallBanner() {
   }, [user?.uid, user?.roles]);
 
   const handleAccept = async () => {
-    if (!incomingCall) return;
+    if (!incomingCall || !user) return;
     
     // Stop Ringtone
     if (audioRef.current) {
@@ -55,8 +61,12 @@ export function IncomingCallBanner() {
 
     try {
       // Don't set active here! WebRTC onConnected will handle it. Just set acceptedAt
+      // Crucially, lock the session to this specific admin if it was a broadcast
       await updateDoc(doc(db, 'sessions', incomingCall.id), {
         status: 'connecting',
+        listenerId: user.uid,
+        listenerName: user.displayName || 'Support Admin',
+        listenerAvatar: user.avatarUrl || 'emoji:🛡️',
         acceptedAt: new Date()
       });
       
@@ -111,10 +121,17 @@ export function IncomingCallBanner() {
 
         {/* Info */}
         <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
-             <BellRing size={12} className="text-emerald-500 animate-bounce" />
-             <p className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.3em]">Incoming Support Request</p>
-          </div>
+          {incomingCall.listenerId === 'all_admins' ? (
+            <div className="flex items-center gap-2 mb-1">
+               <BellRing size={12} className="text-red-500 animate-bounce" />
+               <p className="text-[10px] font-black text-red-600 uppercase tracking-[0.3em]">🚨 EMERGENCY URGENT CALL</p>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 mb-1">
+               <BellRing size={12} className="text-emerald-500 animate-bounce" />
+               <p className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.3em]">Incoming Support Request</p>
+            </div>
+          )}
           <p className="text-[20px] font-black text-slate-900 tracking-tighter leading-none mb-1 uppercase italic">
             {incomingCall.callerName || 'Unknown Seeker'}
           </p>

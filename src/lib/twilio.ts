@@ -49,3 +49,38 @@ export async function triggerVoiceAlert(toPhoneNumber: string) {
     console.error('Error triggering Twilio voice alert:', error);
   }
 }
+
+/**
+ * Triggers an emergency TTS voice call to all configured Admins.
+ */
+export async function triggerUrgentTTS(toPhoneNumber: string) {
+  const formattedTo = toPhoneNumber.startsWith('+') ? toPhoneNumber : `+91${toPhoneNumber}`;
+
+  const { sid: accountSid, token: authToken, from: twilioNumber } = await getTwilioCredentials();
+
+  if (!accountSid || !authToken || !twilioNumber) {
+    console.warn('Twilio credentials not set, skipping urgent TTS.');
+    return;
+  }
+
+  const client = twilio(accountSid, authToken);
+
+  try {
+    const call = await client.calls.create({
+      twiml: `<Response>
+                <Say voice="Polly.Aditi" language="hi-IN">Sir kisi ko emergency help chahiye big suno me.</Say>
+                <Pause length="1"/>
+                <Say voice="Polly.Aditi" language="hi-IN">Sir kisi ko emergency help chahiye big suno me.</Say>
+                <Pause length="1"/>
+                <Say voice="Polly.Aditi" language="hi-IN">Kripya app kholein.</Say>
+                <Hangup/>
+              </Response>`,
+      to: formattedTo,
+      from: twilioNumber,
+    });
+    console.log('Twilio Urgent TTS triggered:', call.sid);
+    return call.sid;
+  } catch (error) {
+    console.error('Error triggering Twilio Urgent TTS:', error);
+  }
+}

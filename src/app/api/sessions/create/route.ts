@@ -30,17 +30,24 @@ export async function POST(req: Request) {
     const sessionId = `session_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
     // 5. Check User Status & Balance
-    const [callerDoc, listenerDoc] = await Promise.all([
-      adminDb.collection('users').doc(userId).get(),
-      adminDb.collection('users').doc(listenerId).get()
-    ]);
+    const callerDoc = await adminDb.collection('users').doc(userId).get();
+    
+    let listenerDoc = null;
+    let listenerData: any = null;
 
-    if (!callerDoc.exists || !listenerDoc.exists) {
-      return NextResponse.json({ error: 'Caller or Provider not found' }, { status: 404 });
+    if (listenerId !== 'all_admins') {
+      listenerDoc = await adminDb.collection('users').doc(listenerId).get();
+      if (!listenerDoc.exists) {
+        return NextResponse.json({ error: 'Provider not found' }, { status: 404 });
+      }
+      listenerData = listenerDoc.data();
+    }
+
+    if (!callerDoc.exists) {
+      return NextResponse.json({ error: 'Caller not found' }, { status: 404 });
     }
 
     const callerData = callerDoc.data();
-    const listenerData = listenerDoc.data();
 
     if (callerData?.isBlocked || listenerData?.isBlocked) {
       return NextResponse.json({ error: 'Account restricted' }, { status: 403 });
@@ -101,8 +108,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Database write error: ' + dbError.message }, { status: 500 });
     }
 
-    // 9. Background: Voice Alert (Async, won't block response)
-    if (listenerData?.phoneNumber) {
+    // 9. Background: Voice Alert for typical calls (Async, won't block response)
+    // For 'all_admins', the frontend handles calling the generic Twilio TTS alert directly.
+    if (listenerId !== 'all_admins' && listenerData?.phoneNumber) {
       triggerVoiceAlert(listenerData.phoneNumber).catch(e => console.error('IVR failed:', e));
     }
 

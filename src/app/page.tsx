@@ -11,8 +11,6 @@ import { Spinner } from '@/components/ui/spinner';
 export default function SplashPage() {
   const router = useRouter();
   const { user, isLoading } = useAuthStore();
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [userRoles, setUserRoles] = useState<Role[]>([]);
   const [hasRedirected, setHasRedirected] = useState(false);
 
   // ⚡ READS FROM ZUSTAND STORE — AuthGuard's centralized onSnapshot listener
@@ -32,25 +30,18 @@ export default function SplashPage() {
       }
 
       const roles = user.roles || [];
-      setUserRoles(roles);
 
       if (roles.length === 0) {
         // Auto-assign seeker if no roles
         router.push('/seeker/home');
         setHasRedirected(true);
-      } else if (roles.length === 1) {
-        const role = roles[0];
-        if (role === 'provider') {
-          router.push('/provider/dashboard');
-        } else if (role === 'seeker') {
-          router.push('/seeker/home');
-        } else if (role === 'admin') {
-          router.push('/admin/dashboard');
-        }
-        setHasRedirected(true);
       } else {
-        // Multiple roles — show role selection drawer
-        setIsDrawerOpen(true);
+        // Directly push based on activeRole or role hierarchy without drawer
+        const nextRole = user.activeRole || (roles.includes('admin') ? 'admin' : (roles.includes('provider') ? 'provider' : 'seeker'));
+        if (nextRole === 'admin') router.push('/admin/dashboard');
+        else if (nextRole === 'provider') router.push('/provider/dashboard');
+        else router.push('/seeker/home');
+        setHasRedirected(true);
       }
     }, 1500);
 
@@ -68,12 +59,6 @@ export default function SplashPage() {
       <div className="flex flex-col items-center justify-center animate-in fade-in duration-500">
          <Spinner size="lg" />
       </div>
-
-      <RoleSelectionDrawer 
-        isOpen={isDrawerOpen} 
-        onClose={() => setIsDrawerOpen(false)} 
-        roles={userRoles} 
-      />
     </div>
   );
 }

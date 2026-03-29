@@ -129,45 +129,7 @@ export default function HomePage() {
     { id: 'counselor', label: 'Counselor', icon: <Heart size={14} /> },
   ];
 
-  const [isAdminOnline, setIsAdminOnline] = useState(false);
   const [isCallingAdmin, setIsCallingAdmin] = useState(false);
-
-  // Check Admin Presence
-  useEffect(() => {
-    let unsubscribe: () => void;
-
-    const startPresenceListener = (uid: string) => {
-      const adminPresenceRef = ref(rtdb, `presence/${uid}`);
-      unsubscribe = onValue(adminPresenceRef, (snapshot) => {
-        if (snapshot.exists()) {
-          setIsAdminOnline(snapshot.val().online === true);
-        } else {
-          setIsAdminOnline(false);
-        }
-      });
-    };
-
-    if (APP_CONFIG.adminUid && !APP_CONFIG.adminUid.includes('PLACEHOLDER')) {
-      startPresenceListener(APP_CONFIG.adminUid);
-    } else {
-      // Fallback: Find first admin in Firestore
-      const findAdmin = async () => {
-        const q = query(
-          collection(db, 'users'),
-          where('roles', 'array-contains', 'admin'),
-          limit(1)
-        );
-        const snap = await getDocs(q);
-        if (!snap.empty) {
-          const adminId = snap.docs[0].id;
-          startPresenceListener(adminId);
-        }
-      };
-      findAdmin();
-    }
-
-    return () => unsubscribe?.();
-  }, []);
 
   const handleUrgentCall = async () => {
     if (!user) {
@@ -178,13 +140,20 @@ export default function HomePage() {
     setIsCallingAdmin(true);
 
     try {
-      // 1. Create Call Session (Always)
+      // 1. Trigger Twilio Voice Alert First (Don't await it to avoid blocking UI transition)
+      fetch('/api/twilio/urgent-alert', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: `Urgent Help requested by ${user.displayName || 'User'}` })
+      }).catch(console.error);
+
+      // 2. Create Global Broadcast Call Session
       const resp = await fetch('/api/sessions/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userId: user.uid,
-          listenerId: APP_CONFIG.adminUid,
+          listenerId: 'all_admins', // Broadcast to all admins
           planId: 'urgent_help',
           planMinutes: 10,
           planPrice: 0,
@@ -194,15 +163,6 @@ export default function HomePage() {
 
       const { sessionId, error } = await resp.json();
       if (error) throw new Error(error);
-
-      // 2. If Admin is Offline, Trigger Twilio Wake-up Call
-      if (!isAdminOnline) {
-        await fetch('/api/twilio/urgent-alert', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: `Urgent Help requested by ${user.displayName || 'User'}` })
-        });
-      }
 
       // 3. Redirect to Call Page
       router.push(`/call/${sessionId}`);
@@ -355,9 +315,6 @@ export default function HomePage() {
                     <div className="flex-1">
                        <div className="flex items-center gap-2 mb-1">
                          <h4 className="text-sm font-black leading-none uppercase tracking-tighter italic text-slate-900">Urgent Help?</h4>
-                         {isAdminOnline && (
-                           <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" title="Admin is Online" />
-                         )}
                        </div>
                        <p className="text-[9px] text-slate-500 font-medium tracking-tight">
                          Connect directly with Admin without waiting.
