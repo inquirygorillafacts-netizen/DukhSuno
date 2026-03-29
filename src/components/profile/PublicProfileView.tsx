@@ -87,7 +87,7 @@ export function PublicProfileView({ provider }: { provider: BigSunoUser }) {
                   )}
                 </div>
                 <p className="text-rose-500 text-xl font-black italic tracking-tight">
-                  "{provider.headline || 'Yahan sab suna jaata hai...'}"
+                  "{provider.headline || 'Dedicated to your personal well-being...'}"
                 </p>
               </div>
 
@@ -116,9 +116,9 @@ export function PublicProfileView({ provider }: { provider: BigSunoUser }) {
 
           <div className="grid md:grid-cols-3 gap-8 mt-12 pt-12 border-t border-slate-100">
              <div className="md:col-span-2 space-y-4">
-                <h3 className="text-xs font-black uppercase tracking-[0.3em] text-slate-400">Mere Baare Mein</h3>
+                <h3 className="text-xs font-black uppercase tracking-[0.3em] text-slate-400">About the Expert</h3>
                 <p className="text-[17px] font-medium text-slate-600 leading-relaxed md:pr-12">
-                  {provider.bio || "Hello! main ek certified expert hoon. Aap apni koi bhi man ki baat mere saath share kar sakte hain—bina judge hue. Career ho, relationship ho ya life ki koi bhi pareshani, main sab sunti hoon."}
+                  {provider.bio || "Hello! I am a certified expert provider. You can share any personal or professional concerns with me in a safe, judgment-free environment. Whether it's career guidance, relationship support, or life challenges, I am here to listen and support you."}
                 </p>
              </div>
              <div className="space-y-6">
@@ -128,7 +128,7 @@ export function PublicProfileView({ provider }: { provider: BigSunoUser }) {
                     <div key={plan.heading} className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between group hover:border-rose-200 transition-all shadow-sm">
                       <div>
                         <p className="text-[12px] font-black uppercase tracking-tighter text-slate-900">{plan.heading}</p>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase">{plan.minutes} mins talk</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase">{plan.minutes} mins duration</p>
                       </div>
                       <div className="text-right">
                          <p className="text-lg font-black text-rose-500">₹{plan.price}</p>
@@ -144,7 +144,7 @@ export function PublicProfileView({ provider }: { provider: BigSunoUser }) {
       {/* Review Marquee */}
       <div className="max-w-6xl mx-auto mt-12 py-12 px-6">
         <div className="text-center mb-12 space-y-2">
-           <h4 className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-400">Log Kya Kehte Hain</h4>
+           <h4 className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-400">Client Testimonials</h4>
            <h2 className="text-3xl font-black text-slate-900 tracking-tighter">Real Stories from Real Users ✨</h2>
         </div>
         <ReviewMarquee providerId={provider.uid} />
@@ -157,7 +157,7 @@ export function PublicProfileView({ provider }: { provider: BigSunoUser }) {
           className="w-full h-20 bg-gradient-to-r from-rose-500 via-[#ff4d6d] to-indigo-600 rounded-[2rem] text-white font-black text-2xl shadow-[0_20px_60px_-15px_rgba(255,77,109,0.5)] flex items-center justify-center gap-4 hover:scale-[1.05] active:scale-95 transition-all group"
         >
           <Phone size={28} className="animate-pulse" />
-          <span>Call Abhi Karein</span>
+          <span>Call Now</span>
           <ChevronRight size={24} className="group-hover:translate-x-2 transition-transform" />
         </button>
       </div>

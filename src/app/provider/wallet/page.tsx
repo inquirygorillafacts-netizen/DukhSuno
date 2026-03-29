@@ -56,7 +56,7 @@ export default function WalletPage() {
   const [transactions, setTransactions] = useState<any[]>([]);
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [commission, setCommission] = useState(0.02); // 2% expressed as fraction
+  const [commission, setCommission] = useState(0.10); // 10% Platform Fee (Updated)
   const [minWithdrawalAmount, setMinWithdrawalAmount] = useState(99); // New default 99
   
   // Withdrawal States
@@ -104,10 +104,10 @@ export default function WalletPage() {
     });
 
     // Fetch Platform Config
-    const unsubscribeConfig = onSnapshot(doc(db, 'config', 'platform'), (snap) => {
+    const unsubscribeConfig = onSnapshot(doc(db, 'settings', 'platform'), (snap) => {
       if (snap.exists()) {
         const data = snap.data();
-        setCommission(data.defaultCommissionRate || 0.02);
+        setCommission(data.defaultCommissionRate || 0.10); // Updated to 10% fallback
         setMinWithdrawalAmount(data.minWithdrawalAmount || 99);
       }
     });

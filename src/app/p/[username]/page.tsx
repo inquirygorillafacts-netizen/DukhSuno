@@ -7,7 +7,7 @@ import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/stores/auth-store';
 import { SPECIALTY_LABELS } from '@/types';
 import type { BigSunoUser, Plan } from '@/types';
-import { Star, ChevronDown, ShieldCheck, Zap, Sparkles, AlertCircle } from 'lucide-react';
+import { Star, ChevronDown, ShieldCheck, Zap, Sparkles, AlertCircle, Wallet, X, ArrowRight, TrendingUp } from 'lucide-react';
 
 export default function ProfessionalProfilePage() {
     const params = useParams();
@@ -18,6 +18,8 @@ export default function ProfessionalProfilePage() {
     const [showFullBio, setShowFullBio] = useState(false);
     const [loading, setLoading] = useState(true);
     const [initiating, setInitiating] = useState(false);
+    const [showBalanceModal, setShowBalanceModal] = useState(false);
+    const [balanceGap, setBalanceGap] = useState(0);
 
     useEffect(() => {
         async function fetchListener() {
@@ -59,25 +61,78 @@ export default function ProfessionalProfilePage() {
             return;
         }
 
+        // 1. Check Balance
+        const currentBalance = user.creditBalance || 0;
+        if (currentBalance < selectedPlan.price) {
+            setBalanceGap(selectedPlan.price - currentBalance);
+            setShowBalanceModal(true);
+            return;
+        }
+
         setInitiating(true);
         try {
-            const sessionRef = await addDoc(collection(db, 'sessions'), {
-                callerId: user.uid,
-                callerName: user.displayName || 'Anonymous Client',
-                callerAvatar: user.avatarUrl || 'emoji:👤',
-                listenerId: listener.uid,
-                status: 'ringing',
-                planId: selectedPlan.id,
-                planMinutes: selectedPlan.minutes,
-                planPrice: selectedPlan.price,
-                createdAt: serverTimestamp(),
-                isVideoUnlocked: false,
+            // Refactored to use API for validation and consistency
+            const res = await fetch('/api/sessions/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: user.uid,
+                    listenerId: listener.uid,
+                    planId: selectedPlan.id,
+                    planMinutes: selectedPlan.minutes,
+                    planPrice: selectedPlan.price,
+                })
             });
 
-            router.push(`/call/${sessionRef.id}`);
-        } catch (err) {
+            const data = await res.json();
+            if (data.sessionId) {
+                router.push(`/call/${data.sessionId}`);
+            } else {
+                throw new Error(data.error || 'Failed to create session');
+            }
+        } catch (err: any) {
             console.error("Failed to start session:", err);
-            alert("Unable to start consultation. Please try again.");
+            alert(err.message || "Unable to start consultation. Please try again.");
+            setInitiating(false);
+        }
+    };
+
+    const handlePayGap = async () => {
+        if (!user || balanceGap <= 0) return;
+        setInitiating(true);
+        try {
+            const res = await fetch('/api/payment/initiate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    amount: balanceGap,
+                    userId: user.uid,
+                    type: 'call_immediate', // Special type for call flow
+                    listenerId: listener?.uid,
+                    planId: selectedPlan?.id,
+                    planPrice: selectedPlan?.price
+                }),
+            });
+
+            const data = await res.json();
+            if (data.url) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = data.url;
+                Object.entries(data.params).forEach(([key, value]) => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = key;
+                    input.value = String(value);
+                    form.appendChild(input);
+                });
+                document.body.appendChild(form);
+                form.submit();
+            }
+        } catch (err) {
+            console.error('Gap payment failed:', err);
+            alert('Payment initialization failed.');
+        } finally {
             setInitiating(false);
         }
     };
@@ -214,6 +269,61 @@ export default function ProfessionalProfilePage() {
                     </div>
                 </div>
             </div>
+
+            {/* Insufficient Balance Modal */}
+            {showBalanceModal && (
+                <div className="fixed inset-0 z-[2000] flex items-end md:items-center justify-center bg-slate-900/40 backdrop-blur-xl p-0 md:p-6 animate-in fade-in duration-300">
+                    <div className="w-full max-w-[500px] bg-white rounded-t-[3rem] md:rounded-[3rem] p-8 md:p-12 space-y-10 animate-in slide-in-from-bottom-10 duration-500 relative">
+                        <button onClick={() => setShowBalanceModal(false)} className="absolute top-8 right-8 w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-400">
+                            <X size={24} />
+                        </button>
+
+                        <div className="space-y-2">
+                            <p className="text-[11px] font-black text-rose-500 uppercase tracking-[0.4em] leading-none mb-2">Insufficient Balance</p>
+                            <h2 className="text-[32px] md:text-[40px] font-black text-slate-900 tracking-tighter leading-tight italic">Low Credits! 💸</h2>
+                            <p className="text-sm text-slate-400 font-medium italic">Additional ₹{balanceGap} credits required to initiate this consultation.</p>
+                        </div>
+
+                        {/* Math Breakdown */}
+                        <div className="p-8 rounded-[3rem] bg-slate-50 border border-slate-100 space-y-4">
+                            <div className="flex justify-between items-center px-2">
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                    <TrendingUp size={12} /> Wallet Balance
+                                </span>
+                                <span className="text-lg font-black text-slate-600">₹{user?.creditBalance || 0}</span>
+                            </div>
+                            <div className="flex justify-between items-center px-2">
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                    <Zap size={12} /> Plan Price
+                                </span>
+                                <span className="text-lg font-black text-slate-900">₹{selectedPlan?.price}</span>
+                            </div>
+                            <div className="h-px bg-slate-200" />
+                            <div className="flex justify-between items-center px-2 pt-2">
+                                <span className="text-[11px] font-black text-indigo-600 uppercase tracking-widest">Amount to Pay</span>
+                                <span className="text-3xl font-black text-slate-900 italic tracking-tighter">₹{balanceGap}</span>
+                            </div>
+                        </div>
+
+                        <button 
+                            onClick={handlePayGap}
+                            disabled={initiating}
+                            className="w-full h-20 bg-slate-900 text-white rounded-3xl font-black text-[18px] uppercase tracking-[0.2em] shadow-2xl flex items-center justify-center gap-4 active:scale-95 transition-all"
+                        >
+                            {initiating ? 'Processing...' : (
+                                <>
+                                    Pay ₹{balanceGap} Now
+                                    <ArrowRight size={24} />
+                                </>
+                            )}
+                        </button>
+
+                        <p className="text-center text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                            <ShieldCheck size={12} className="inline mr-1 text-emerald-500" /> Secure Payment via PayU
+                        </p>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

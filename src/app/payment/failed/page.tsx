@@ -20,7 +20,7 @@ function FailedContent() {
         Payment Failed! 💔
       </h1>
       <p className="text-slate-500 font-medium italic mb-12">
-        Kripya ghabrayein nahi, agar paise kat gaye hain toh 24 ghante mein wapas aa jayenge.
+        Don't worry. If your account was debited, the amount will be automatically refunded within 24-48 hours.
       </p>
 
       <div className="w-full max-w-sm bg-rose-50/50 rounded-3xl border border-rose-100 p-8 space-y-4 mb-12">
@@ -28,7 +28,7 @@ function FailedContent() {
         <p className="text-[14px] text-rose-900 font-bold leading-relaxed italic">
           {error === 'hash_mismatch' 
             ? 'Security verification failed. Please try again from the app.' 
-            : 'Aapka transaction bank ki taraf se cancel ho gaya hai.'}
+            : 'The transaction was declined by your bank or the payment processor.'}
         </p>
         {txnid && (
           <p className="text-[10px] text-rose-400 font-mono">Reference: {txnid}</p>

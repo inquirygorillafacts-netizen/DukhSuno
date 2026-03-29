@@ -41,7 +41,7 @@ export async function POST(req: Request) {
     // 3. Get Platform Config (Centralized Commission)
     const { getPlatformConfig } = await import('@/lib/config-admin');
     const config = await getPlatformConfig();
-    const commissionRate = config.defaultCommissionRate || 0.02; // UPDATED FALLBACK TO 2%
+    const commissionRate = config.defaultCommissionRate || 0.10; // Updated to 10% as per user requirement
 
     // 4. Create Session (No pre-deduction, no pre-booked transaction)
     const session = {

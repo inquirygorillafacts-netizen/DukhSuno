@@ -14,24 +14,24 @@ export default function WelcomeTour({ role, onClose }: WelcomeTourProps) {
 
   const slides = role === 'provider' ? [
     {
-      title: "Paisa Kamaein... ❤️",
-      description: "Dusro ki baatein sun kar aap mahine ke ₹20,000 se ₹30,000 tak kama sakte hain. Aaj hi shuru karein.",
+      title: "Scale Your Earnings 💎",
+      description: "Monetize your expertise and time by helping others. Earn sustainably while working on your own schedule.",
       icon: <Wallet size={32} className="text-emerald-500" />,
       tag: "EARNINGS",
       color: "bg-emerald-50",
       accent: "bg-emerald-500"
     },
     {
-      title: "Aapki Privacy, Hamara Vaada 🔒",
-      description: "BigSuno par aapka mobile number aur asli naam kabhi kisi ko nahi dikhaya jayega. Be-khauf baat karein.",
+      title: "Privacy First 🔒",
+      description: "Your identity and mobile number remain 100% confidential. Connect with complete peace of mind.",
       icon: <Shield size={32} className="text-indigo-500" />,
-      tag: "100% SECURE",
+      tag: "SECURE",
       color: "bg-indigo-50",
       accent: "bg-indigo-500"
     },
     {
-      title: "Bharat Ki Sabse Badi Community 🇮🇳",
-      description: "Hazaaroo log rozana BigSuno par sukoon paate hain. Aap bhi is nek kaam ka hissa banein.",
+      title: "Global Community 🌐",
+      description: "Join a network of thousands who rely on BigSuno for guidance and support. Be part of this noble journey.",
       icon: <Users size={32} className="text-rose-500" />,
       tag: "COMMUNITY",
       color: "bg-rose-50",
@@ -39,26 +39,26 @@ export default function WelcomeTour({ role, onClose }: WelcomeTourProps) {
     }
   ] : [
     {
-      title: "Dil Ki Har Baat Kahien 🛡️",
-      description: "Yahan aap bina kisi darr ke baat kar sakte hain. Aapka bharosa hamari sabse badi taqat hai.",
+      title: "Talk Anonymously 🛡️",
+      description: "A safe space to express yourself freely without fear of judgment. Your trust is our foundation.",
       icon: <Shield size={32} className="text-rose-500" />,
       tag: "SAFE SPACE",
       color: "bg-rose-50",
       accent: "bg-[#ff4d6d]"
     },
     {
-      title: "Bharat Ka Sabse Masoom App 🤝",
-      description: "Hazaroo log rozana sukoon ki talash mein yahan aate hain. Har bhasha aur har rajya ke dost milenge.",
+      title: "Verified Experts 🤝",
+      description: "Connect with certified professionals from diverse backgrounds, tailored to your specific needs.",
       icon: <Users size={32} className="text-indigo-500" />,
       tag: "MOST TRUSTED",
       color: "bg-indigo-50",
       accent: "bg-indigo-500"
     },
     {
-      title: "Sukoon Paane Ki Manzil ✨",
-      description: "Apne dil ka bojh halka karein aur khush rahein. BigSuno hamesha aapke saath hai.",
+      title: "Find Your Zen ✨",
+      description: "Offload your stress and find clarity. BigSuno is your dedicated companion for mental well-being.",
       icon: <Heart size={32} className="text-[#ff4d6d]" />,
-      tag: "HAPPY LIVES",
+      tag: "WELL-BEING",
       color: "bg-rose-50",
       accent: "bg-[#ff4d6d]"
     }
@@ -161,7 +161,7 @@ export default function WelcomeTour({ role, onClose }: WelcomeTourProps) {
               onClick={handleNext}
               className="w-full h-20 bg-slate-900 text-white rounded-[2rem] font-black text-[15px] shadow-2xl shadow-indigo-100 flex items-center justify-center gap-4 transition-all active:scale-95 group hover:bg-black uppercase tracking-[0.2em]"
            >
-              <span>{currentSlide === slides.length - 1 ? 'Chaliye Shuru Karein' : 'Agla Step'}</span>
+              <span>{currentSlide === slides.length - 1 ? 'Get Started' : 'Next Step'}</span>
               <ArrowRight size={22} className="group-hover:translate-x-1 transition-transform" />
            </button>
 

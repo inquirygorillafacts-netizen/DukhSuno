@@ -4,7 +4,7 @@ import * as admin from 'firebase-admin';
 
 /**
  * FINALIZES A CALL SESSION AND TRANSFERS FUNDS
- * Logic: 100% (Seeker Pays) -> 20% (Platform) + 80% (Provider Earns)
+ * Logic: 100% (Seeker Pays) -> 10% (Platform) + 90% (Provider Earns)
  */
 export async function POST(req: Request) {
   try {
@@ -33,8 +33,10 @@ export async function POST(req: Request) {
 
       if (!seekerSnap.exists || !providerSnap.exists) throw new Error('USERS_NOT_FOUND');
 
+      const { getPlatformConfig } = await import('@/lib/config-admin');
+      const config = await getPlatformConfig();
       const planPrice = Number(session.planPrice) || 0;
-      const commissionRate = 0.20; // 20% Platform Fee
+      const commissionRate = config.defaultCommissionRate || 0.10; // Dynamic rate from Admin
       const commissionAmount = Math.floor(planPrice * commissionRate);
       const providerAmount = planPrice - commissionAmount;
 

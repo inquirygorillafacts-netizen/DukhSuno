@@ -8,7 +8,7 @@ import { RatingModal } from '@/components/call/RatingModal';
 import { useCallStore } from '@/stores/call-store';
 import { useAuthStore } from '@/stores/auth-store';
 import { startCall, answerCall } from '@/lib/webrtc';
-import { doc, getDoc, onSnapshot, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Session, BigSunoUser } from '@/types';
 
@@ -80,11 +80,29 @@ export default function CallPage({ params }: { params: Promise<{ sessionId: stri
       try {
         setCallState('ringing');
 
+        // ─── 40s TIMEOUT LOGIC ───
+        const timeoutId = setTimeout(async () => {
+          if (useCallStore.getState().callState === 'ringing' || useCallStore.getState().callState === 'connecting') {
+            console.log("Call timed out after 40s.");
+            
+            // 1. Update status in Firestore
+            await updateDoc(doc(db, 'sessions', sessionId), {
+              status: 'timeout',
+              endedAt: serverTimestamp()
+            });
+
+            // 2. Alert and redirect
+            alert("The expert is currently unavailable. Please try again later or choose another available professional.");
+            router.replace('/seeker/home');
+          }
+        }, 40000); // 40 Seconds
+
         const onEmoji = (emoji: string) => setIncomingEmoji(emoji);
         const onConnected = async () => {
+          clearTimeout(timeoutId); // Stop timeout on connection
           setCallState('active');
           
-          // ─── Deduct Credits & Create Transaction (Atomic) ───
+          // ... rest of existing onConnected logic ...
           try {
             const { runTransaction, doc, collection, serverTimestamp } = await import('firebase/firestore');
             const { db } = await import('@/lib/firebase');
@@ -164,12 +182,12 @@ export default function CallPage({ params }: { params: Promise<{ sessionId: stri
 
           const data = await resp.json();
           if (data.error === 'RECIPIENT_BUSY') {
-            alert('Listener abhi doosri call पर hain. Kripya thodi der baad koshish karein.');
+            alert('The expert is currently on another call. Please try again in a few minutes.');
             router.replace('/seeker/home');
             return;
           }
           if (data.error === 'RECIPIENT_ON_HOLIDAY') {
-            alert('Ye aaj ke liye chhuti par hai 🌴. Kripya kisi aur ko call karein.');
+            alert('The expert is currently away or on leave 🌴. Please choose another available consultant.');
             router.replace('/seeker/home');
             return;
           }
@@ -211,9 +229,9 @@ export default function CallPage({ params }: { params: Promise<{ sessionId: stri
 
   const handleEndCallRequest = async (cutBy: 'speaker' | 'listener' | 'auto') => {
     if (cutBy === 'speaker') {
-      if (!confirm("Aapke paise lag chuke hain! Kya aap paka call kaatna chahte hain?")) return;
+      if (!confirm("This session has been billed. Are you sure you want to end the consultation?")) return;
     } else if (cutBy === 'listener') {
-      if (!confirm("Agar aap call kaatenge to transaction radd ho jayegi aur paise wapas chale jayenge. Kya aap paka call kaatna chahte hain?")) return;
+      if (!confirm("Ending this call will result in a full refund to the client. Do you wish to proceed?")) return;
       
       // Handle Refund & Void Transaction if Listener cuts
       try {

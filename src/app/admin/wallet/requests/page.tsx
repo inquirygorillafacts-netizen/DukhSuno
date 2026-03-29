@@ -38,7 +38,7 @@ export default function AdminWalletRequests() {
   const [selectedReq, setSelectedReq] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState<'pending' | 'completed' | 'rejected'>('pending');
-  const [commission, setCommission] = useState(2);
+  const [commission, setCommission] = useState(10); // Default to 10% as per user request
   const [stats, setStats] = useState({
      totalGross: 0,
      payuFees: 0,
@@ -47,11 +47,12 @@ export default function AdminWalletRequests() {
   });
 
   useEffect(() => {
-    // 1. Fetch Commission & Global Stats
-    const unsubConfig = onSnapshot(doc(db, 'config', 'platform'), (snap) => {
+    // 1. Fetch Commission & Global Stats from settings/platform
+    const unsubConfig = onSnapshot(doc(db, 'settings', 'platform'), (snap) => {
       if (snap.exists()) {
          const data = snap.data();
-         setCommission(data.commissionPercent || 2);
+         // Use defaultCommissionRate (fraction) and convert to percentage for UI
+         setCommission(Math.round((data.defaultCommissionRate || 0.10) * 100));
          setStats({
             totalGross: data.totalGrossEarned || 0,
             payuFees: (data.totalGrossEarned || 0) * 0.02,
@@ -85,7 +86,7 @@ export default function AdminWalletRequests() {
       await runTransaction(db, async (transaction) => {
         const reqRef = doc(db, 'withdrawals', requestId);
         const reqDoc = await transaction.get(reqRef);
-        const configRef = doc(db, 'config', 'platform');
+        const configRef = doc(db, 'settings', 'platform');
         
         if (!reqDoc.exists()) throw "Request not found!";
         const reqData = reqDoc.data();
@@ -251,7 +252,7 @@ export default function AdminWalletRequests() {
                   <h3 className="text-2xl font-black tracking-tighter italic">Platform Fee Logic</h3>
                </div>
                <p className="text-sm text-slate-400 font-medium italic">
-                  Aap yahan se apna global commission set kar sakte hain. PayU ki 2% fees katne ke baad jo bachega wo aapka saaf profit hoga.
+                  Set your global platform commission rate here. Your net profit is calculated after deducting the 2% PayU transaction fee.
                </p>
             </div>
 
@@ -275,7 +276,7 @@ export default function AdminWalletRequests() {
                      onChange={(e) => {
                         const val = parseInt(e.target.value);
                         setCommission(val);
-                        updateDoc(doc(db, 'config', 'platform'), { commissionPercent: val });
+                        updateDoc(doc(db, 'settings', 'platform'), { defaultCommissionRate: val / 100 });
                      }}
                      className="w-full h-3 bg-slate-100 rounded-full appearance-none cursor-pointer accent-slate-900 border border-white"
                   />

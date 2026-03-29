@@ -34,19 +34,19 @@ export const SPECIALTY_LABELS: Record<Specialty, string> = {
 };
 
 export const MOOD_TAGS = [
-  { id: 'general' as const, emoji: '😊', label: 'Theek' },
-  { id: 'loneliness' as const, emoji: '😔', label: 'Udaas' },
-  { id: 'stress' as const, emoji: '😤', label: 'Frustrated' },
+  { id: 'general' as const, emoji: '😊', label: 'Neutral' },
+  { id: 'loneliness' as const, emoji: '😔', label: 'Melancholy' },
+  { id: 'stress' as const, emoji: '😤', label: 'Stressed' },
   { id: 'anxiety' as const, emoji: '😰', label: 'Anxious' },
   { id: 'relationship' as const, emoji: '💔', label: 'Heartbroken' },
 ] as const;
 
 export const SORT_OPTIONS = [
-  { id: 'all', label: 'Sabke liye ⭐' },
+  { id: 'all', label: 'All Experts ⭐' },
   { id: 'top_rated', label: 'Top Rated 🏆' },
-  { id: 'cheapest', label: 'Sabse Sasta 💸' },
-  { id: 'newest', label: 'Naaye 🌱' },
-  { id: 'online', label: 'Online 🟢' },
+  { id: 'cheapest', label: 'Best Value 💸' },
+  { id: 'newest', label: 'New Arrival 🌱' },
+  { id: 'online', label: 'Active Now 🟢' },
 ] as const;
 
 // ─── Plan ───

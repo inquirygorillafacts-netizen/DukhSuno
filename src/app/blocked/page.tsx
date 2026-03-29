@@ -32,28 +32,28 @@ export default function BlockedPage() {
 
         {/* Text Content */}
         <h1 className="text-3xl font-black text-white mb-4 tracking-tight">
-          Aap Blocked Hain <br />
-          <span className="text-rose-500">Account Restricted</span>
+          Access Restricted <br />
+          <span className="text-rose-500">Account Suspended</span>
         </h1>
         
         <p className="text-slate-400 text-sm leading-relaxed mb-8 font-medium italic">
-          "Humne aapke account mein sandigdh gatividhi (suspicious activity) dekhi hai, isiliye aapka access temporarily rok diya gaya hai."
+          "We have detected unusual or suspicious activity associated with your account. As a result, your access has been temporarily restricted for security purposes."
         </p>
 
         <div className="bg-rose-500/5 border border-rose-500/10 rounded-2xl p-6 mb-10 text-left">
           <div className="flex items-center gap-3 mb-3">
              <ShieldAlert size={18} className="text-rose-500" />
-             <span className="text-xs font-black text-rose-500 uppercase tracking-widest">Suraksha Chetavani</span>
+             <span className="text-xs font-black text-rose-500 uppercase tracking-widest">Security Advisory</span>
           </div>
           <p className="text-xs text-slate-300 font-medium leading-relaxed">
-            Agar aapko lagta hai ki yeh galti se hua hai, toh kripya BigSuno Management se contact karein. Aapka screen data aur calling features freeze kar diye gaye hain.
+            If you believe this is an error, please contact BigSuno support immediately. Your profile data and communication features have been frozen until further notice.
           </p>
         </div>
 
         {/* Action Buttons */}
         <div className="flex flex-col gap-4">
           <a
-            href="https://wa.me/918302829465?text=Hello%20BigSuno%20Team,%20mera%20account%20block%20ho%20gaya%20hai.%20Kripya%20meri%20sadaayta%20karein."
+            href="https://wa.me/918302829465?text=Hello%20BigSuno%20Support,%20my%20account%20has%20been%20restricted.%20Please%20assist."
             target="_blank"
             rel="noopener noreferrer"
             className="w-full h-14 bg-emerald-500 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:bg-emerald-600 transition-all active:scale-95 shadow-xl shadow-emerald-500/20"

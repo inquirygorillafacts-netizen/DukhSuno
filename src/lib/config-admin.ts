@@ -13,13 +13,13 @@ export async function getPlatformConfig(): Promise<PlatformConfig> {
     }
     // Return defaults if not set
     return {
-      defaultCommissionRate: 0.02,
+      defaultCommissionRate: 0.10,
       minWithdrawalAmount: 99
     };
   } catch (err) {
     console.error('Error fetching platform config:', err);
     return {
-      defaultCommissionRate: 0.02,
+      defaultCommissionRate: 0.10,
       minWithdrawalAmount: 99
     };
   }

@@ -98,17 +98,17 @@ export function LoginSlider({ onClose, providerId }: { onClose: () => void, prov
 
                 <div className="space-y-2">
                    <h2 className="text-[32px] md:text-[36px] font-black text-slate-900 tracking-tighter leading-none uppercase italic">
-                     Dil ki Baat... <span className="text-rose-500">BigSuno</span>
+                     Welcome to <span className="text-rose-500">BigSuno</span>
                    </h2>
                    <div className="flex items-center justify-center gap-2">
                       <div className="h-px w-6 bg-slate-200" />
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Surakshit aur Gumnam Space</p>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Secure & Anonymous Space</p>
                       <div className="h-px w-6 bg-slate-200" />
                    </div>
                 </div>
 
                 <p className="text-slate-500 text-sm font-medium leading-relaxed italic px-4">
-                  "Kisko call karna hai? Bas ek step door hain aap. Be-khauf ho kar login karein."
+                  "You are just one step away from connecting with an expert. Login securely to continue."
                 </p>
             </div>
 
@@ -122,7 +122,7 @@ export function LoginSlider({ onClose, providerId }: { onClose: () => void, prov
                 {loading ? (
                   <div className="flex items-center gap-3">
                      <div className="w-6 h-6 border-4 border-slate-100 border-t-indigo-500 rounded-full animate-spin" />
-                     <span className="text-slate-400">Wait karein...</span>
+                     <span className="text-slate-400">Please wait...</span>
                   </div>
                 ) : (
                   <>
@@ -134,7 +134,7 @@ export function LoginSlider({ onClose, providerId }: { onClose: () => void, prov
                         <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                       </svg>
                     </div>
-                    <span>Google se Login Karein</span>
+                    <span>Continue with Google</span>
                   </>
                 )}
               </button>
@@ -149,7 +149,7 @@ export function LoginSlider({ onClose, providerId }: { onClose: () => void, prov
                        <p className="text-[11px] font-black text-slate-900 uppercase tracking-widest leading-none">Privacy Safe</p>
                        <Lock size={10} className="text-slate-300" />
                     </div>
-                    <p className="text-[10px] text-slate-400 font-bold tracking-tight uppercase">Aapki sari jaankari gumnam rakhi jayegi</p>
+                    <p className="text-[10px] text-slate-400 font-bold tracking-tight uppercase">Your consultation remains completely private</p>
                  </div>
               </div>
             </div>
