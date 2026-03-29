@@ -15,11 +15,12 @@ import {
   ChevronRight,
   MessageCircle,
   Clock,
-  HelpCircle
+  HelpCircle,
+  Zap
 } from 'lucide-react';
 import { SPECIALTY_LABELS } from '@/types';
 import React, { useState } from 'react';
-import PremiumQRModal from '@/components/shared/PremiumQRModal';
+import PremiumShareSheet from '@/components/shared/PremiumShareSheet';
 
 export default function SunneProfilePage() {
   const { user, logout } = useAuthStore();
@@ -116,11 +117,21 @@ export default function SunneProfilePage() {
 
       {/* Plans Section */}
       <div className="space-y-4">
-        <div className="flex justify-between items-center px-2">
-          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Consultation Plans</span>
-          <div className="flex gap-4">
-             <button onClick={() => router.push('/provider/profile/edit')} className="text-primary text-[10px] font-black uppercase tracking-widest hover:underline">Edit Profile</button>
-             <button onClick={() => alert('Plans Editing coming soon! 🚀')} className="text-[#ff4d6d] text-[10px] font-black uppercase tracking-widest hover:underline">Edit Plans</button>
+        <div className="flex justify-between items-center px-4">
+          <span className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">Consultation Plans</span>
+          <div className="flex gap-6">
+             <button 
+                onClick={() => router.push('/provider/profile/edit')} 
+                className="text-indigo-600 text-[10px] font-black uppercase tracking-widest hover:text-indigo-700 transition-colors"
+             >
+                Edit Profile
+             </button>
+             <button 
+                onClick={() => router.push('/provider/profile/plans')} 
+                className="text-[#ff4d6d] text-[10px] font-black uppercase tracking-widest hover:text-rose-600 transition-colors"
+             >
+                Edit Plans
+             </button>
           </div>
         </div>
         <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide">
@@ -188,24 +199,10 @@ export default function SunneProfilePage() {
         </div>
       </div>
 
-      {/* Role Switcher */}
-      <button onClick={() => router.push('/select-role')} className="w-full p-4 rounded-2xl bg-indigo-50/50 border border-indigo-100 flex items-center justify-between group">
-         <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
-               <User size={20} className="text-indigo-500" />
-            </div>
-            <div className="text-left">
-               <h4 className="font-bold text-sm leading-tight uppercase tracking-tighter">Become a Client</h4>
-               <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Connect with our consultants</p>
-            </div>
-         </div>
-         <ChevronRight size={16} className="text-indigo-300 group-hover:translate-x-1 transition-transform" />
-      </button>
-
       {/* Settings Button (for mobile users) */}
       <button 
          onClick={() => router.push('/provider/settings')} 
-         className="w-full p-4 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between group hover:bg-slate-100 transition-all"
+         className="w-full p-4 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between group hover:bg-slate-100 transition-all shadow-sm"
       >
          <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
@@ -225,12 +222,12 @@ export default function SunneProfilePage() {
           <LogOut size={18} strokeWidth={3} /> Logout Session
         </button>
         <div className="mt-8 flex items-center justify-center gap-2 text-[10px] font-black text-slate-300 uppercase tracking-[0.5em]">
-           <Heart size={10} className="fill-current text-[#ff4d6d]/40" /> BIGSUNO v3.0
+           <Zap size={10} className="fill-current text-[#ff4d6d]/40" /> BIGSUNO v3.0
         </div>
       </div>
 
-      {/* PREMIUM QR MODAL */}
-      <PremiumQRModal 
+      {/* PREMIUM SHARE SHEET (Replaces old Modal) */}
+      <PremiumShareSheet 
         isOpen={showQr}
         onClose={() => setShowQr(false)}
         user={user}

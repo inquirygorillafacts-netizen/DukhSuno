@@ -86,8 +86,8 @@ export default function LoginPage() {
       </div>
 
       <div className="w-full max-w-[420px] glass bg-white/70 rounded-[3.5rem] p-12 shadow-2xl text-center relative z-10 animate-in fade-in zoom-in duration-500">
-        <div className="w-16 h-16 bg-slate-900 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-md border border-slate-50">
-          <Zap className="text-white fill-current w-8 h-8" />
+        <div className="w-16 h-16 bg-slate-900 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-md border border-slate-50 p-3">
+          <img src="/icons/image.png" alt="BigSuno" className="w-full h-full object-contain" />
         </div>
         
         <h1 className="text-4xl font-black tracking-tighter mb-2">

@@ -75,24 +75,8 @@ export default function SplashPage() {
         <div className="absolute bottom-[-5%] right-[-5%] w-[500px] h-[500px] bg-slate-100 rounded-full blur-[120px] animate-blob-delay" />
       </div>
 
-      <div className="flex flex-col items-center justify-center animate-in fade-in zoom-in duration-1000">
-          <div className="w-24 h-24 bg-slate-900 rounded-[2.5rem] flex items-center justify-center mb-8 shadow-2xl border-4 border-white p-4">
-             <img src="/logo.png" alt="BigSuno" className="w-full h-full object-contain animate-pulse" />
-          </div>
-          
-          <h1 className="text-5xl font-black tracking-tighter mb-4 text-slate-900">
-            Big<span className="text-indigo-600 italic font-serif">Suno</span>
-          </h1>
-          
-          <div className="flex items-center gap-4">
-             <div className="h-[2px] w-8 bg-slate-200" />
-             <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">Professional Space</p>
-             <div className="h-[2px] w-8 bg-slate-200" />
-          </div>
-
-          <div className="mt-12">
-            <Spinner size="md" />
-          </div>
+      <div className="flex flex-col items-center justify-center animate-in fade-in duration-500">
+         <Spinner size="lg" />
       </div>
 
       <RoleSelectionDrawer 

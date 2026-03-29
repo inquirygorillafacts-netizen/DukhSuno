@@ -37,7 +37,7 @@ export async function GET(req: Request) {
     } else if (sortBy === 'newest') {
       query = query.orderBy('createdAt', 'desc');
     } else {
-      query = query.orderBy('lastActive', 'desc');
+      query = query.orderBy('createdAt', 'desc');
     }
 
     // Pagination

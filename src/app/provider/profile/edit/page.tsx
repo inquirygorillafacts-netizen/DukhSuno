@@ -6,22 +6,23 @@ import { useRouter } from 'next/navigation';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { 
-    ArrowLeft, 
+    ChevronLeft, 
     Save, 
     User, 
     Sparkles, 
     Lock,
     CheckCircle2,
     Info,
-    Clock
+    Clock,
+    Camera
 } from 'lucide-react';
-import { Gender, Specialty } from '@/types';
+import { Gender } from '@/types';
 
 const GENDER_OPTIONS = [
-  { id: 'male', label: 'पुरुष' },
-  { id: 'female', label: 'महिला' },
-  { id: 'non-binary', label: 'अन्य' },
-  { id: 'prefer_not_to_say', label: 'बताना नहीं चाहते' },
+  { id: 'male', label: 'MALE' },
+  { id: 'female', label: 'FEMALE' },
+  { id: 'non-binary', label: 'NON-BINARY' },
+  { id: 'prefer_not_to_say', label: 'PRIVATE' },
 ];
 
 export default function SunneEditProfilePage() {
@@ -62,151 +63,162 @@ export default function SunneEditProfilePage() {
                 updatedAt: new Date(),
             };
 
-            // STRICT GENDER LOCK CHECK
             if (!user.isGenderLocked) {
                 updates.gender = formData.gender;
             }
 
             await updateDoc(userRef, updates);
             setUser({ ...user, ...updates });
-            alert('प्रोफ़ाइल अपडेट हो गई! ✨');
             router.push('/provider/profile');
         } catch (err) {
             console.error('Update failed:', err);
-            alert('क्षमा करें, कुछ गलती हो गई।');
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="max-w-2xl mx-auto space-y-8 animate-in fade-in duration-700 pb-20 px-4">
-            <div className="flex items-center justify-between">
-                <button 
-                  onClick={() => router.back()}
-                  className="p-3 bg-white rounded-2xl border border-slate-100 shadow-sm"
-                >
-                    <ArrowLeft size={20} />
-                </button>
-                <h1 className="text-xl font-black uppercase tracking-tighter">प्रोफ़ाइल एडिट करें</h1>
-                <button 
-                  onClick={handleSave}
-                  disabled={loading}
-                  className="px-6 py-3 bg-accent text-white rounded-2xl font-black text-[12px] uppercase tracking-widest shadow-lg shadow-accent/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
-                >
-                    {loading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <><Save size={16} /> ऑपडेट करें</>}
-                </button>
+        <div className="min-h-screen bg-slate-50/50 pb-20">
+            {/* Elite Action Header */}
+            <div className="sticky top-0 z-50 glass bg-white/80 backdrop-blur-xl border-b border-white shadow-sm">
+                <div className="max-w-2xl mx-auto px-4 h-20 flex items-center justify-between">
+                    <button 
+                        onClick={() => router.back()}
+                        className="w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-all"
+                    >
+                        <ChevronLeft size={24} />
+                    </button>
+                    
+                    <h1 className="text-sm font-black uppercase tracking-[0.3em] text-slate-900">
+                        Expert Profile
+                    </h1>
+
+                    <button 
+                        onClick={handleSave}
+                        disabled={loading}
+                        className="h-10 px-5 bg-indigo-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-indigo-200 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+                    >
+                        {loading ? (
+                            <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        ) : (
+                            <>SAVE CHANGES</>
+                        )}
+                    </button>
+                </div>
             </div>
 
-            <div className="space-y-6">
-                {/* Basic Info */}
-                <div className="glass bg-white p-8 rounded-[3rem] border border-white shadow-sm space-y-6">
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">नाम (Display Name)</label>
+            <div className="max-w-2xl mx-auto px-4 pt-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                
+                {/* Hero Section */}
+                <div className="relative mb-12">
+                    <div className="h-40 w-full bg-gradient-to-br from-indigo-50 to-rose-50 rounded-[2.5rem] border border-white shadow-inner animate-pulse duration-[4000ms]" />
+                    <div className="absolute -bottom-8 left-8 flex items-end gap-5">
+                        <div className="relative group">
+                            <div className="w-24 h-24 md:w-32 md:h-32 rounded-[2rem] border-4 border-white bg-white shadow-2xl overflow-hidden flex items-center justify-center">
+                                {user?.avatarUrl ? (
+                                    <img src={user.avatarUrl} alt="P" className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-300">
+                                        <User size={48} strokeWidth={1} />
+                                    </div>
+                                )}
+                            </div>
+                            <button className="absolute -bottom-2 -right-2 w-10 h-10 bg-white text-slate-900 rounded-2xl flex items-center justify-center border border-slate-100 shadow-xl hover:scale-110 transition-transform">
+                                <Camera size={18} />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Identity Cards */}
+                <div className="grid gap-6">
+                    {/* Display Name */}
+                    <div className="glass bg-white p-7 rounded-[2rem] border border-white shadow-sm hover:shadow-md transition-all">
+                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.4em] block mb-4 ml-1">Professional Display Name</label>
                         <input 
                             value={formData.displayName}
                             onChange={(e) => setFormData({...formData, displayName: e.target.value})}
-                            className="w-full h-14 px-6 rounded-2xl bg-slate-50 border border-slate-100 font-bold outline-none focus:ring-4 focus:ring-accent/10 transition-all"
+                            placeholder="Enter your professional name"
+                            className="w-full h-14 px-1 rounded-none bg-transparent border-b-2 border-slate-50 focus:border-indigo-500 font-bold text-lg outline-none transition-all placeholder:text-slate-200"
                         />
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">हेडलाइन (Headline)</label>
+                    {/* Headline */}
+                    <div className="glass bg-white p-7 rounded-[2rem] border border-white shadow-sm hover:shadow-md transition-all">
+                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.4em] block mb-4 ml-1">Profile Headline</label>
                         <input 
                             value={formData.headline}
                             onChange={(e) => setFormData({...formData, headline: e.target.value})}
-                            className="w-full h-14 px-6 rounded-2xl bg-slate-50 border border-slate-100 font-bold outline-none focus:ring-4 focus:ring-accent/10 transition-all"
+                            placeholder="Your professional bio tag"
+                            className="w-full h-14 px-1 rounded-none bg-transparent border-b-2 border-slate-50 focus:border-indigo-500 font-bold text-sm outline-none transition-all placeholder:text-slate-200"
                         />
                     </div>
-                </div>
 
-                {/* Bio */}
-                <div className="glass bg-white p-8 rounded-[3rem] border border-white shadow-sm">
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">आपके बारे में (Bio)</label>
+                    {/* Long Bio */}
+                    <div className="glass bg-white p-7 rounded-[2.5rem] border border-white shadow-sm hover:shadow-md transition-all">
+                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.4em] block mb-4 ml-1">Detailed Introduction</label>
                         <textarea 
                             value={formData.bio}
-                            rows={5}
+                            rows={6}
                             onChange={(e) => setFormData({...formData, bio: e.target.value})}
-                            className="w-full p-6 rounded-2xl bg-slate-50 border border-slate-100 font-bold outline-none focus:ring-4 focus:ring-accent/10 transition-all resize-none"
+                            placeholder="Describe your expertise..."
+                            className="w-full p-1 rounded-none bg-transparent border-none font-medium text-sm outline-none resize-none leading-relaxed placeholder:text-slate-200"
                         />
                     </div>
+
+                    {/* Gender Selection */}
+                    <div className="glass bg-white p-7 rounded-[2.5rem] border border-white shadow-sm hover:shadow-md transition-all">
+                        <div className="flex items-center justify-between mb-6">
+                            <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.4em] ml-1">Identity Recognition</label>
+                            {user?.isGenderLocked && (
+                                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 text-white rounded-xl text-[8px] font-black uppercase tracking-widest">
+                                    <Lock size={10} /> VERIFIED
+                                </div>
+                            )}
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                            {GENDER_OPTIONS.map((g) => (
+                                <button
+                                    key={g.id}
+                                    disabled={user?.isGenderLocked}
+                                    onClick={() => setFormData({...formData, gender: g.id as any})}
+                                    className={`h-14 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                                        formData.gender === g.id 
+                                        ? 'bg-slate-900 text-white shadow-xl scale-[1.02]' 
+                                        : 'bg-slate-50 border border-slate-100 text-slate-400 hover:text-slate-900'
+                                    } ${user?.isGenderLocked ? 'opacity-50 contrast-75 cursor-not-allowed' : ''}`}
+                                >
+                                    {g.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Age */}
+                    <div className="glass bg-white p-7 rounded-[2rem] border border-white shadow-sm hover:shadow-md transition-all">
+                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.4em] block mb-4 ml-1">Expert Age</label>
+                        <div className="flex items-center gap-4">
+                            <input 
+                                type="number"
+                                value={formData.age}
+                                onChange={(e) => setFormData({...formData, age: Number(e.target.value)})}
+                                className="w-20 h-14 text-center rounded-2xl bg-slate-50 border border-slate-100 font-bold text-xl outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all"
+                            />
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest underline decoration-indigo-500/30 underline-offset-4">Years Old</p>
+                        </div>
+                    </div>
                 </div>
 
-                {/* PHONE LOCK SECTION */}
-                <div className="glass bg-white p-8 rounded-[3rem] border border-white shadow-sm relative overflow-hidden group">
-                    <div className="flex items-center justify-between mb-6">
-                        <div className="space-y-1">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">फ़ोन वेरिफिकेशन</label>
-                            <p className="text-[11px] text-slate-500 font-medium px-2">वेरिफाइड फ़ोन आपकी सुरक्षा के लिए है।</p>
-                        </div>
-                        {user?.isVerified ? (
-                            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-success/5 text-success rounded-xl text-[10px] font-black uppercase tracking-widest border border-success/10 shadow-sm">
-                                <CheckCircle2 size={12} strokeWidth={3} /> वेरिफाइड
-                            </div>
-                        ) : (
-                            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 text-amber-600 rounded-xl text-[10px] font-black uppercase tracking-widest border border-amber-100 shadow-sm">
-                                <Clock size={12} strokeWidth={3} /> पेंडिंग
-                            </div>
-                        )}
+                {/* Verification Meta */}
+                <div className="p-8 rounded-[3rem] bg-indigo-50 border border-indigo-100/50 flex items-center justify-between group overflow-hidden relative">
+                    <div className="relative z-10">
+                        <p className="text-[10px] font-black text-indigo-900 uppercase tracking-widest mb-1">Platform Security</p>
+                        <p className="text-xs font-bold text-indigo-400">{user?.phoneNumber || 'Identity Secured'}</p>
                     </div>
-                    
-                    <div className="px-6 h-14 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between opacity-70">
-                        <span className="font-black text-slate-400 text-[16px] tracking-widest">{user?.phoneNumber || 'No Number'}</span>
-                        <Lock size={16} className="text-slate-300" />
+                    <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-indigo-500 shadow-sm relative z-10">
+                        <CheckCircle2 size={24} />
                     </div>
-                </div>
-
-                {/* GENDER LOCK SECTION */}
-                <div className="glass bg-white p-8 rounded-[3rem] border border-white shadow-sm relative overflow-hidden group">
-                    <div className="flex items-center justify-between mb-6">
-                        <div className="space-y-1">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">जेंडर (Gender)</label>
-                            <p className="text-[11px] text-slate-500 font-medium px-2">वेरिफाइड जेंडर से भरोसा बढ़ता है।</p>
-                        </div>
-                        {user?.isGenderLocked && (
-                            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-widest border border-rose-100 shadow-sm">
-                                <Lock size={12} strokeWidth={3} /> लॉक (Locked)
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                        {GENDER_OPTIONS.map((g) => (
-                            <button
-                                key={g.id}
-                                disabled={user?.isGenderLocked}
-                                onClick={() => setFormData({...formData, gender: g.id as any})}
-                                className={`h-14 rounded-2xl text-[12px] font-black uppercase tracking-widest transition-all ${
-                                    formData.gender === g.id 
-                                    ? 'bg-accent text-white shadow-lg shadow-accent/20 scale-[1.02]' 
-                                    : 'bg-slate-50 border border-slate-100 text-slate-400 hover:text-slate-900'
-                                } ${user?.isGenderLocked ? 'opacity-50 cursor-not-allowed contrast-75' : ''}`}
-                            >
-                                {g.label}
-                                {user?.isGenderLocked && formData.gender === g.id && <CheckCircle2 size={12} className="inline ml-2 fill-current" />}
-                            </button>
-                        ))}
-                    </div>
-
-                    {user?.isGenderLocked && (
-                        <div className="mt-6 p-4 rounded-2xl bg-slate-900 text-white flex items-center gap-3 animate-in slide-in-from-top-2">
-                            <Info size={16} className="text-amber-400" />
-                            <p className="text-[10px] font-bold leading-tight uppercase tracking-wider">
-                                आपका जेंडर एडमिन द्वारा वेरीफाई कर दिया गया है। अब ये बदला नहीं जा सकता।
-                            </p>
-                        </div>
-                    )}
-                </div>
-
-                <div className="space-y-2 px-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">आपकी उम्र (Age)</label>
-                    <input 
-                        type="number"
-                        value={formData.age}
-                        onChange={(e) => setFormData({...formData, age: Number(e.target.value)})}
-                        className="w-24 h-14 text-center rounded-2xl bg-white border border-slate-100 font-black text-xl outline-none focus:ring-4 focus:ring-accent/10 transition-all shadow-sm"
-                    />
+                    <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-indigo-100 rounded-full blur-3xl group-hover:bg-indigo-200 transition-colors" />
                 </div>
             </div>
         </div>

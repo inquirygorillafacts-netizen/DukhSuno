@@ -115,11 +115,8 @@ export default function WalletPage() {
             </div>
             <div className="flex-1 text-center md:text-left">
                <h4 className="text-lg md:text-xl font-black leading-none mb-1 uppercase tracking-tighter italic">Financial Security</h4>
-               <p className="text-[9px] md:text-sm text-slate-500 font-medium leading-relaxed">Your credits are secure and never expire.</p>
+               <p className="text-[9px] md:text-sm text-slate-500 font-medium leading-relaxed">Your credits are secure, anonymous, and never expire.</p>
             </div>
-            <button className="bg-slate-900 text-white px-6 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-slate-800 transition-all shadow-xl active:scale-95">
-               Support
-            </button>
          </div>
       </div>
 

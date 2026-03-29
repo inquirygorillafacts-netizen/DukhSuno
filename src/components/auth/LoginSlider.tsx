@@ -87,7 +87,7 @@ export function LoginSlider({ onClose, providerId }: { onClose: () => void, prov
             <div className="text-center space-y-6">
                 <div className="relative inline-block">
                    <div className="w-20 h-20 bg-slate-900 rounded-[2rem] flex items-center justify-center mx-auto shadow-inner border-4 border-white relative z-10 p-4">
-                      <img src="/logo.png" alt="BigSuno" className="w-full h-full object-contain animate-pulse" />
+                      <img src="/icons/image.png" alt="BigSuno" className="w-full h-full object-contain animate-pulse" />
                    </div>
                    <motion.div 
                       animate={{ rotate: 360 }}

@@ -6,7 +6,7 @@ import {
   X, HelpCircle, ChevronDown, ChevronUp, MessageCircle, 
   Users, Shield, PhoneCall, IndianRupee, Star,
   Wallet, CheckCircle2, Zap, User, TrendingUp, Image, Wifi, Info,
-  Sparkles
+  Sparkles, Lock, BadgeCheck, Clock
 } from 'lucide-react';
 
 interface SupportSheetProps {
@@ -15,78 +15,78 @@ interface SupportSheetProps {
 
 const FAQS = [
   { 
-    q: "कमाई कैसे शुरू करें?", 
-    a: "बस अपने डैशबोर्ड पर 'Online' बटन को ऑन करें। जैसे ही कोई यूजर कॉल करेगा, आपकी कमाई शुरू हो जाएगी।",
-    icon: <IndianRupee className="text-emerald-500" size={18} />
+    q: "How do I start a consultation?", 
+    a: "Browse the home screen to find an expert that fits your needs. Click the 'Call Now' button to start an instant, secure voice consultation.",
+    icon: <PhoneCall className="text-emerald-500" size={18} />
   },
   { 
-    q: "पेमेंट कब मिलती है?", 
-    a: "आपकी कमाई आपके वॉलेट में तुरंत जुड़ जाती है। आप इसे 24 घंटे के भीतर अपने बैंक अकाउंट या UPI में विड्रॉल कर सकते हैं।",
-    icon: <Wallet className="text-amber-500" size={18} />
-  },
-  { 
-    q: "क्या मेरा नंबर सुरक्षित है?", 
-    a: "जी हाँ, 100%। BigSuno पर आपकी पहचान और मोबाइल नंबर पूरी तरह से गुप्त रहता है। यूजर को सिर्फ आपका गुप्त नाम दिखता है।",
+    q: "Is my identity completely safe?", 
+    a: "Absolutely. BigSuno is built on 100% anonymity. Experts only see your chosen avatar and alias. Your real name and number are never revealed.",
     icon: <Shield className="text-rose-500" size={18} />
   },
   { 
-    q: "प्राइसिंग कैसे बदलें?", 
-    a: "प्रोफाइल सेक्शन में 'Edit Pricing' बटन पर क्लिक करके आप अपनी सुविधा अनुसार प्रति मिनट रेट बदल सकते हैं।",
-    icon: <Star className="text-indigo-500" size={18} />
+    q: "How do I recharge my wallet?", 
+    a: "Navigate to the 'Wallet' section and click 'Add Credits'. You can securely pay via UPI, Credit/Debit cards, or Net Banking.",
+    icon: <Wallet className="text-amber-500" size={18} />
   },
   { 
-    q: "यूजर गाली दे तो क्या करें?", 
-    a: "कॉल के दौरान या बाद में आप यूजर को 'Report & Block' कर सकते हैं। हमारी टीम तुरंत उस पर एक्शन लेगी।",
-    icon: <PhoneCall className="text-rose-400" size={18} />
-  },
-  { 
-    q: "वेरिफ़ाइड लिसनर कैसे बनें?", 
-    a: "आपकी पहली 50 कॉल्स और 4.5+ रेटिंग होने पर ऑटोमैटिकली आपके प्रोफाइल पर ब्लू टिक (Verified Badge) आ जाएगा।",
-    icon: <CheckCircle2 className="text-blue-500" size={18} />
-  },
-  { 
-    q: "सक्सेस रेट क्या है?", 
-    a: "यह दर्शाता है कि आपने कितनी कॉल्स अटेंड की हैं। हाई सक्सेस रेट मतलब ज्यादा कॉल्स और ज्यादा कमाई!",
-    icon: <Zap className="text-amber-400" size={18} />
-  },
-  { 
-    q: "एक साथ दो रोल कैसे यूज़ करें?", 
-    a: "आप सेटिंग्स में जाकर 'Switch Role' कर सकते हैं। इससे आप सुनने वाले और सुनाने वाले, दोनों बन सकते हैं।",
-    icon: <User className="text-slate-500" size={18} />
-  },
-  { 
-    q: "कॉल्स कैसे बढ़ाएं?", 
-    a: "अपनी हेडलाइन और बायो को अट्रैक्टिव बनाएं और ज्यादा समय ऑनलाइन रहें। इससे आपकी विजिबिलिटी बढ़ेगी।",
-    icon: <TrendingUp className="text-emerald-400" size={18} />
-  },
-  { 
-    q: "मिनिमम विड्रॉल कितना है?", 
-    a: "आप कम से कम ₹100 होने पर विड्रॉल रिक्वेस्ट डाल सकते हैं।",
-    icon: <IndianRupee className="text-emerald-600" size={18} />
-  },
-  { 
-    q: "प्रोफाइल फोटो कैसे बदलें?", 
-    a: "प्रोफाइल एडिट में जाकर 'Change Photo' पर क्लिक करें। आप गैलरी से अपनी फोटो या अवतार चुन सकते हैं।",
-    icon: <Image className="text-slate-400" size={18} />
-  },
-  { 
-    q: "इंटरनेट स्लो हो तो क्या करें?", 
-    a: "अच्छी क्वालिटी की कॉल के लिए कम से कम 4G या वाईफाई का इस्तेमाल करें। स्लो नेट पर कॉल ड्रॉप हो सकती है।",
+    q: "What if the call gets disconnected?", 
+    a: "Don't worry. Our system tracks exact seconds. You are only billed for the actual duration connected. Any unused balance remains in your wallet.",
     icon: <Wifi className="text-indigo-400" size={18} />
   },
   { 
-    q: "लिसनर कम्युनिटी कैसे ज्वाइन करें?", 
-    a: "नीचे दिए गए 'Join Community' बटन पर क्लिक करके हमारे एक्सक्लूसिव टेलीग्राम/व्हाट्सएप ग्रुप से जुड़ें।",
-    icon: <Users className="text-emerald-500" size={18} />
+    q: "How do you verify the experts?", 
+    a: "Every provider undergoes a multi-step verification process, including expertise checks and identity validation, to ensure high-quality guidance.",
+    icon: <CheckCircle2 className="text-blue-500" size={18} />
   },
   { 
-    q: "प्लेटफॉर्म के नियम क्या हैं?", 
-    a: "यूजर के साथ सम्मान से बात करें, अपनी कोई भी पर्सनल जानकारी शेयर न करें और कॉल के बाहर पेमेंट न मांगें।",
+    q: "Can I report unprofessional behavior?", 
+    a: "Yes. We maintain a zero-tolerance policy. You can report and block any user immediately during or after a call through the call menu.",
     icon: <Info className="text-rose-400" size={18} />
   },
   { 
-    q: "सपोर्ट टीम से कैसे जुड़ें?", 
-    a: "किसी भी समस्या के लिए सीधे WhatsApp (8302829465) पर मैसेज करें। हम आपकी मदद के लिए हमेशा तैयार हैं।",
+    q: "Are my voice calls recorded?", 
+    a: "No. BigSuno respects absolute privacy. We do not record, listen to, or store any part of your private voice consultations.",
+    icon: <Lock className="text-slate-500" size={18} />
+  },
+  { 
+    q: "How do I update my profile?", 
+    a: "Go to your Profile page. You can change your display name and select a professional avatar that represents your personality.",
+    icon: <User className="text-indigo-500" size={18} />
+  },
+  { 
+    q: "Can I use the app on my iPhone?", 
+    a: "Yes! BigSuno is a Progressive Web App (PWA). Just open bigsuno.app in Safari, tap 'Share', and select 'Add to Home Screen'.",
+    icon: <Zap className="text-amber-400" size={18} />
+  },
+  { 
+    q: "How do I check my call history?", 
+    a: "The 'History' tab in the bottom navigation provides a detailed log of your past consultations, durations, and credits spent.",
+    icon: <Clock className="text-slate-400" size={18} />
+  },
+  { 
+    q: "Is there a minimum recharge amount?", 
+    a: "The minimum recharge amount is currently set at ₹100 to ensure you have enough balance for a meaningful consultation.",
+    icon: <IndianRupee className="text-emerald-600" size={18} />
+  },
+  { 
+    q: "How do I become a Provider?", 
+    a: "If you have expertise to share, click 'Become a Provider' in your profile settings. You'll need to complete a separate onboarding process.",
+    icon: <Star className="text-amber-500" size={18} />
+  },
+  { 
+    q: "Are my financial details safe?", 
+    a: "We use top-tier, SSL-encrypted payment gateways. BigSuno never stores your card or bank account details on our servers.",
+    icon: <Shield className="text-emerald-500" size={18} />
+  },
+  { 
+    q: "What are 'Verified' badges?", 
+    a: "Experts with high ratings and consistent positive feedback are awarded the Blue Verified checkmark for their exceptional service.",
+    icon: <BadgeCheck className="text-blue-400" size={18} />
+  },
+  { 
+    q: "How to reach Official Support?", 
+    a: "For immediate assistance, click the WhatsApp button at the bottom of this screen or message us at +91-8302829465.",
     icon: <MessageCircle className="text-emerald-500" size={18} />
   }
 ];

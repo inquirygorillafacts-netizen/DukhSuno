@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { adminDb, adminRtdb } from '@/lib/firebase-admin';
+import { adminDb, adminRtdb, FieldValue } from '@/lib/firebase-admin';
 import { getAppConfig } from '@/lib/config';
 
 export async function POST(req: Request) {
@@ -49,13 +49,8 @@ export async function POST(req: Request) {
         const userDoc = await userRef.get();
         if (userDoc.exists) {
           const userData = userDoc.data() || {};
-          const currentBalance = userData.creditBalance || userData.availableBalance || userData.balance || 0;
-          const newBalance = Number(currentBalance) + parseFloat(amount);
-          
           await userRef.update({
-            creditBalance: newBalance,
-            availableBalance: newBalance, // Sync for legacy readers
-            balance: newBalance,          // Sync for legacy readers
+            creditBalance: FieldValue.increment(parseFloat(amount)),
             updatedAt: new Date(),
           });
           

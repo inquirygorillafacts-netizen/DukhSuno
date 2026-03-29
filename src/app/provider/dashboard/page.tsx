@@ -141,6 +141,28 @@ export default function SunneDashboardPage() {
     }
   };
 
+  const handleShare = async () => {
+    if (!user) return;
+    const shareUrl = `${window.location.origin}/p/${user.uid}`;
+    const shareData = {
+      title: `Consult with ${user.displayName} on BigSuno`,
+      text: `Connect with me for a professional, secure, and anonymous consultation on BigSuno. ✨`,
+      url: shareUrl,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.error('Share failed:', err);
+      }
+    } else {
+      // Fallback
+      navigator.clipboard.writeText(shareUrl);
+      alert('Profile Link Copied! ✨');
+    }
+  };
+
   return (
     <div className="space-y-6 animate-in fade-in duration-700 slide-in-from-bottom-2">
       {/* Live Toggle Section */}
@@ -185,7 +207,7 @@ export default function SunneDashboardPage() {
             </div>
             
             <button
-              onClick={() => setShowQR(true)}
+              onClick={handleShare}
               className="w-full h-16 bg-gradient-to-br from-white to-slate-50 border border-slate-100 rounded-2xl flex items-center justify-between px-6 group active:scale-95 transition-all shadow-sm"
             >
               <div className="flex items-center gap-4">

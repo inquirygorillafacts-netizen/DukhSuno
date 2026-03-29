@@ -192,7 +192,11 @@ export default function AdminVerificationPage() {
         verificationStatus: 'verified',
         isVerified: true,
         isGenderLocked: true,
+        isBlocked: false,      // NEW: Ensure not blocked
+        isAvailable: true,     // NEW: Ensure initially available
+        lastActive: new Date(), // NEW: Ensure visibility in Seeker Panel
         verifiedAt: new Date(),
+        roles: ['provider'],    // NEW: Ensure role is correct array
         twilioAccountId: state.twilioAccountId
       });
       // Clear local state

@@ -143,6 +143,10 @@ export default function SmartEarningOnboarding() {
             isProvider: true,
             availableBalance: 0,
             onboardingCompleted: true,
+            verificationStatus: 'pending', // CRITICAL: Shows up in Admin Verification
+            isVerified: false,
+            isBlocked: false,
+            lastActive: serverTimestamp(), // CRITICAL: Required for Seeker Panel Ordering
             providerStartedAt: serverTimestamp()
         };
         await updateDoc(userRef, updateData);
