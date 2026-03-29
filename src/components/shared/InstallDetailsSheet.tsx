@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Download, ShieldCheck, Zap, Heart, Sparkles, CheckCircle2 } from 'lucide-react';
+import { X, Download, ShieldCheck, Zap, Sparkles, CheckCircle2 } from 'lucide-react';
 import PWAInstall from './PWAInstall';
 
 interface InstallDetailsSheetProps {
@@ -109,9 +109,9 @@ export default function InstallDetailsSheet({ onClose }: InstallDetailsSheetProp
 
                 <div className="flex flex-col items-center gap-1 opacity-20 pt-2">
                    <div className="flex items-center gap-2">
-                      <Heart size={8} className="fill-current text-[#ff4d6d]" />
+                      <Sparkles size={8} className="fill-current text-[#ff4d6d]" />
                       <p className="text-[9px] text-slate-500 font-black uppercase tracking-[0.4em]">Designed for Performance</p>
-                      <Heart size={8} className="fill-current text-[#ff4d6d]" />
+                      <Sparkles size={8} className="fill-current text-[#ff4d6d]" />
                    </div>
                 </div>
              </div>

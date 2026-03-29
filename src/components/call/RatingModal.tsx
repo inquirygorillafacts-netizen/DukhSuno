@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Heart, Star, CheckCircle2, ArrowRight, X, Sparkles, 
+  Star, CheckCircle2, ArrowRight, X, Sparkles, 
   MessageCircle, Send, BadgeCheck 
 } from 'lucide-react';
 
@@ -194,9 +194,9 @@ export function RatingModal({ onSubmit, onSkip }: RatingModalProps) {
 
               <div className="pt-4 flex flex-col items-center gap-4 opacity-40">
                  <div className="flex items-center gap-2">
-                    <Heart size={10} className="fill-current text-[#ff4d6d]" />
+                    <Star size={10} className="fill-current text-amber-400" />
                     <span className="text-[9px] font-black uppercase tracking-[0.4em]">BigSuno Quality Check</span>
-                    <Heart size={10} className="fill-current text-[#ff4d6d]" />
+                    <Star size={10} className="fill-current text-amber-400" />
                  </div>
               </div>
             </motion.div>

@@ -6,8 +6,7 @@ import {
   X, HelpCircle, ChevronDown, ChevronUp, MessageCircle, 
   Users, Shield, PhoneCall, IndianRupee, Star,
   Wallet, CheckCircle2, Zap, User, TrendingUp, Image, Wifi, Info,
-  Sparkles,
-  Heart
+  Sparkles
 } from 'lucide-react';
 
 interface SupportSheetProps {
@@ -221,7 +220,7 @@ export default function SupportSheet({ onClose }: SupportSheetProps) {
                   BigSuno v3.0 Official Support
                 </p>
                 <div className="flex items-center gap-2 text-rose-500/30">
-                   <Heart size={8} className="fill-current" />
+                   <Sparkles size={8} className="fill-current" />
                 </div>
              </div>
           </div>

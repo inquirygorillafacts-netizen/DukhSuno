@@ -138,6 +138,22 @@ export default function WalletPage() {
     }
   };
 
+  const handleDeleteQr = async () => {
+    if (!user || !window.confirm("Are you sure you want to delete your payout QR? You won't be able to withdraw until you upload a new one.")) return;
+    setUploading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        paymentQrUrl: ''
+      });
+      setQrPreview(null);
+      setQrFile(null);
+    } catch (err) {
+      setErrorMsg('Failed to delete QR.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleWithdrawRequest = async () => {
     const amount = parseFloat(withdrawAmount);
     if (!user || isNaN(amount) || amount < minWithdrawalAmount) {
@@ -284,15 +300,18 @@ export default function WalletPage() {
 
       {/* QR Status Reminder if not set */}
       {!(user as any)?.paymentQrUrl && (
-         <div onClick={() => setShowSetup(true)} className="p-6 rounded-3xl bg-amber-50 border border-amber-100 flex items-center gap-4 cursor-pointer hover:bg-amber-100 transition-colors">
-            <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-amber-500 shadow-sm shrink-0">
-               <QrCode size={24} />
+         <div onClick={() => setShowSetup(true)} className="p-8 rounded-[2.5rem] bg-rose-50 border border-rose-100 flex items-center gap-6 cursor-pointer hover:bg-rose-100 transition-all shadow-sm active:scale-[0.99] group">
+            <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-rose-500 shadow-lg group-hover:scale-110 transition-transform shrink-0">
+               <QrCode size={32} />
             </div>
             <div className="flex-1">
-               <p className="text-[14px] font-black text-amber-900 leading-tight">Payment Setup Missing!</p>
-               <p className="text-[12px] text-amber-600 font-medium italic">Please upload your payment QR to start receiving funds.</p>
+               <p className="text-[11px] font-black text-rose-400 uppercase tracking-[0.3em] leading-none mb-2">Security Action Required</p>
+               <p className="text-[18px] font-black text-rose-950 leading-tight">Setup Payment Method</p>
+               <p className="text-[12px] text-rose-600 font-medium italic mt-1">Upload your UPI QR code to enable secure withdrawals to your account.</p>
             </div>
-            <ChevronRight size={20} className="text-amber-300" />
+            <div className="w-10 h-10 bg-rose-200/30 rounded-full flex items-center justify-center text-rose-500">
+               <ChevronRight size={20} />
+            </div>
          </div>
       )}
 
@@ -377,18 +396,18 @@ export default function WalletPage() {
       {/* Setup QR Overlay */}
       {showSetup && (
          <div className="fixed inset-0 z-[1200] flex items-end md:items-center justify-center bg-slate-900/40 backdrop-blur-xl p-0 md:p-6 animate-in fade-in duration-300">
-            <div className="w-full max-w-[500px] bg-white rounded-t-[3rem] md:rounded-[3rem] p-8 md:p-12 space-y-10 animate-in slide-in-from-bottom-10 duration-500 relative">
-               <button onClick={() => setShowSetup(false)} className="absolute top-8 right-8 w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-400">
+            <div className="w-full max-w-[500px] bg-white rounded-t-[3rem] md:rounded-[3rem] p-8 md:p-12 space-y-8 animate-in slide-in-from-bottom-10 duration-500 relative">
+               <button onClick={() => { setShowSetup(false); setQrPreview(null); setQrFile(null); }} className="absolute top-8 right-8 w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-400">
                   <X size={24} />
                </button>
 
                <div className="space-y-2">
-                  <p className="text-[11px] font-black text-rose-500 uppercase tracking-[0.4em] leading-none mb-2">Setup Payments</p>
-                  <h2 className="text-[32px] md:text-[40px] font-black text-slate-900 tracking-tighter leading-tight italic">Scan to Pay QR 📸</h2>
-                  <p className="text-sm text-slate-400 font-medium italic">Apna PhonePe, GPay ya Paytm QR upload karein taki admin aapko payment kar sake.</p>
+                  <p className="text-[11px] font-black text-indigo-500 uppercase tracking-[0.4em] leading-none mb-2">Withdrawal Settings</p>
+                  <h2 className="text-[32px] md:text-[40px] font-black text-slate-900 tracking-tighter leading-tight italic">Payout Method 📸</h2>
+                  <p className="text-sm text-slate-400 font-medium italic">Manage your UPI QR code to receive payments from the administration.</p>
                </div>
 
-               <div className="relative group cursor-pointer" onClick={() => !uploading && document.getElementById('qr-input')?.click()}>
+               <div className="relative group">
                   <input 
                      id="qr-input" 
                      type="file" 
@@ -402,16 +421,36 @@ export default function WalletPage() {
                         }
                      }} 
                   />
-                  {qrPreview ? (
-                     <div className="relative rounded-[3rem] overflow-hidden border-4 border-slate-100 shadow-2xl">
-                        <img src={qrPreview} className="w-full aspect-square object-cover" alt="QR Preview" />
-                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                           <p className="text-white font-black uppercase text-xs tracking-widest">Change Image</p>
+                  
+                  {qrPreview || (user as any)?.paymentQrUrl ? (
+                     <div className="space-y-6">
+                        <div className="relative rounded-[3rem] overflow-hidden border-4 border-slate-100 shadow-2xl aspect-square">
+                           <img src={qrPreview || (user as any)?.paymentQrUrl} className="w-full h-full object-cover" alt="QR Preview" />
+                           <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                              <button 
+                                 onClick={() => document.getElementById('qr-input')?.click()}
+                                 className="bg-white text-slate-900 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:bg-indigo-500 hover:text-white transition-all transform hover:scale-110"
+                              >
+                                 <Upload size={16} /> Change Image
+                              </button>
+                           </div>
                         </div>
+                        
+                        {!qrFile && (user as any)?.paymentQrUrl && (
+                           <button 
+                              onClick={handleDeleteQr}
+                              className="w-full py-4 rounded-2xl border-2 border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:border-rose-200 hover:text-rose-500 transition-all flex items-center justify-center gap-2"
+                           >
+                              <X size={14} /> Remove Current QR
+                           </button>
+                        )}
                      </div>
                   ) : (
-                     <div className="w-full aspect-square rounded-[3rem] border-4 border-dashed border-slate-100 bg-slate-50 flex flex-col items-center justify-center gap-4 transition-all group-hover:bg-rose-50 group-hover:border-rose-100">
-                        <div className="w-20 h-20 bg-white rounded-[2rem] flex items-center justify-center text-slate-200 group-hover:text-rose-400 group-hover:scale-110 shadow-inner transition-all">
+                     <div 
+                        onClick={() => !uploading && document.getElementById('qr-input')?.click()}
+                        className="w-full aspect-square rounded-[3rem] border-4 border-dashed border-slate-100 bg-slate-50 flex flex-col items-center justify-center gap-4 transition-all hover:bg-indigo-50 hover:border-indigo-100 cursor-pointer"
+                     >
+                        <div className="w-20 h-20 bg-white rounded-[2rem] flex items-center justify-center text-slate-200 hover:text-indigo-400 hover:scale-110 shadow-inner transition-all">
                            <ImageIcon size={40} />
                         </div>
                         <p className="text-[12px] font-black text-slate-400 uppercase tracking-widest">Upload your QR Image</p>
@@ -421,13 +460,15 @@ export default function WalletPage() {
 
                {errorMsg && <p className="text-rose-500 text-[11px] font-black text-center uppercase tracking-widest">{errorMsg}</p>}
 
-               <button 
-                  disabled={!qrFile || uploading}
-                  onClick={handleQrUpload}
-                  className="w-full h-20 bg-slate-900 text-white rounded-3xl font-black text-[18px] uppercase tracking-[0.2em] shadow-2xl shadow-slate-300 transition-all active:scale-[0.98] disabled:opacity-50"
-               >
-                  {uploading ? 'Uploading...' : 'Save QR Detail ✨'}
-               </button>
+               {qrFile && (
+                  <button 
+                     disabled={uploading}
+                     onClick={handleQrUpload}
+                     className="w-full h-20 bg-indigo-600 text-white rounded-3xl font-black text-[18px] uppercase tracking-[0.2em] shadow-2xl shadow-indigo-100 transition-all active:scale-[0.98] disabled:opacity-50"
+                  >
+                     {uploading ? 'Processing Image...' : 'Save New QR Details ✨'}
+                  </button>
+               )}
             </div>
          </div>
       )}

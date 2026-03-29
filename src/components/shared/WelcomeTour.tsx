@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Sparkles, Shield, Wallet, Users, ArrowRight, X, Phone, CheckCircle2, Star, Zap } from 'lucide-react';
+import { Sparkles, Shield, Wallet, Users, ArrowRight, X, Phone, CheckCircle2, Star, Zap } from 'lucide-react';
 
 interface WelcomeTourProps {
   role: 'provider' | 'seeker';
@@ -57,7 +57,7 @@ export default function WelcomeTour({ role, onClose }: WelcomeTourProps) {
     {
       title: "Find Your Zen ✨",
       description: "Offload your stress and find clarity. BigSuno is your dedicated companion for mental well-being.",
-      icon: <Heart size={32} className="text-[#ff4d6d]" />,
+      icon: <Sparkles size={32} className="text-[#ff4d6d]" />,
       tag: "WELL-BEING",
       color: "bg-rose-50",
       accent: "bg-[#ff4d6d]"

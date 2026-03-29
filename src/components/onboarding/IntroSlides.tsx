@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Heart, Sparkles, Star, ShieldCheck, Wallet, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Sparkles, Star, ShieldCheck, Wallet, ArrowRight, ArrowLeft } from 'lucide-react';
 
 interface Slide {
   id: number;

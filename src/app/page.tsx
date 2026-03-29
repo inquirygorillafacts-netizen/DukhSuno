@@ -9,7 +9,6 @@ import { useAuthStore } from '@/stores/auth-store';
 import RoleSelectionDrawer from '@/components/shared/RoleSelectionDrawer';
 import type { BigSunoUser, Role } from '@/types';
 import { Spinner } from '@/components/ui/spinner';
-import { Heart } from 'lucide-react';
 
 
 export default function SplashPage() {
@@ -77,8 +76,8 @@ export default function SplashPage() {
       </div>
 
       <div className="flex flex-col items-center justify-center animate-in fade-in zoom-in duration-1000">
-          <div className="w-24 h-24 bg-slate-900 rounded-[2.5rem] flex items-center justify-center mb-8 shadow-2xl border-4 border-white">
-             <Heart className="text-white fill-current w-12 h-12 animate-pulse" />
+          <div className="w-24 h-24 bg-slate-900 rounded-[2.5rem] flex items-center justify-center mb-8 shadow-2xl border-4 border-white p-4">
+             <img src="/logo.png" alt="BigSuno" className="w-full h-full object-contain animate-pulse" />
           </div>
           
           <h1 className="text-5xl font-black tracking-tighter mb-4 text-slate-900">

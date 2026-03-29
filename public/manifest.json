@@ -1,11 +1,11 @@
 {
   "name": "BigSuno",
   "short_name": "BigSuno",
-  "description": "Dil ki baat sune koi apna — Premium consultation & mentorship platform",
+  "description": "BigSuno: Professional Consulting & Mentorship Platform",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#FFFFFF",
-  "theme_color": "#FFFFFF",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
   "orientation": "portrait-primary",
   "icons": [
     {

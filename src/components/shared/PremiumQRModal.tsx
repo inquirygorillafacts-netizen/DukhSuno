@@ -11,7 +11,6 @@ import {
   Check, 
   Sparkles, 
   User, 
-  Heart, 
   ShieldCheck,
   Camera,
   QrCode
@@ -76,7 +75,7 @@ export default function PremiumQRModal({ isOpen, onClose, user }: PremiumQRModal
     // Icon (Simplified for canvas)
     ctx.font = 'bold 120px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText('❤️', 540, 290);
+    ctx.fillText('✨', 540, 290);
 
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 100px Arial';
@@ -253,7 +252,7 @@ export default function PremiumQRModal({ isOpen, onClose, user }: PremiumQRModal
 
               {/* Footer Trust */}
               <div className="flex items-center justify-center gap-2 text-[8px] font-bold uppercase tracking-[0.2em] text-slate-300">
-                 <Heart size={10} className="text-[#ff4d6d]/40" />
+                 <Sparkles size={10} className="text-[#ff4d6d]/40" />
                  <span>Consultation is 100% private</span>
               </div>
             </div>

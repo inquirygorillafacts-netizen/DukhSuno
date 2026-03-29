@@ -6,7 +6,7 @@ import { doc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/stores/auth-store';
 import type { Role } from '@/types';
-import { Heart, Phone, ChevronRight, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Zap, Phone, ChevronRight, CheckCircle2, ArrowRight } from 'lucide-react';
 import React from 'react';
 
 export default function SelectRolePage() {
@@ -60,8 +60,8 @@ export default function SelectRolePage() {
 
       <div className="w-full max-w-[480px] glass bg-white/70 rounded-[3.5rem] p-10 shadow-2xl space-y-10 animate-in fade-in slide-in-from-bottom-8">
         <div className="text-center space-y-4">
-           <div className="w-16 h-16 rounded-3xl glass bg-white flex items-center justify-center text-[#ff4d6d] mx-auto shadow-sm mb-6">
-              <Heart size={32} fill="currentColor" strokeWidth={0} />
+           <div className="w-20 h-20 bg-slate-900 rounded-3xl flex items-center justify-center mx-auto shadow-xl border-4 border-white p-3 mb-6">
+              <img src="/logo.png" alt="BigSuno" className="w-full h-full object-contain animate-bounce" />
            </div>
            <h1 className="text-3xl font-black tracking-tight">Choose Your Path ✨</h1>
            <p className="text-slate-500 text-sm font-medium italic">"BigSuno par aapka maqsad kya hai?"</p>
@@ -70,7 +70,7 @@ export default function SelectRolePage() {
         <div className="space-y-4">
           <RoleCard 
             selected={selected === 'seeker'}
-            icon={<Heart />} 
+            icon={<Zap />} 
             title="Seeker" 
             subtitle="I want to talk & share" 
             onClick={() => setSelected('seeker')} 

@@ -11,7 +11,7 @@ import {
   ShieldCheck, 
   MessageCircle,
   ChevronRight,
-  Heart
+  User as UserIcon
 } from 'lucide-react';
 import type { BigSunoUser } from '@/types';
 import { SPECIALTY_LABELS } from '@/types';
@@ -99,7 +99,7 @@ export function PublicProfileView({ provider }: { provider: BigSunoUser }) {
                   <Clock size={16} /> Joined {new Date(provider.registeredAt as any).getFullYear() || '2024'}
                 </div>
                 <div className="flex items-center gap-2">
-                  {provider.gender === 'female' ? <Heart size={16} fill="#ff4d6d" /> : <Phone size={16} />}
+                  <UserIcon size={16} className="text-slate-400" />
                   {provider.gender || 'Expert'}
                 </div>
               </div>

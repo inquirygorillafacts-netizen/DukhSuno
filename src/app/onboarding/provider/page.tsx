@@ -38,37 +38,25 @@ export default function SmartEarningOnboarding() {
     ]
   });
 
-  // BUG #5: 5 intro slides instead of 3
+  // 3 Professional Success Slides
   const slides = [
     {
-      title: 'Welcome to BigSuno Professional',
-      desc: 'Join our elite network of professional providers and offer your expertise to those in need.',
-      icon: <img src="/logo.png" alt="BigSuno" className="w-12 h-12 object-contain" />,
-      bullets: ['Professional Growth', 'Secure Payments', 'Verified Status']
+      title: 'Join the Elite Network',
+      desc: 'Connect with a global audience seeking your unique expertise and professional mentorship.',
+      icon: <div className="p-6 bg-indigo-50 rounded-full shadow-inner"><img src="/logo.png" alt="BigSuno" className="w-16 h-16 object-contain" /></div>,
+      bullets: ['Global Reach', 'Premium Branding', 'Corporate Standards']
     },
     {
-       title: 'Establish Your Presence',
-       desc: 'Set professional session rates and manage your consultant profile with ease.',
-       icon: <Wallet className="text-indigo-500 w-12 h-12" />,
-       bullets: ['Instant Payouts', 'Competitive Fees', 'Revenue Tracking']
+       title: 'Command Your Value',
+       desc: 'Set professional session rates that reflect your experience. Manage earnings with total transparency.',
+       icon: <div className="p-6 bg-indigo-50 rounded-full shadow-inner"><TrendingUp className="text-indigo-600 w-16 h-16" /></div>,
+       bullets: ['Instant Payouts', 'Dynamic Pricing', 'Revenue Analytics']
     },
     {
-       title: 'Build Corporate Trust',
-       desc: 'Enhance your professional standing through verified reviews and rankings.',
-       icon: <ShieldCheck className="text-indigo-600 w-12 h-12" />,
-       bullets: ['Identity Verification', 'Professional Badge', 'Priority Support']
-    },
-    {
-       title: 'Powerful Dashboard',
-       desc: 'Track your calls, earnings, and client reviews from a single premium dashboard.',
-       icon: <TrendingUp className="text-emerald-500 w-12 h-12" />,
-       bullets: ['Live Analytics', 'Call History', 'Earnings Report']
-    },
-    {
-       title: 'Grow Your Clients',
-       desc: 'Share your profile via QR codes and links. Build your client base organically.',
-       icon: <Users className="text-rose-500 w-12 h-12" />,
-       bullets: ['Shareable QR Poster', 'Public Profile Page', 'Client Reviews']
+       title: 'Verified Excellence',
+       desc: 'Build lasting corporate trust through our rigorous verification and professional ranking system.',
+       icon: <div className="p-6 bg-indigo-50 rounded-full shadow-inner"><ShieldCheck className="text-indigo-600 w-16 h-16" /></div>,
+       bullets: ['Identity Verified', 'Trust Badges', 'Top Tier Support']
     }
   ];
 
@@ -83,18 +71,17 @@ export default function SmartEarningOnboarding() {
     { id: 'other', label: 'Other', emoji: '🔮' },
   ];
 
-  // Total steps: 5 slides + name/avatar + categories + gender/age + plans + phone + QR finish = 11
-  const TOTAL_STEPS = 11;
+  // Total steps: 3 slides + name/avatar + categories + gender/age + plans + phone = 8
+  const TOTAL_STEPS = 8;
 
   const isStepValid = (currentStep: number) => {
     switch (currentStep) {
-      case 1: case 2: case 3: case 4: case 5: return true; // 5 Intro slides
-      case 6: return formData.displayName.length >= 3; // Name + Avatar
-      case 7: return formData.categories.length >= 1 && formData.categories.length <= 3; // Categories
-      case 8: return formData.gender !== '' && formData.age.length >= 2; // Gender + Age
-      case 9: return formData.plans.every(p => p.name.length >= 2 && p.minutes > 0 && p.price >= 10); // Plans
-      case 10: return formData.phoneNumber.length === 10; // Phone
-      case 11: return formData.payoutQR !== ''; // QR upload
+      case 1: case 2: case 3: return true; // 3 Intro slides
+      case 4: return formData.displayName.length >= 3; // Name + Avatar
+      case 5: return formData.categories.length >= 1 && formData.categories.length <= 3; // Categories
+      case 6: return formData.gender !== '' && formData.age.length >= 2; // Gender + Age
+      case 7: return formData.plans.every(p => p.name.length >= 2 && p.minutes > 0 && p.price >= 10); // Plans
+      case 8: return formData.phoneNumber.length === 10; // Phone
       default: return false;
     }
   };
@@ -150,7 +137,7 @@ export default function SmartEarningOnboarding() {
             providerType: formData.categories[0] || 'listener',
             providerCategories: formData.categories,
             plans: formData.plans,
-            paymentQrUrl: formData.payoutQR,
+            paymentQrUrl: '', // QR setup is now moved to withdrawal page settings
             roles: Array.from(new Set([...(user.roles || []), 'provider'])),
             activeRole: 'provider',
             isProvider: true,
@@ -173,45 +160,43 @@ export default function SmartEarningOnboarding() {
     <div className="min-h-screen bg-slate-50 text-slate-900 flex items-center justify-center p-6 relative overflow-hidden font-body">
       <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_0%_0%,rgba(0,245,255,0.05)_0%,transparent_50%)] pointer-events-none" />
       
-      <div className="max-w-md w-full bg-white p-8 md:p-12 rounded-[4rem] shadow-[0_40px_80px_-15px_rgba(0,0,0,0.08)] border border-slate-100 animate-fade-in relative z-10">
+      <div className="max-w-[420px] w-full bg-white p-8 md:p-10 rounded-[3rem] shadow-[0_45px_100px_-20px_rgba(0,0,0,0.08)] border border-slate-100 animate-fade-in relative z-10">
         
-        {/* ═══ STEP 1-5: INTRO SLIDES ═══ */}
-        {step <= 5 ? (
-          <div className="space-y-10 text-center animate-slide-up">
+        {/* ═══ STEP 1-3: INTRO SLIDES ═══ */}
+        {step <= 3 ? (
+          <div className="space-y-8 text-center animate-slide-up">
             <div className="flex justify-center">
-              <div className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 shadow-inner">
+              <div>
                 {slides[step - 1].icon}
               </div>
             </div>
-            <div>
-              <h1 className="text-4xl font-black tracking-tighter mb-4 text-slate-900">{slides[step - 1].title}</h1>
-              <p className="text-slate-500 font-medium leading-relaxed italic">{slides[step - 1].desc}</p>
+            <div className="space-y-2">
+              <h1 className="text-[28px] font-black tracking-tighter text-slate-900 leading-tight">{slides[step - 1].title}</h1>
+              <p className="text-slate-400 font-medium text-[13px] leading-relaxed px-2 italic">{slides[step - 1].desc}</p>
             </div>
-            <div className="space-y-3 pt-4">
+            <div className="grid grid-cols-1 gap-2 pt-1">
                {slides[step - 1].bullets.map((b, i) => (
-                 <div key={i} className="flex items-center gap-4 bg-slate-50 px-5 py-4 rounded-2xl border border-slate-100/50">
-                    <div className="w-6 h-6 bg-slate-900 rounded-full flex items-center justify-center">
-                       <Check size={12} className="text-white" />
+                 <div key={i} className="flex items-center gap-3 bg-slate-50/50 px-5 py-3.5 rounded-2xl border border-slate-100/50 hover:bg-white hover:shadow-lg hover:shadow-slate-100 transition-all group">
+                    <div className="w-5 h-5 bg-slate-900 rounded-full flex items-center justify-center group-hover:bg-indigo-600 transition-colors">
+                       <Check size={10} className="text-white" />
                     </div>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">{b}</span>
+                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">{b}</span>
                  </div>
                ))}
             </div>
-            <div className="pt-8 space-y-6">
-               <button onClick={handleNext} className="w-full bg-slate-900 text-white h-16 rounded-2xl text-[10px] uppercase tracking-[0.25em] font-black hover:bg-black transition-all shadow-xl shadow-slate-200 flex items-center justify-center gap-3">
-                 <span>Next</span>
+            <div className="pt-4 space-y-5">
+               <button onClick={handleNext} className="w-full bg-slate-900 text-white h-14 rounded-2xl text-[10px] uppercase tracking-[0.25em] font-black hover:bg-indigo-600 transition-all shadow-xl shadow-slate-200 flex items-center justify-center gap-3 active:scale-95">
+                 <span>Continue Application</span>
                  <ArrowRight size={18} />
                </button>
                <ProgressDots step={step} total={TOTAL_STEPS} />
             </div>
           </div>
-
-        /* ═══ STEP 6: NAME + AVATAR ═══ */
-        ) : step === 6 ? (
-            <div className="space-y-10 animate-fade-in">
+        ) : step === 4 ? (
+            <div className="space-y-8 animate-fade-in">
               <div className="text-center">
-                 <h1 className="text-3xl font-black tracking-tighter mb-2 text-slate-900">Pro Profile</h1>
-                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Choose your avatar & name</p>
+                 <h1 className="text-[28px] font-black tracking-tighter mb-1 text-slate-900">Pro Profile</h1>
+                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Choose your avatar & name</p>
               </div>
               <div className="space-y-5">
                  {/* Avatar Grid */}
@@ -234,14 +219,14 @@ export default function SmartEarningOnboarding() {
                       type="text" 
                       value={formData.displayName}
                       onChange={(e) => setFormData({...formData, displayName: e.target.value})}
-                      className="w-full h-16 bg-slate-50 border border-slate-200 rounded-3xl px-6 text-sm font-black focus:border-slate-900 outline-none transition-all"
+                      className="w-full h-14 bg-slate-50 border border-slate-200 rounded-3xl px-6 text-sm font-black focus:border-slate-900 outline-none transition-all"
                     />
                  </div>
               </div>
               <button 
                  onClick={handleNext}
-                 disabled={!isStepValid(6)}
-                 className="w-full bg-slate-900 text-white h-16 rounded-2xl text-[10px] uppercase tracking-[0.25em] font-black shadow-xl shadow-slate-200 flex items-center justify-center gap-3 disabled:opacity-30 disabled:cursor-not-allowed"
+                 disabled={!isStepValid(4)}
+                 className="w-full bg-slate-900 text-white h-14 rounded-2xl text-[10px] uppercase tracking-[0.25em] font-black shadow-xl shadow-slate-200 flex items-center justify-center gap-3 disabled:opacity-30 disabled:cursor-not-allowed"
                >
                  <span>Next</span>
                  <ArrowRight size={18} />
@@ -249,12 +234,12 @@ export default function SmartEarningOnboarding() {
               <ProgressDots step={step} total={TOTAL_STEPS} />
             </div>
 
-        /* ═══ STEP 7: CATEGORIES (Multi-select, max 3) ═══ */
-        ) : step === 7 ? (
-            <div className="space-y-10 animate-fade-in">
+        /* ═══ STEP 5: CATEGORIES (Multi-select, max 3) ═══ */
+        ) : step === 5 ? (
+            <div className="space-y-8 animate-fade-in">
                  <div className="text-center">
-                    <h1 className="text-3xl font-black tracking-tighter mb-2 text-slate-900">Your Expertise</h1>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Select 1-3 categories</p>
+                    <h1 className="text-[28px] font-black tracking-tighter mb-1 text-slate-900">Your Expertise</h1>
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Select 1-3 categories</p>
                  </div>
                  <div className="space-y-3">
                      {CATEGORIES.map(cat => (
@@ -274,8 +259,8 @@ export default function SmartEarningOnboarding() {
                  </p>
                  <button 
                     onClick={handleNext}
-                    disabled={!isStepValid(7)}
-                    className="w-full bg-slate-900 text-white h-16 rounded-2xl text-[10px] uppercase tracking-[0.25em] font-black shadow-xl disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+                    disabled={!isStepValid(5)}
+                    className="w-full bg-slate-900 text-white h-14 rounded-2xl text-[10px] uppercase tracking-[0.25em] font-black shadow-xl disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-3"
                   >
                     <span>Next</span>
                     <ArrowRight size={18} />
@@ -283,12 +268,12 @@ export default function SmartEarningOnboarding() {
                  <ProgressDots step={step} total={TOTAL_STEPS} />
             </div>
 
-        /* ═══ STEP 8: GENDER + AGE ═══ */
-        ) : step === 8 ? (
-            <div className="space-y-10 animate-fade-in">
+        /* ═══ STEP 6: GENDER + AGE ═══ */
+        ) : step === 6 ? (
+            <div className="space-y-8 animate-fade-in">
               <div className="text-center">
-                 <h1 className="text-3xl font-black tracking-tighter mb-2 text-slate-900">About You</h1>
-                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Personal Details</p>
+                 <h1 className="text-[28px] font-black tracking-tighter mb-1 text-slate-900">About You</h1>
+                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Personal Details</p>
               </div>
               <div className="space-y-5">
                  <div className="grid grid-cols-2 gap-4">
@@ -298,7 +283,7 @@ export default function SmartEarningOnboarding() {
                           type="number" 
                           value={formData.age}
                           onChange={(e) => setFormData({...formData, age: e.target.value})}
-                          className="w-full h-16 bg-slate-50 border border-slate-200 rounded-3xl px-6 text-sm font-black focus:border-slate-900 outline-none transition-all text-center"
+                          className="w-full h-14 bg-slate-50 border border-slate-200 rounded-3xl px-6 text-sm font-black focus:border-slate-900 outline-none transition-all text-center"
                         />
                     </div>
                     <div className="space-y-2">
@@ -306,7 +291,7 @@ export default function SmartEarningOnboarding() {
                         <select 
                           value={formData.gender}
                           onChange={(e) => setFormData({...formData, gender: e.target.value})}
-                          className="w-full h-16 bg-slate-50 border border-slate-200 rounded-3xl px-4 text-sm font-black focus:border-slate-900 outline-none transition-all appearance-none text-center"
+                          className="w-full h-14 bg-slate-50 border border-slate-200 rounded-3xl px-4 text-sm font-black focus:border-slate-900 outline-none transition-all appearance-none text-center"
                         >
                             <option value="">Select</option>
                             <option value="male">Male</option>
@@ -343,14 +328,14 @@ export default function SmartEarningOnboarding() {
                         placeholder="Describe your expertise in one sentence..."
                         value={formData.bio}
                         onChange={(e) => setFormData({...formData, bio: e.target.value})}
-                        className="w-full h-28 bg-slate-50 border border-slate-200 rounded-[2rem] p-6 text-sm font-medium focus:border-slate-900 outline-none transition-all resize-none"
+                        className="w-full h-24 bg-slate-50 border border-slate-200 rounded-[2rem] p-6 text-sm font-medium focus:border-slate-900 outline-none transition-all resize-none"
                      />
                  </div>
               </div>
               <button 
                  onClick={handleNext}
-                 disabled={!isStepValid(8)}
-                 className="w-full bg-slate-900 text-white h-16 rounded-2xl text-[10px] uppercase tracking-[0.25em] font-black shadow-xl disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+                 disabled={!isStepValid(6)}
+                 className="w-full bg-slate-900 text-white h-14 rounded-2xl text-[10px] uppercase tracking-[0.25em] font-black shadow-xl disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-3"
                >
                  <span>Next</span>
                  <ArrowRight size={18} />
@@ -358,47 +343,47 @@ export default function SmartEarningOnboarding() {
               <ProgressDots step={step} total={TOTAL_STEPS} />
             </div>
 
-        /* ═══ STEP 9: PLAN CREATION (BUG #6 FIX) ═══ */
-        ) : step === 9 ? (
-            <div className="space-y-8 animate-fade-in">
+        /* ═══ STEP 7: PLAN CREATION (BUG #6 FIX) ═══ */
+        ) : step === 7 ? (
+            <div className="space-y-6 animate-fade-in">
                  <div className="text-center">
-                    <div className="p-6 bg-indigo-50 rounded-[2.5rem] inline-block mb-4 shadow-inner">
-                       <Zap className="text-indigo-600 w-10 h-10" />
+                    <div className="p-4 bg-indigo-50 rounded-[2rem] inline-block mb-3 shadow-inner">
+                       <Zap className="text-indigo-600 w-8 h-8" />
                     </div>
-                    <h1 className="text-3xl font-black tracking-tighter mb-2 text-slate-900">Create Your Plans</h1>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Set minutes, price & name for 3 plans</p>
+                    <h1 className="text-[28px] font-black tracking-tighter mb-1 text-slate-900">Create Your Plans</h1>
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Set minutes, price & name for 3 plans</p>
                  </div>
-                 <div className="space-y-4">
+                 <div className="space-y-3">
                      {formData.plans.map((plan, idx) => (
-                         <div key={idx} className="p-5 bg-slate-50 rounded-3xl border border-slate-100 space-y-3">
-                            <div className="flex items-center gap-2 mb-2">
-                               <div className="w-8 h-8 bg-indigo-500 rounded-xl flex items-center justify-center text-white text-xs font-black">{idx + 1}</div>
-                               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Plan {idx + 1}</span>
+                         <div key={idx} className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-3">
+                            <div className="flex items-center gap-2 mb-1">
+                               <div className="w-6 h-6 bg-indigo-500 rounded-lg flex items-center justify-center text-white text-[10px] font-black">{idx + 1}</div>
+                               <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Plan {idx + 1}</span>
                             </div>
                             <input 
                                type="text" 
                                value={plan.name}
                                onChange={(e) => updatePlan(idx, 'name', e.target.value)}
                                placeholder="Plan Name"
-                               className="w-full h-12 bg-white border border-slate-200 rounded-2xl px-5 text-sm font-black focus:border-indigo-500 outline-none"
+                               className="w-full h-11 bg-white border border-slate-200 rounded-xl px-4 text-xs font-black focus:border-indigo-500 outline-none"
                             />
                             <div className="grid grid-cols-2 gap-3">
                                 <div className="relative">
-                                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 font-black">MIN</span>
+                                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[9px] text-slate-400 font-black">MIN</span>
                                    <input 
                                       type="number" 
                                       value={plan.minutes}
                                       onChange={(e) => updatePlan(idx, 'minutes', parseInt(e.target.value) || 0)}
-                                      className="w-full h-12 bg-white border border-slate-200 rounded-2xl pl-12 pr-4 text-sm font-black text-center focus:border-indigo-500 outline-none"
+                                      className="w-full h-11 bg-white border border-slate-200 rounded-xl pl-10 pr-4 text-xs font-black text-center focus:border-indigo-500 outline-none"
                                    />
                                 </div>
                                 <div className="relative">
-                                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 font-black">₹</span>
+                                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[9px] text-slate-400 font-black">₹</span>
                                    <input 
                                       type="number" 
                                       value={plan.price}
                                       onChange={(e) => updatePlan(idx, 'price', parseInt(e.target.value) || 0)}
-                                      className="w-full h-12 bg-white border border-slate-200 rounded-2xl pl-10 pr-4 text-sm font-black text-center focus:border-indigo-500 outline-none"
+                                      className="w-full h-11 bg-white border border-slate-200 rounded-xl pl-8 pr-4 text-xs font-black text-center focus:border-indigo-500 outline-none"
                                    />
                                 </div>
                             </div>
@@ -407,8 +392,8 @@ export default function SmartEarningOnboarding() {
                  </div>
                  <button 
                     onClick={handleNext}
-                    disabled={!isStepValid(9)}
-                    className="w-full bg-slate-900 text-white h-16 rounded-2xl text-[10px] uppercase tracking-[0.25em] font-black shadow-xl disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+                    disabled={!isStepValid(7)}
+                    className="w-full bg-slate-900 text-white h-14 rounded-2xl text-[10px] uppercase tracking-[0.25em] font-black shadow-xl disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-3"
                   >
                     <span>Next</span>
                     <ArrowRight size={18} />
@@ -416,15 +401,15 @@ export default function SmartEarningOnboarding() {
                  <ProgressDots step={step} total={TOTAL_STEPS} />
             </div>
 
-        /* ═══ STEP 10: PHONE NUMBER ═══ */
-        ) : step === 10 ? (
-            <div className="space-y-10 animate-fade-in">
+        /* ═══ FINAL STEP 8: PHONE NUMBER & FINALIZE ═══ */
+        ) : (
+            <div className="space-y-8 animate-fade-in">
                  <div className="text-center">
-                    <div className="p-8 bg-slate-900 rounded-[2.5rem] inline-block mb-6 shadow-2xl">
-                       <Smartphone className="text-white w-12 h-12" />
+                    <div className="p-6 bg-slate-900 rounded-[2rem] inline-block mb-4 shadow-2xl">
+                       <Smartphone className="text-white w-10 h-10" />
                     </div>
-                    <h1 className="text-3xl font-black tracking-tighter mb-2">Connect Mobile</h1>
-                    <p className="text-slate-500 font-medium leading-relaxed">Enter your phone number for call matching.</p>
+                    <h1 className="text-[28px] font-black tracking-tighter mb-1">Connect Mobile</h1>
+                    <p className="text-slate-500 font-medium text-[13px] leading-relaxed italic px-2">Enter your professional contact number for secure call routing.</p>
                  </div>
                  <div className="space-y-6">
                     <div className="space-y-3">
@@ -443,59 +428,11 @@ export default function SmartEarningOnboarding() {
                     </div>
                  </div>
                  <button 
-                   onClick={handleNext}
-                   disabled={!isStepValid(10)}
-                   className="w-full bg-slate-900 text-white h-16 rounded-2xl text-[10px] uppercase tracking-[0.25em] font-black hover:bg-black transition-all shadow-xl shadow-slate-200 flex items-center justify-center gap-3 disabled:opacity-30 disabled:cursor-not-allowed"
-                 >
-                   <span>Next</span>
-                   <ArrowRight size={18} />
-                 </button>
-                 <ProgressDots step={step} total={TOTAL_STEPS} />
-              </div>
-
-        /* ═══ STEP 11: QR UPLOAD + FINISH ═══ */
-        ) : (
-            <div className="space-y-10 animate-fade-in">
-                 <div className="text-center">
-                    <div className="p-8 bg-emerald-50 rounded-[2.5rem] inline-block mb-6 shadow-inner text-emerald-500">
-                       <Wallet className="w-12 h-12" />
-                    </div>
-                    <h1 className="text-3xl font-black tracking-tighter mb-2 text-slate-900">Payout Setup</h1>
-                    <p className="text-slate-500 font-medium leading-relaxed italic">Upload your UPI QR to receive payments.</p>
-                 </div>
-
-                 <div className="space-y-6">
-                    <input type="file" id="qr-onboarding" accept="image/*" className="hidden" onChange={handleQrUpload} />
-                    <div 
-                        onClick={() => document.getElementById('qr-onboarding')?.click()}
-                        className={`border-2 border-dashed rounded-[3rem] p-10 flex flex-col items-center justify-center gap-4 transition-all cursor-pointer group ${formData.payoutQR ? 'bg-emerald-50 border-emerald-500' : 'border-slate-200 bg-slate-50 hover:bg-emerald-50/30 hover:border-emerald-200'}`}
-                    >
-                        {formData.payoutQR ? (
-                          <>
-                            <img src={formData.payoutQR} alt="QR" className="w-24 h-24 rounded-2xl object-cover shadow-lg" />
-                            <span className="text-[10px] font-black uppercase tracking-widest text-emerald-700">QR Uploaded Successfully ✓</span>
-                          </>
-                        ) : (
-                          <>
-                            <div className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg bg-white text-slate-300 group-hover:text-emerald-500 transition-transform group-hover:scale-110">
-                                <Upload />
-                            </div>
-                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-emerald-600">
-                                Tap to Upload Payout QR
-                            </span>
-                          </>
-                        )}
-                    </div>
-
-                    <p className="text-[9px] text-slate-400 text-center font-bold uppercase tracking-widest leading-loose">Required for secure professional withdrawals. <br/> BigSuno offers 0% platform fee for the first month! 🎉</p>
-                 </div>
-
-                 <button 
                    onClick={finalizeOnboarding}
-                   disabled={loading || !isStepValid(TOTAL_STEPS)}
-                   className="w-full bg-emerald-500 text-white h-16 rounded-2xl text-[10px] uppercase tracking-[0.25em] font-black hover:bg-emerald-600 transition-all shadow-xl shadow-emerald-100 flex items-center justify-center gap-3 disabled:opacity-30 disabled:cursor-not-allowed"
+                   disabled={loading || !isStepValid(8)}
+                   className="w-full bg-indigo-600 text-white h-16 rounded-2xl text-[10px] uppercase tracking-[0.25em] font-black hover:bg-slate-900 transition-all shadow-xl shadow-indigo-100 flex items-center justify-center gap-3 disabled:opacity-30 disabled:cursor-not-allowed active:scale-95"
                  >
-                   {loading ? 'Processing...' : (
+                   {loading ? 'Processing Expertise...' : (
                        <>
                         <span>Finish & Go Online</span>
                         <ShieldCheck size={18} />
@@ -503,7 +440,7 @@ export default function SmartEarningOnboarding() {
                    )}
                  </button>
                  <ProgressDots step={step} total={TOTAL_STEPS} />
-            </div>
+              </div>
         )}
       </div>
     </div>

@@ -8,7 +8,6 @@ import { auth, db } from '@/lib/firebase';
 import { useAuthStore } from '@/stores/auth-store';
 import type { BigSunoUser } from '@/types';
 import Image from 'next/image';
-import { Heart } from 'lucide-react';
 import { Spinner } from '../ui/spinner';
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {

@@ -8,7 +8,6 @@ import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/stores/auth-store';
 import type { Role } from '@/types';
 import { 
-  Heart, 
   ShieldCheck, 
   ChevronRight, 
   X,

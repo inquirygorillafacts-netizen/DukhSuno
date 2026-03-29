@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Download, Sparkles, Zap, Bell, Shield, Smartphone, X, ArrowRight, Heart, Star } from 'lucide-react';
+import { Download, Sparkles, Zap, Bell, Shield, Smartphone, X, ArrowRight, Star } from 'lucide-react';
+import { usePWAStatus } from '@/hooks/usePWAStatus';
 
 interface Props {
   onInstallStarted?: () => void;
@@ -13,6 +14,7 @@ export default function PWAInstall({ renderTrigger }: Props) {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showSheet, setShowSheet] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
+  const { isStandalone } = usePWAStatus();
 
   useEffect(() => {
     // Check if already installed
@@ -69,7 +71,7 @@ export default function PWAInstall({ renderTrigger }: Props) {
     }
   ];
 
-  if (isInstalled) return null;
+  if (isInstalled || isStandalone) return null;
 
   return (
     <>
@@ -160,7 +162,7 @@ export default function PWAInstall({ renderTrigger }: Props) {
                        </div>
                     </div>
                     <p className="flex-1 text-[11px] text-indigo-600 font-black italic uppercase leading-none tracking-tight">
-                       Join 10,000+ others who love our App Experience! 💖
+                       Join 10,000+ others who love our App Experience! ✨
                     </p>
                  </div>
 

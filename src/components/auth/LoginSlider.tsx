@@ -8,7 +8,7 @@ import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, googleProvider, db } from '@/lib/firebase';
 import { useAuthStore } from '@/stores/auth-store';
 import type { BigSunoUser } from '@/types';
-import { Heart, ShieldCheck, X, Sparkles, Lock, Star } from 'lucide-react';
+import { ShieldCheck, X, Sparkles, Lock, Star } from 'lucide-react';
 
 export function LoginSlider({ onClose, providerId }: { onClose: () => void, providerId: string }) {
   const router = useRouter();
@@ -86,8 +86,8 @@ export function LoginSlider({ onClose, providerId }: { onClose: () => void, prov
             {/* Title & Branding */}
             <div className="text-center space-y-6">
                 <div className="relative inline-block">
-                   <div className="w-20 h-20 bg-rose-50 rounded-[2rem] flex items-center justify-center mx-auto shadow-inner border border-rose-100 relative z-10">
-                      <Heart className="text-rose-500 fill-current w-12 h-12 animate-pulse" />
+                   <div className="w-20 h-20 bg-slate-900 rounded-[2rem] flex items-center justify-center mx-auto shadow-inner border-4 border-white relative z-10 p-4">
+                      <img src="/logo.png" alt="BigSuno" className="w-full h-full object-contain animate-pulse" />
                    </div>
                    <motion.div 
                       animate={{ rotate: 360 }}

@@ -5,7 +5,7 @@ import { collection, query, where, limit, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { MOOD_TAGS, SPECIALTY_LABELS, PROVIDER_TYPE_LABELS } from '@/types';
 import type { ListenerCard as ListenerCardType, Specialty, ProviderType } from '@/types';
-import { Search, Sparkles, Star, Phone, Heart, Filter, ShieldCheck, Play, ArrowRight, TrendingUp } from 'lucide-react';
+import { Search, Sparkles, Star, Phone, Heart, Filter, ShieldCheck, Play, ArrowRight, TrendingUp, Zap } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
 import { useAuthStore } from '@/stores/auth-store';
@@ -78,12 +78,12 @@ export default function HomePage() {
 
   const categories = [
     { id: 'all', label: 'All', icon: <Sparkles size={14} /> },
-    { id: 'listener', label: 'Listener', icon: <Heart size={14} /> },
+    { id: 'listener', label: 'Listener', icon: <Zap size={14} /> },
     { id: 'influencer', label: 'Influencer', icon: <TrendingUp size={14} /> },
     { id: 'mentor', label: 'Mentor/Coach', icon: <Star size={14} /> },
     { id: 'sex-health', label: 'Sex Health', icon: <ShieldCheck size={14} /> },
     { id: 'gm-expert', label: 'GM Expert', icon: <Sparkles size={14} /> },
-    { id: 'romantic', label: 'Romantic', icon: <Heart size={14} /> },
+    { id: 'romantic', label: 'Romantic', icon: <Star size={14} /> },
     { id: 'other', label: 'Other', icon: <Star size={14} /> },
   ];
 
@@ -128,62 +128,68 @@ export default function HomePage() {
          </div>
       </section>
 
-      {/* Hero Banner */}
-      <section className="px-1">
-         <div className="relative h-48 md:h-64 rounded-[3.5rem] bg-slate-900 overflow-hidden border-4 border-white shadow-2xl group">
-             <img 
-               src="https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&q=80&w=1200" 
-               className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-1000"
-               alt="Banner"
-             />
-             <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/40 to-transparent p-10 flex flex-col justify-center">
-                <div className="flex items-center gap-2 mb-2">
-                   <div className="h-0.5 w-6 bg-indigo-500 rounded-full" />
-                   <p className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.4em]">Corporate Solutions</p>
-                </div>
-                <h3 className="text-3xl md:text-5xl font-black text-white italic tracking-tighter leading-none mb-4 uppercase">
-                  Expert Advice, <br/> Verified <span className="text-indigo-500">Insights</span>.
-                </h3>
-                <button className="w-fit px-6 py-2.5 bg-white rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-900 hover:bg-indigo-600 hover:text-white transition-all transition-bounce">
-                  Explore Specialists
-                </button>
+      {!searchQuery && (
+        <>
+          {/* Hero Banner */}
+          <section className="px-1">
+             <div className="relative h-48 md:h-64 rounded-[3.5rem] bg-slate-900 overflow-hidden border-4 border-white shadow-2xl group">
+                 <img 
+                   src="https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&q=80&w=1200" 
+                   className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-1000"
+                   alt="Banner"
+                 />
+                 <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/40 to-transparent p-10 flex flex-col justify-center">
+                    <div className="flex items-center gap-2 mb-2">
+                       <div className="h-0.5 w-6 bg-indigo-500 rounded-full" />
+                       <p className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.4em]">Corporate Solutions</p>
+                    </div>
+                    <h3 className="text-3xl md:text-5xl font-black text-white italic tracking-tighter leading-none mb-4 uppercase">
+                      Expert Advice, <br/> Verified <span className="text-indigo-500">Insights</span>.
+                    </h3>
+                    <button className="w-fit px-6 py-2.5 bg-white rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-900 hover:bg-indigo-600 hover:text-white transition-all transition-bounce">
+                      Explore Specialists
+                    </button>
+                 </div>
              </div>
-         </div>
-      </section>
+          </section>
 
-      {/* Category Tabs */}
-      <section className="sticky top-2 z-40 px-1">
-         <div className="flex gap-2.5 overflow-x-auto pb-4 scrollbar-hide -mx-4 px-4 mask-fade-edges">
-           {categories.map((cat) => (
-             <button
-               key={cat.id}
-               onClick={() => setSelectedCategory(cat.id)}
-               className={`flex-shrink-0 px-6 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg border-2 ${
-                 selectedCategory === cat.id
-                   ? 'bg-slate-900 border-slate-900 text-white scale-105'
-                   : 'glass bg-white/70 border-white text-slate-400 hover:border-slate-100'
-               }`}
-             >
-               <div className="flex items-center gap-2.5">
-                  {cat.icon}
-                  {cat.label}
-               </div>
-             </button>
-           ))}
-         </div>
-      </section>
+          {/* Category Tabs */}
+          <section className="sticky top-2 z-40 px-1">
+             <div className="flex gap-2.5 overflow-x-auto pb-4 scrollbar-hide -mx-4 px-4 mask-fade-edges">
+               {categories.map((cat) => (
+                 <button
+                   key={cat.id}
+                   onClick={() => setSelectedCategory(cat.id)}
+                   className={`flex-shrink-0 px-6 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg border-2 ${
+                     selectedCategory === cat.id
+                       ? 'bg-slate-900 border-slate-900 text-white scale-105'
+                       : 'glass bg-white/70 border-white text-slate-400 hover:border-slate-100'
+                   }`}
+                 >
+                   <div className="flex items-center gap-2.5">
+                      {cat.icon}
+                      {cat.label}
+                   </div>
+                 </button>
+               ))}
+             </div>
+          </section>
+        </>
+      )}
 
       {/* Results Grid */}
-      <section className="space-y-6">
-         <div className="flex items-center justify-between px-2">
-            <div className="flex items-center gap-2">
-               <div className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse border-2 border-green-200" />
-               <h4 className="text-[11px] font-black uppercase tracking-[0.45em] text-slate-400">Featured Today</h4>
-            </div>
-            <Link href="/seeker/home" className="text-[10px] font-black text-indigo-600 uppercase tracking-widest flex items-center gap-1 hover:gap-2 transition-all">
-               View All <ArrowRight size={14} />
-            </Link>
-         </div>
+      <section className={`space-y-6 ${searchQuery ? 'bg-white rounded-[3.5rem] p-6 shadow-2xl min-h-[60vh] animate-in slide-in-from-top-4' : ''}`}>
+         {!searchQuery && (
+           <div className="flex items-center justify-between px-2">
+              <div className="flex items-center gap-2">
+                 <div className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse border-2 border-green-200" />
+                 <h4 className="text-[11px] font-black uppercase tracking-[0.45em] text-slate-400">Featured Today</h4>
+              </div>
+              <Link href="/seeker/home" className="text-[10px] font-black text-indigo-600 uppercase tracking-widest flex items-center gap-1 hover:gap-2 transition-all">
+                 View All <ArrowRight size={14} />
+              </Link>
+           </div>
+         )}
 
          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-8">
             {loading ? (
