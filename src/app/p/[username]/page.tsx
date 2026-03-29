@@ -61,6 +61,12 @@ export default function ProfessionalProfilePage() {
             return;
         }
 
+        // 0. Self-call check
+        if (user.uid === listener.uid) {
+            alert("आप खुदको खुद कॉल नहीं कर सकते है। 🛑");
+            return;
+        }
+
         // 1. Check Balance
         const currentBalance = user.creditBalance || 0;
         if (currentBalance < selectedPlan.price) {

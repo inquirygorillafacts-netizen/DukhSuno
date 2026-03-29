@@ -55,8 +55,9 @@ export default function ProfessionalProfilePage() {
     }, [params.username]);
 
     const handleCallClick = async () => {
-        if (!selectedPlan || !listener || !user) {
-            if (!user) router.push('/login');
+        // 0. Check if user is calling themselves
+        if (user.uid === listener.uid) {
+            alert("आप खुदको खुद कॉल नहीं कर सकते है। 🛑");
             return;
         }
 
