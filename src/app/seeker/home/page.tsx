@@ -1,11 +1,13 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { collection, query, where, limit, onSnapshot, orderBy } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { collection, query, where, limit, onSnapshot, orderBy, getDocs } from 'firebase/firestore';
+import { ref, onValue } from 'firebase/database';
+import { db, rtdb } from '@/lib/firebase';
+import { APP_CONFIG } from '@/lib/constants';
 import { MOOD_TAGS, SPECIALTY_LABELS, PROVIDER_TYPE_LABELS } from '@/types';
 import type { ListenerCard as ListenerCardType, Specialty, ProviderType } from '@/types';
-import { Search, Sparkles, Star, Phone, Heart, Filter, ShieldCheck, Play, ArrowRight, TrendingUp, Zap, AlertCircle, Users } from 'lucide-react';
+import { Search, Sparkles, Star, Phone, Heart, Filter, ShieldCheck, Play, ArrowRight, TrendingUp, Zap, AlertCircle, Users, MessageCircle, Plus, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
 import { useAuthStore } from '@/stores/auth-store';
@@ -108,6 +110,7 @@ function ProviderCard({ provider }: { provider: any }) {
 /* ─── MAIN PAGE ─── */
 export default function HomePage() {
   const { user } = useAuthStore();
+  const router = useRouter();
   const [allProviders, setAllProviders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -125,6 +128,91 @@ export default function HomePage() {
     { id: 'consultant', label: 'Consultant', icon: <Users size={14} /> },
     { id: 'counselor', label: 'Counselor', icon: <Heart size={14} /> },
   ];
+
+  const [isAdminOnline, setIsAdminOnline] = useState(false);
+  const [isCallingAdmin, setIsCallingAdmin] = useState(false);
+
+  // Check Admin Presence
+  useEffect(() => {
+    let unsubscribe: () => void;
+
+    const startPresenceListener = (uid: string) => {
+      const adminPresenceRef = ref(rtdb, `presence/${uid}`);
+      unsubscribe = onValue(adminPresenceRef, (snapshot) => {
+        if (snapshot.exists()) {
+          setIsAdminOnline(snapshot.val().online === true);
+        } else {
+          setIsAdminOnline(false);
+        }
+      });
+    };
+
+    if (APP_CONFIG.adminUid && !APP_CONFIG.adminUid.includes('PLACEHOLDER')) {
+      startPresenceListener(APP_CONFIG.adminUid);
+    } else {
+      // Fallback: Find first admin in Firestore
+      const findAdmin = async () => {
+        const q = query(
+          collection(db, 'users'),
+          where('roles', 'array-contains', 'admin'),
+          limit(1)
+        );
+        const snap = await getDocs(q);
+        if (!snap.empty) {
+          const adminId = snap.docs[0].id;
+          startPresenceListener(adminId);
+        }
+      };
+      findAdmin();
+    }
+
+    return () => unsubscribe?.();
+  }, []);
+
+  const handleUrgentCall = async () => {
+    if (!user) {
+      router.push('/login?redirect=' + encodeURIComponent(window.location.pathname) + '&reason=urgent_call');
+      return;
+    }
+
+    setIsCallingAdmin(true);
+
+    try {
+      // 1. Create Call Session (Always)
+      const resp = await fetch('/api/sessions/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.uid,
+          listenerId: APP_CONFIG.adminUid,
+          planId: 'urgent_help',
+          planMinutes: 10,
+          planPrice: 0,
+          creditsUsed: 0
+        })
+      });
+
+      const { sessionId, error } = await resp.json();
+      if (error) throw new Error(error);
+
+      // 2. If Admin is Offline, Trigger Twilio Wake-up Call
+      if (!isAdminOnline) {
+        await fetch('/api/twilio/urgent-alert', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: `Urgent Help requested by ${user.displayName || 'User'}` })
+        });
+      }
+
+      // 3. Redirect to Call Page
+      router.push(`/call/${sessionId}`);
+    } catch (err) {
+      console.error('Urgent call failed:', err);
+      alert('Attempt failed. Please try again later.');
+    } finally {
+      setIsCallingAdmin(false);
+    }
+  };
 
   // Debounce search input — Instagram-style 300ms delay
   useEffect(() => {
@@ -239,40 +327,69 @@ export default function HomePage() {
 
       {!isSearchMode && (
         <>
-          {/* Hero Banner — Improved */}
-          <section className="px-1">
-             <div className="relative h-52 md:h-72 rounded-[3.5rem] bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 overflow-hidden border-4 border-white shadow-2xl group">
-                 {/* Animated decorative blobs */}
-                 <div className="absolute inset-0 overflow-hidden">
-                   <div className="absolute top-[-20%] left-[-10%] w-[350px] h-[350px] bg-indigo-600/20 rounded-full blur-[100px] animate-blob" />
-                   <div className="absolute bottom-[-20%] right-[-10%] w-[300px] h-[300px] bg-violet-500/15 rounded-full blur-[80px] animate-blob-delay" />
-                   <div className="absolute top-[30%] right-[20%] w-[200px] h-[200px] bg-blue-500/10 rounded-full blur-[60px] animate-blob" />
-                 </div>
+          {/* Hero Header & Action Banners — Backup Style (English Text) */}
+          <section className="px-1 space-y-4 pt-2">
+            <div className="space-y-0.5 px-2">
+              <h2 className="text-2xl md:text-3xl font-black text-slate-900 leading-tight tracking-tighter">
+                How are you feeling today? ✨
+              </h2>
+              <p className="text-[11px] text-slate-500 font-medium italic">We are here for you — without any judgment.</p>
+            </div>
 
-                 <div className="absolute inset-0 p-8 md:p-12 flex flex-col justify-center relative z-10">
-                    <div className="flex items-center gap-2 mb-3">
-                       <div className="h-0.5 w-8 bg-indigo-400 rounded-full" />
-                       <p className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.4em]">BigSuno Platform</p>
+            {/* Urgent Help & Community Sections */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-2">
+              {/* Urgent Help Banner */}
+              <button 
+                onClick={handleUrgentCall}
+                disabled={isCallingAdmin}
+                className="p-5 glass border-slate-200 bg-gradient-to-br from-[#ff4d6d]/10 to-transparent rounded-3xl border relative overflow-hidden group block w-full text-left transition-transform hover:scale-[1.02] active:scale-95 disabled:opacity-70 shadow-sm"
+              >
+                 <div className="relative z-10 flex items-center gap-4">
+                    <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg group-hover:rotate-6 transition-transform">
+                       {isCallingAdmin ? (
+                         <Loader2 className="text-[#ff4d6d] w-6 h-6 animate-spin" />
+                       ) : (
+                         <Sparkles className="text-[#ff4d6d] w-6 h-6" />
+                       )}
                     </div>
-                    <h3 className="text-3xl md:text-5xl font-black text-white italic tracking-tighter leading-[0.95] mb-5 uppercase">
-                      Expert Advice, <br/> Verified <span className="text-indigo-400">Insights</span>.
-                    </h3>
-                    <p className="text-[10px] md:text-xs text-slate-400 font-medium mb-5 max-w-xs leading-relaxed">
-                      Connect with verified professionals for anonymous, secure consultations.
-                    </p>
-                    <button className="w-fit px-6 py-2.5 bg-white/10 backdrop-blur-md rounded-2xl text-[10px] font-black uppercase tracking-widest text-white border border-white/20 hover:bg-white hover:text-slate-900 transition-all active:scale-95">
-                      Explore Specialists ✨
-                    </button>
+                    <div className="flex-1">
+                       <div className="flex items-center gap-2 mb-1">
+                         <h4 className="text-sm font-black leading-none uppercase tracking-tighter italic text-slate-900">Urgent Help?</h4>
+                         {isAdminOnline && (
+                           <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" title="Admin is Online" />
+                         )}
+                       </div>
+                       <p className="text-[9px] text-slate-500 font-medium tracking-tight">
+                         Connect directly with Admin without waiting.
+                       </p>
+                    </div>
+                    <div className="bg-[#ff4d6d] text-white p-2.5 rounded-xl shadow-lg shadow-rose-200 group-hover:scale-110 transition-transform">
+                       <Heart size={16} className="fill-current" />
+                    </div>
                  </div>
+              </button>
 
-                 {/* Floating stats on desktop */}
-                 <div className="absolute bottom-8 right-8 hidden md:flex gap-3 z-10">
-                    <div className="bg-white/10 backdrop-blur-md border border-white/20 px-5 py-3 rounded-2xl">
-                       <p className="text-[9px] font-black text-indigo-300 uppercase tracking-widest leading-none mb-1">Verified</p>
-                       <p className="text-lg font-black text-white italic tracking-tighter">100+ Experts</p>
+              {/* WhatsApp Group Banner */}
+              <a 
+                href={APP_CONFIG.whatsappGroup}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-5 glass border-slate-200 bg-gradient-to-br from-emerald-500/10 to-transparent rounded-3xl border relative overflow-hidden group block shadow-sm hover:scale-[1.02] transition-transform"
+              >
+                 <div className="relative z-10 flex items-center gap-4">
+                    <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg group-hover:-rotate-6 transition-transform border border-slate-50">
+                       <MessageCircle className="text-emerald-500 w-6 h-6" />
+                    </div>
+                    <div className="flex-1">
+                       <h4 className="text-sm font-black leading-none mb-1 uppercase tracking-tighter italic text-slate-900">Social Group</h4>
+                       <p className="text-[9px] text-slate-500 font-medium tracking-tight">Join our community and connect with others.</p>
+                    </div>
+                    <div className="bg-emerald-500 text-white p-2.5 rounded-xl shadow-lg shadow-emerald-200 group-hover:scale-110 transition-transform">
+                       <Plus size={16} />
                     </div>
                  </div>
-             </div>
+              </a>
+            </div>
           </section>
 
           {/* Category Tabs */}
