@@ -5,7 +5,7 @@ import { collection, query, where, limit, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { MOOD_TAGS, SPECIALTY_LABELS, PROVIDER_TYPE_LABELS } from '@/types';
 import type { ListenerCard as ListenerCardType, Specialty, ProviderType } from '@/types';
-
+import { Search, Sparkles, Star, Phone, Heart, Filter, ShieldCheck, Play, ArrowRight, TrendingUp, Zap, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
 import { useAuthStore } from '@/stores/auth-store';

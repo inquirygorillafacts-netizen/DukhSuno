@@ -71,14 +71,13 @@ export default function ProfessionalProfilePage() {
 
         setInitiating(true);
         try {
-            // Refactored to use API for validation and consistency
             const res = await fetch('/api/sessions/create', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     userId: user.uid,
                     listenerId: listener.uid,
-                    planId: selectedPlan.id,
+                    planId: selectedPlan.id || `plan_${selectedPlan.minutes}`, // Fallback for planId
                     planMinutes: selectedPlan.minutes,
                     planPrice: selectedPlan.price,
                 })
@@ -107,9 +106,9 @@ export default function ProfessionalProfilePage() {
                 body: JSON.stringify({
                     amount: balanceGap,
                     userId: user.uid,
-                    type: 'call_immediate', // Special type for call flow
+                    type: 'call_immediate',
                     listenerId: listener?.uid,
-                    planId: selectedPlan?.id,
+                    planId: selectedPlan?.id || `plan_${selectedPlan?.minutes}`,
                     planPrice: selectedPlan?.price
                 }),
             });
@@ -162,7 +161,6 @@ export default function ProfessionalProfilePage() {
                 </div>
             </div>
 
-            {/* Profile Detail Section */}
             <div className="max-w-5xl mx-auto px-6">
                 <div className="relative -mt-24 mb-10">
                     <div className="w-44 h-44 rounded-[4rem] bg-white p-2 shadow-2xl border-4 border-white overflow-hidden relative group">
@@ -216,9 +214,9 @@ export default function ProfessionalProfilePage() {
                             </div>
 
                             <div className="space-y-3 mb-8">
-                                {listener.plans?.map(plan => (
+                                {listener.plans?.map((plan, index) => (
                                     <button 
-                                        key={plan.id}
+                                        key={plan.id || `plan-${index}`}
                                         onClick={() => setSelectedPlan(plan)}
                                         className={`w-full p-5 rounded-[2rem] border-2 text-left transition-all relative group ${
                                             selectedPlan?.id === plan.id 
@@ -327,4 +325,3 @@ export default function ProfessionalProfilePage() {
         </div>
     );
 }
-

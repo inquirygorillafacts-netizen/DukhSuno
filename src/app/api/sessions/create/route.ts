@@ -5,91 +5,115 @@ import * as admin from 'firebase-admin';
 
 export async function POST(req: Request) {
   try {
-    const { userId, listenerId, planId, planMinutes, planPrice, creditsUsed, payuAmount, payuTxnId } = await req.json();
+    // 1. Parse Body
+    let body;
+    try {
+      body = await req.json();
+    } catch (e) {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+    }
 
-    // 1. Create a unique session ID
+    let { userId, listenerId, planId, planMinutes, planPrice } = body;
+
+    // 2. Validate essential fields
+    if (!userId || !listenerId) {
+      return NextResponse.json({ error: 'Missing userId or listenerId' }, { status: 400 });
+    }
+
+    // 3. Fallback for missing plan data
+    if (!planId) {
+      planId = `plan_${planMinutes || 'standard'}`;
+    }
+    const finalPrice = Number(planPrice) || 0;
+
+    // 4. Create a unique session ID
     const sessionId = `session_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
-    // 2. Fetch both users to check for blocks
+    // 5. Check User Status & Balance
     const [callerDoc, listenerDoc] = await Promise.all([
       adminDb.collection('users').doc(userId).get(),
       adminDb.collection('users').doc(listenerId).get()
     ]);
 
     if (!callerDoc.exists || !listenerDoc.exists) {
-      return NextResponse.json({ error: 'User or Listener not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Caller or Provider not found' }, { status: 404 });
     }
 
     const callerData = callerDoc.data();
     const listenerData = listenerDoc.data();
 
-    // BLOCK CHECK: Prevent call if either side is blocked
     if (callerData?.isBlocked || listenerData?.isBlocked) {
-      return NextResponse.json({ 
-        error: 'Account status restricted. Call cannot be completed.' 
-      }, { status: 403 });
+      return NextResponse.json({ error: 'Account restricted' }, { status: 403 });
     }
 
-    // BALANCE CHECK: Prevent free calls
-    const currentBalance = callerData?.creditBalance || 0;
-    if (currentBalance < planPrice) {
-      return NextResponse.json({ 
-        error: 'Insufficient balance. Please recharge your wallet.' 
-      }, { status: 400 });
+    const currentBalance = Number(callerData?.creditBalance) || 0;
+    if (currentBalance < finalPrice) {
+      return NextResponse.json({ error: 'Insufficient balance' }, { status: 400 });
     }
 
-    // 3. Get Platform Config (Centralized Commission)
-    const { getPlatformConfig } = await import('@/lib/config-admin');
-    const config = await getPlatformConfig();
-    const commissionRate = config.defaultCommissionRate || 0.10; // Updated to 10% as per user requirement
+    // 6. Get Config (Simplified fallback)
+    let commissionRate = 0.10;
+    try {
+      const { getPlatformConfig } = await import('@/lib/config-admin');
+      const config = await getPlatformConfig();
+      commissionRate = config.defaultCommissionRate ?? 0.10;
+    } catch (e) {
+      console.warn('Falling back to default commission:', e);
+    }
 
-    // 4. Create Session (No pre-deduction, no pre-booked transaction)
+    // 7. Prepare Session Document
     const session = {
       sessionId,
-      callerId: userId, // Added for compatibility with existing UI
+      callerId: userId,
       callerName: callerData?.displayName || 'Seeker',
       callerAvatar: callerData?.avatarUrl || 'emoji:👤',
       userId,
       listenerId,
       planId,
-      planMinutes,
-      planPrice,
-      creditsUsed: planPrice, // The amount that WILL be used
+      planMinutes: Number(planMinutes) || 0,
+      planPrice: finalPrice,
+      creditsUsed: finalPrice,
       status: 'waiting',
-      transactionId: null, // To be created on connection
+      transactionId: null,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       connectedAt: null,
       endedAt: null,
       durationSeconds: 0,
       commissionRate,
-      listenerEarned: planPrice * (1 - commissionRate),
+      listenerEarned: finalPrice * (1 - commissionRate),
       rating: null,
       ratingComment: null,
       videoUnlocked: false,
     };
 
-    // 5. Write to Firestore
-    await adminDb.collection('sessions').doc(sessionId).set(session);
-
-    // 5. Setup WebRTC signaling state in RTDB
-    await adminRtdb.ref(`sessions/${sessionId}`).set({
-      status: 'ringing',
-      callerId: userId,
-      listenerId: listenerId,
-      createdAt: admin.database.ServerValue.TIMESTAMP,
-    });
-
-    // 6. Trigger Twilio Voice Alert (IVR)
-    if (listenerData?.phoneNumber) {
-      // Trigger voice call to wake up the listener
-      triggerVoiceAlert(listenerData.phoneNumber);
+    // 8. Write to Firestore & RTDB (with error isolation)
+    try {
+      await adminDb.collection('sessions').doc(sessionId).set(session);
+      
+      await adminRtdb.ref(`sessions/${sessionId}`).set({
+        status: 'ringing',
+        callerId: userId,
+        listenerId: listenerId,
+        createdAt: Date.now(), // Manual timestamp for better signaling compatibility
+      });
+    } catch (dbError: any) {
+      console.error('Database write failed:', dbError);
+      return NextResponse.json({ error: 'Database write error: ' + dbError.message }, { status: 500 });
     }
 
-    console.log('Session created and Listener notified:', sessionId);
+    // 9. Background: Voice Alert (Async, won't block response)
+    if (listenerData?.phoneNumber) {
+      triggerVoiceAlert(listenerData.phoneNumber).catch(e => console.error('IVR failed:', e));
+    }
 
+    console.log('✅ Session created successfully:', sessionId);
     return NextResponse.json({ sessionId });
-  } catch (error) {
-    console.error('Error in session creation:', error);
-    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+
+  } catch (error: any) {
+    console.error('❌ Critical Session Error:', error);
+    return NextResponse.json({ 
+      error: 'Internal Server Error', 
+      details: error.message 
+    }, { status: 500 });
   }
 }

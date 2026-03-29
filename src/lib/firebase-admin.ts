@@ -1,5 +1,8 @@
 import * as admin from 'firebase-admin';
 
+// Use a global to track initialization across hot-reloads
+let isFirebaseInitialized = false;
+
 if (!admin.apps.length) {
   try {
     let saString = process.env.FIREBASE_SERVICE_ACCOUNT;
@@ -15,8 +18,9 @@ if (!admin.apps.length) {
 
     const serviceAccount = (saString && saString !== '{}') ? JSON.parse(saString) : null;
     
-    const projectId = serviceAccount?.project_id || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'bigsuno-app';
-    const databaseURL = process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL || `https://${projectId}.firebaseio.com`;
+    // Developer's specifics from asia-southeast1 region
+    const projectId = serviceAccount?.project_id || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'dukhsuno';
+    const databaseURL = process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL || `https://dukhsuno-default-rtdb.asia-southeast1.firebasedatabase.app/`;
 
     if (serviceAccount?.project_id) {
       admin.initializeApp({
@@ -31,6 +35,12 @@ if (!admin.apps.length) {
       });
       console.log('Firebase Admin initialized with placeholder for build.');
     }
+    
+    // Apply settings only once
+    const db = admin.firestore();
+    db.settings({ ignoreUndefinedProperties: true });
+    isFirebaseInitialized = true;
+    
   } catch (error) {
     console.error('Firebase Admin initialization error:', error);
   }
