@@ -113,6 +113,8 @@ export interface BigSunoUser {
   fcmToken: string;
   username: string;
   phoneNumber: string;
+  phone?: string;
+  paymentQrUrl?: string;
   owner?: boolean;
 }
 
