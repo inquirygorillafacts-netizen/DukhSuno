@@ -61,14 +61,17 @@ export async function POST(req: Request) {
 
     // Twilio Call Initiation
     const twilioStart = Date.now();
+    const host = req.headers.get('host') || 'dukhsuno.com';
+    const protocol = req.headers.get('x-forwarded-proto') || 'https';
+    const ringtoneUrl = `${protocol}://${host}/ringtone.mp3`;
 
-    // Use <Say> to ensure local testing doesn't fail due to inaccessible local mp3 URLs
+    // Replace <Say> with the custom ringtone provided by the user
     const call = await client.calls.create({
        twiml: `
         <Response>
-          <Say voice="alice" language="hi-IN">Hello! Aapko Big Suno app par ek nayi call aayi hai. Kripya app open karein.</Say>
+          <Play>${ringtoneUrl}</Play>
           <Pause length="1"/>
-          <Say voice="alice" language="hi-IN">Hello! Aapko Big Suno app par ek nayi call aayi hai. Kripya app open karein.</Say>
+          <Play>${ringtoneUrl}</Play>
           <Hangup/>
         </Response>
        `,

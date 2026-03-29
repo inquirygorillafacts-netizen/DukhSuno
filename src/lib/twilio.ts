@@ -2,6 +2,8 @@ import twilio from 'twilio';
 import { getTwilioCredentials } from './config';
 import { adminDb } from './firebase-admin';
 
+import { getBaseUrl } from './utils';
+
 /**
  * Triggers an IVR voice call to the listener to alert them of an incoming call.
  * @param toPhoneNumber The listener's phone number.
@@ -22,12 +24,14 @@ export async function triggerVoiceAlert(toPhoneNumber: string) {
   }
 
   const client = twilio(accountSid, authToken);
+  const ringtoneUrl = `${getBaseUrl()}/ringtone.mp3`;
 
   try {
     const call = await client.calls.create({
       twiml: `<Response>
-                <Say voice="alice" language="hi-IN">Namaste! Big Suno par kisi seeker ne abhi aapko call kiya hai. Kripya turant app kholen.</Say>
+                <Play>${ringtoneUrl}</Play>
                 <Pause length="1"/>
+                <Play>${ringtoneUrl}</Play>
                 <Hangup/>
               </Response>`,
       to: toPhoneNumber,

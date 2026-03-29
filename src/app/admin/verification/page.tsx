@@ -297,10 +297,10 @@ export default function AdminVerificationPage() {
                     <p className="text-[11px] font-bold leading-relaxed">{dialerStatus.error}</p>
                   ) : (
                     <div className="space-y-2">
-                      <p className="text-[11px] font-medium opacity-80 italic">"नमस्ते! आप बिगसुनो पर कॉल कर रहे हैं..."</p>
+                      <p className="text-[11px] font-medium opacity-80 italic">"Connecting secure line via BigSuno Voice..."</p>
                       <div className="pt-2 flex items-center gap-2">
                          <span className="w-2 h-2 rounded-full bg-indigo-500 animate-ping" />
-                         <span className="text-[9px] font-black uppercase tracking-widest opacity-60">Notification Sent</span>
+                         <span className="text-[9px] font-black uppercase tracking-widest opacity-60">Call Initialized</span>
                       </div>
                     </div>
                   )}
