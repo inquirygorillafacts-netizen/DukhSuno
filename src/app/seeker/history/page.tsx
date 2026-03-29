@@ -64,7 +64,7 @@ export default function SeekerHistoryPage() {
             <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">
               {durationText} · {(session.createdAt as any)?.toDate ? (session.createdAt as any).toDate().toLocaleDateString([], { month: 'short', day: 'numeric' }) : 'Recently'}
             </p>
-            {session.status === 'in-progress' && (
+            {session.status === 'active' && (
                 <span className="flex items-center gap-1 text-[9px] bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-md font-black uppercase tracking-widest">
                   Active
                 </span>
