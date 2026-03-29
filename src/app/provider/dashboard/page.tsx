@@ -92,7 +92,7 @@ export default function SunneDashboardPage() {
         }
       });
 
-      setTodayEarnings(earned);
+      setTodayEarnings(Math.round(earned));
       if (total > 0) {
         setSuccessRate(Math.round((completed / total) * 100));
       } else {
@@ -231,7 +231,7 @@ export default function SunneDashboardPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
         <StatBox
           label="Today's Earnings"
-          value={`₹${todayEarnings}`}
+          value={`₹${Math.round(todayEarnings)}`}
           icon={<IndianRupee />}
           color="emerald"
         />
@@ -267,29 +267,49 @@ export default function SunneDashboardPage() {
           </Link>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           {sessions.length > 0 ? (
-            sessions.map((session) => (
-              <div key={session.sessionId} className="glass bg-white p-4 rounded-3xl border border-white flex items-center justify-between hover:scale-[1.01] transition-transform group">
+            sessions.map((session) => {
+              const earned = Math.round(session.listenerEarned || session.providerEarned || 0);
+              const totalSec = session.durationSeconds || session.actualDurationSeconds || 0;
+              const mins = Math.floor(totalSec / 60);
+              const secs = totalSec % 60;
+              const status = session.status || 'completed';
+              const statusColor = status === 'completed' ? 'bg-emerald-50 text-emerald-600' 
+                : status === 'missed' ? 'bg-rose-50 text-rose-500' 
+                : status === 'active' ? 'bg-blue-50 text-blue-500' 
+                : 'bg-amber-50 text-amber-500';
+              let dateStr = 'Recent';
+              let timeStr = '';
+              try {
+                const d = (session.createdAt as any)?.toDate ? (session.createdAt as any).toDate() : new Date(session.createdAt);
+                dateStr = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+                timeStr = d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+              } catch {}
+              return (
+              <div key={session.sessionId} className="glass bg-white p-4 md:p-5 rounded-3xl border border-white flex items-center justify-between hover:shadow-lg transition-all group">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors">
-                    <PhoneIncoming size={16} />
+                  <div className="w-11 h-11 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors shadow-inner">
+                    <PhoneIncoming size={18} />
                   </div>
                   <div>
-                    <p className="text-xs font-black text-slate-800 uppercase tracking-tighter">Session #{session.sessionId.slice(-4).toUpperCase()}</p>
-                    <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">
-                      {(session.createdAt as any)?.toDate
-                        ? (session.createdAt as any).toDate().toLocaleDateString()
-                        : new Date(session.createdAt).toLocaleDateString()}
-                    </p>
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <p className="text-[11px] font-black text-slate-800 uppercase tracking-tighter">Session #{session.sessionId.slice(-4).toUpperCase()}</p>
+                      <span className={`px-2 py-0.5 rounded-md text-[7px] font-black uppercase tracking-widest ${statusColor}`}>{status}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">{dateStr}</p>
+                      {timeStr && <><span className="w-1 h-1 bg-slate-200 rounded-full" /><p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">{timeStr}</p></>}
+                    </div>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-base font-black text-emerald-600 tracking-tighter italic">₹{session.listenerEarned || session.providerEarned || 0}</p>
-                  <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">{Math.floor((session.durationSeconds || 0) / 60)} mins</p>
+                  <p className="text-base font-black text-emerald-600 tracking-tighter italic leading-none">₹{earned}</p>
+                  <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">{mins}:{secs < 10 ? '0' + secs : secs} min</p>
                 </div>
               </div>
-            ))
+              );
+            })
           ) : (
             <div className="p-12 text-center rounded-[3rem] border border-slate-100 bg-slate-50/30">
               <History size={40} className="mx-auto mb-4 text-slate-200" />

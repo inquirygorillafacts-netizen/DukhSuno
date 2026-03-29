@@ -60,9 +60,9 @@ export default function SunneEditPlansPage() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50/50 pb-20 font-jakarta">
-            {/* Elite Action Header */}
-            <div className="sticky top-0 z-50 glass bg-white/80 backdrop-blur-xl border-b border-white shadow-sm">
+        <div className="fixed inset-0 z-[100] bg-slate-50/50 flex flex-col overflow-hidden font-jakarta">
+            {/* Elite Action Header — fixed, not sticky */}
+            <div className="flex-shrink-0 glass bg-white/80 backdrop-blur-xl border-b border-white shadow-sm z-10">
                 <div className="max-w-2xl mx-auto px-4 h-20 flex items-center justify-between">
                     <button 
                         onClick={() => router.back()}
@@ -92,7 +92,9 @@ export default function SunneEditPlansPage() {
                 </div>
             </div>
 
-            <div className="max-w-2xl mx-auto px-4 pt-10 space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            {/* Scrollable content area — isolated scroll */}
+            <div className="flex-1 overflow-y-auto">
+            <div className="max-w-2xl mx-auto px-4 pt-10 pb-20 space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
                 
                 {/* Intro Section */}
                 <div className="flex items-start gap-5 px-4 mb-2">
@@ -187,6 +189,7 @@ export default function SunneEditPlansPage() {
                         </p>
                     </div>
                 </div>
+            </div>
             </div>
         </div>
     );

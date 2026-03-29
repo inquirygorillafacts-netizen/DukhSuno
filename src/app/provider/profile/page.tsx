@@ -16,11 +16,45 @@ import {
   MessageCircle,
   Clock,
   HelpCircle,
-  Zap
+  Zap,
+  Copy,
+  Check
 } from 'lucide-react';
 import { SPECIALTY_LABELS } from '@/types';
 import React, { useState } from 'react';
 import PremiumShareSheet from '@/components/shared/PremiumShareSheet';
+
+function ShareUrlBar({ uid }: { uid?: string }) {
+  const [copied, setCopied] = React.useState(false);
+  const host = typeof window !== 'undefined' ? window.location.host : 'bigsuno.app';
+  const fullUrl = `${host}/p/${uid || ''}`;
+  const displayUrl = fullUrl.length > 28 ? fullUrl.substring(0, 28) + '...' : fullUrl;
+
+  const handleCopy = async () => {
+    try {
+      const protocol = typeof window !== 'undefined' && window.location.protocol === 'https:' ? 'https' : 'http';
+      await navigator.clipboard.writeText(`${protocol}://${fullUrl}`);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch { /* fallback */ }
+  };
+
+  return (
+    <div className="flex items-center gap-2 p-3 rounded-xl bg-slate-50 border border-slate-100">
+      <p className="flex-1 text-[9px] font-black text-slate-400 uppercase tracking-widest truncate overflow-hidden">
+        {displayUrl}
+      </p>
+      <button 
+        onClick={handleCopy}
+        className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-all active:scale-90 ${
+          copied ? 'bg-emerald-50 text-emerald-500' : 'bg-white text-slate-400 hover:text-slate-900 border border-slate-100'
+        }`}
+      >
+        {copied ? <Check size={14} /> : <Copy size={14} />}
+      </button>
+    </div>
+  );
+}
 
 export default function SunneProfilePage() {
   const { user, logout } = useAuthStore();
@@ -192,11 +226,7 @@ export default function SunneProfilePage() {
               <QrCode size={16} /> QR Code
            </button>
         </div>
-        <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 text-center">
-           <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
-             {typeof window !== 'undefined' ? window.location.host : 'bigsuno.app'}/p/{user?.uid}
-           </p>
-        </div>
+        <ShareUrlBar uid={user?.uid} />
       </div>
 
       {/* Settings Button (for mobile users) */}

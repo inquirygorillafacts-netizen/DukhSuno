@@ -2,15 +2,18 @@
 
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/stores/auth-store';
-import { Plus, Wallet, ShieldCheck, Zap, History, ChevronRight } from 'lucide-react';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { Plus, Wallet, ShieldCheck, Zap, History, ChevronRight, ArrowDownLeft, CheckCircle2, Clock } from 'lucide-react';
+import { doc, onSnapshot, collection, query, where, orderBy, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import React from 'react';
 
 export default function WalletPage() {
   const { user, setUser } = useAuthStore();
   const [loading, setLoading] = useState(false);
+  const [transactions, setTransactions] = useState<any[]>([]);
+  const [txnLoading, setTxnLoading] = useState(true);
 
+  // Real-time user balance listener
   useEffect(() => {
     if (!user) return;
     const unsubscribe = onSnapshot(doc(db, 'users', user.uid), (docSnap) => {
@@ -18,6 +21,31 @@ export default function WalletPage() {
         setUser({ ...user, ...docSnap.data() });
       }
     });
+    return () => unsubscribe();
+  }, [user?.uid]);
+
+  // Real-time transaction history listener (ADD MONEY ONLY)
+  useEffect(() => {
+    if (!user) return;
+    setTxnLoading(true);
+
+    const qTrans = query(
+      collection(db, 'transactions'),
+      where('userId', '==', user.uid),
+      where('type', 'in', ['credit_reload', 'TOPUP_FOR_PLAN', 'add_money']),
+      orderBy('createdAt', 'desc'),
+      limit(30)
+    );
+
+    const unsubscribe = onSnapshot(qTrans, (snap) => {
+      const txns = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      setTransactions(txns);
+      setTxnLoading(false);
+    }, (err) => {
+      console.error('Transaction listener error:', err);
+      setTxnLoading(false);
+    });
+
     return () => unsubscribe();
   }, [user?.uid]);
 
@@ -41,7 +69,6 @@ export default function WalletPage() {
       const data = await res.json();
       if (data.error) throw new Error(data.error);
 
-      // Create hidden form and submit to PayU
       const form = document.createElement('form');
       form.method = 'POST';
       form.action = data.url;
@@ -61,6 +88,41 @@ export default function WalletPage() {
       alert('Payment initialization failed: ' + err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const formatDate = (ts: any): string => {
+    try {
+      const date = ts?.toDate ? ts.toDate() : new Date(ts);
+      return date.toLocaleDateString('en-IN', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      });
+    } catch {
+      return 'Recent';
+    }
+  };
+
+  const formatTime = (ts: any): string => {
+    try {
+      const date = ts?.toDate ? ts.toDate() : new Date(ts);
+      return date.toLocaleTimeString('en-IN', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+      });
+    } catch {
+      return '';
+    }
+  };
+
+  const getTypeLabel = (type: string): string => {
+    switch (type) {
+      case 'credit_reload': return 'Wallet Topup';
+      case 'TOPUP_FOR_PLAN': return 'Plan Recharge';
+      case 'add_money': return 'Money Added';
+      default: return 'Credit Added';
     }
   };
 
@@ -120,20 +182,69 @@ export default function WalletPage() {
          </div>
       </div>
 
-      {/* History Preview */}
+      {/* Transaction History — ADD MONEY ONLY */}
       <section className="space-y-6">
          <div className="flex items-center justify-between px-2">
-            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">Transactions</span>
-            <button className="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-indigo-600 flex items-center gap-1 transition-colors">
-               See All <ChevronRight size={12} />
-            </button>
+            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">Recharge History</span>
+            <span className="text-[10px] font-black text-indigo-500 uppercase tracking-widest">{transactions.length} Records</span>
          </div>
 
-         <div className="space-y-4">
-            <div className="glass bg-slate-50/50 p-8 rounded-3xl border-dashed border-2 border-slate-100 text-center">
-               <History size={32} className="mx-auto mb-3 text-slate-200" />
-               <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest italic">No transactions found.</p>
-            </div>
+         <div className="space-y-3">
+            {txnLoading ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="h-20 glass bg-white/40 animate-pulse rounded-3xl" />
+              ))
+            ) : transactions.length > 0 ? (
+              transactions.map((t) => (
+                <div key={t.id} className="p-5 rounded-3xl bg-white border border-slate-50 flex items-center justify-between hover:shadow-xl hover:shadow-indigo-50/50 transition-all group">
+                   <div className="flex items-center gap-4">
+                      <div className="w-11 h-11 rounded-2xl flex items-center justify-center bg-emerald-50 text-emerald-500 shadow-inner">
+                         <ArrowDownLeft size={18} strokeWidth={2.5} />
+                      </div>
+                      <div>
+                         <p className="text-[11px] font-black text-slate-900 uppercase tracking-tight leading-none mb-1.5">
+                            {getTypeLabel(t.type)}
+                         </p>
+                         <div className="flex items-center gap-2">
+                           <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">
+                             {formatDate(t.createdAt)}
+                           </p>
+                           <span className="w-1 h-1 bg-slate-200 rounded-full" />
+                           <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">
+                             {formatTime(t.createdAt)}
+                           </p>
+                         </div>
+                      </div>
+                   </div>
+                   <div className="text-right flex items-center gap-3">
+                      <div>
+                        <p className="text-lg font-black text-emerald-500 tracking-tighter italic leading-none">
+                           +₹{Math.round(t.amount)}
+                        </p>
+                        <div className="flex items-center justify-end gap-1 mt-1">
+                           {t.status === 'completed' ? (
+                             <>
+                               <CheckCircle2 size={10} className="text-emerald-400" />
+                               <p className="text-[8px] text-emerald-400 font-black uppercase tracking-widest">Success</p>
+                             </>
+                           ) : (
+                             <>
+                               <Clock size={10} className="text-amber-400" />
+                               <p className="text-[8px] text-amber-400 font-black uppercase tracking-widest">Pending</p>
+                             </>
+                           )}
+                        </div>
+                      </div>
+                   </div>
+                </div>
+              ))
+            ) : (
+              <div className="glass bg-slate-50/50 p-8 rounded-3xl border-dashed border-2 border-slate-100 text-center">
+                 <History size={32} className="mx-auto mb-3 text-slate-200" />
+                 <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest italic">No recharge history yet.</p>
+                 <p className="text-[9px] text-slate-300 font-medium mt-1">Your wallet topups will appear here.</p>
+              </div>
+            )}
          </div>
       </section>
 

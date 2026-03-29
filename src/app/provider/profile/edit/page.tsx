@@ -78,9 +78,9 @@ export default function SunneEditProfilePage() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50/50 pb-20">
-            {/* Elite Action Header */}
-            <div className="sticky top-0 z-50 glass bg-white/80 backdrop-blur-xl border-b border-white shadow-sm">
+        <div className="fixed inset-0 z-[100] bg-slate-50/50 flex flex-col overflow-hidden">
+            {/* Elite Action Header — fixed, not sticky */}
+            <div className="flex-shrink-0 glass bg-white/80 backdrop-blur-xl border-b border-white shadow-sm z-10">
                 <div className="max-w-2xl mx-auto px-4 h-20 flex items-center justify-between">
                     <button 
                         onClick={() => router.back()}
@@ -107,11 +107,13 @@ export default function SunneEditProfilePage() {
                 </div>
             </div>
 
-            <div className="max-w-2xl mx-auto px-4 pt-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            {/* Scrollable content area — isolated scroll */}
+            <div className="flex-1 overflow-y-auto">
+              <div className="max-w-2xl mx-auto px-4 pt-8 pb-20 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
                 
                 {/* Hero Section */}
                 <div className="relative mb-12">
-                    <div className="h-40 w-full bg-gradient-to-br from-indigo-50 to-rose-50 rounded-[2.5rem] border border-white shadow-inner animate-pulse duration-[4000ms]" />
+                    <div className="h-40 w-full bg-gradient-to-br from-indigo-50 to-rose-50 rounded-[2.5rem] border border-white shadow-inner" />
                     <div className="absolute -bottom-8 left-8 flex items-end gap-5">
                         <div className="relative group">
                             <div className="w-24 h-24 md:w-32 md:h-32 rounded-[2rem] border-4 border-white bg-white shadow-2xl overflow-hidden flex items-center justify-center">
@@ -220,6 +222,7 @@ export default function SunneEditProfilePage() {
                     </div>
                     <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-indigo-100 rounded-full blur-3xl group-hover:bg-indigo-200 transition-colors" />
                 </div>
+              </div>
             </div>
         </div>
     );
