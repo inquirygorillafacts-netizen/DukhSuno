@@ -16,18 +16,7 @@ import {
 } from 'lucide-react';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-
-async function uploadToImgBB(file: File): Promise<string> {
-   const formData = new FormData();
-   formData.append('image', file);
-   const res = await fetch('/api/upload-qr', {
-      method: 'POST',
-      body: formData,
-   });
-   const data = await res.json();
-   if (data.url) return data.url;
-   throw new Error(data.error || 'Upload failed');
-}
+import { uploadImage } from '@/lib/imgbb';
 
 export default function PaymentSettingsPage() {
    const { user } = useAuthStore();
@@ -44,7 +33,7 @@ export default function PaymentSettingsPage() {
        setUploading(true);
        setErrorMsg(null);
        try {
-          const url = await uploadToImgBB(qrFile);
+          const url = await uploadImage(qrFile);
           await updateDoc(doc(db, 'users', user.uid), { 
              paymentQrUrl: url 
           });

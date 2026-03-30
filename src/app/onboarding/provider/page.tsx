@@ -13,6 +13,7 @@ import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/stores/auth-store';
 import { AVATAR_OPTIONS } from '@/types';
+import { uploadImage } from '@/lib/imgbb';
 
 export default function SmartEarningOnboarding() {
   const { user, setUser } = useAuthStore();
@@ -79,21 +80,11 @@ export default function SmartEarningOnboarding() {
     const file = e.target.files[0];
     setLoading(true);
     try {
-        const _formData = new FormData();
-        _formData.append('image', file);
-        const res = await fetch('/api/upload-qr', {
-            method: 'POST',
-            body: _formData
-        });
-        const data = await res.json();
-        if (data.url) {
-            setFormData({ ...formData, avatarUrl: data.url });
-        } else {
-            alert('Upload failed: ' + (data.error || 'Unknown error'));
-        }
-    } catch (err) {
+        const url = await uploadImage(file);
+        setFormData({ ...formData, avatarUrl: url });
+    } catch (err: any) {
         console.error('Error uploading photo:', err);
-        alert('Failed to upload photo. Please try again.');
+        alert(err.message || 'Failed to upload photo. Please try again.');
     } finally {
         setLoading(false);
     }
@@ -134,13 +125,8 @@ export default function SmartEarningOnboarding() {
     const file = e.target.files?.[0];
     if (!file) return;
     try {
-      const fd = new FormData();
-      fd.append('image', file);
-      const res = await fetch('/api/upload-qr', { method: 'POST', body: fd });
-      const data = await res.json();
-      if (data.url) {
-        setFormData({ ...formData, payoutQR: data.url });
-      }
+      const url = await uploadImage(file);
+      setFormData({ ...formData, payoutQR: url });
     } catch (err) {
       console.error('QR upload failed:', err);
     }

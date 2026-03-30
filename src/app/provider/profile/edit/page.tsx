@@ -17,6 +17,7 @@ import {
     Camera
 } from 'lucide-react';
 import { Gender } from '@/types';
+import { uploadImage } from '@/lib/imgbb';
 
 const GENDER_OPTIONS = [
   { id: 'male', label: 'MALE' },
@@ -29,13 +30,15 @@ export default function SunneEditProfilePage() {
     const { user, setUser } = useAuthStore();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const [uploading, setUploading] = useState(false);
     
     const [formData, setFormData] = useState({
         displayName: user?.displayName || '',
         headline: user?.headline || '',
         bio: user?.bio || '',
-        gender: user?.gender || 'female',
+        gender: (user?.gender as Gender) || 'female',
         age: user?.age || 18,
+        avatarUrl: user?.avatarUrl || '',
     });
 
     useEffect(() => {
@@ -44,11 +47,28 @@ export default function SunneEditProfilePage() {
                 displayName: user.displayName || '',
                 headline: user.headline || '',
                 bio: user.bio || '',
-                gender: user.gender || 'female',
+                gender: (user.gender as Gender) || 'female',
                 age: user.age || 18,
+                avatarUrl: user.avatarUrl || '',
             });
         }
     }, [user]);
+
+    const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setUploading(true);
+        try {
+            const url = await uploadImage(file);
+            setFormData(prev => ({ ...prev, avatarUrl: url }));
+        } catch (err: any) {
+            console.error('Avatar upload failed:', err);
+            alert(err.message || 'Failed to upload image');
+        } finally {
+            setUploading(false);
+        }
+    };
 
     const handleSave = async () => {
         if (!user) return;
@@ -60,6 +80,7 @@ export default function SunneEditProfilePage() {
                 headline: formData.headline,
                 bio: formData.bio,
                 age: Number(formData.age),
+                avatarUrl: formData.avatarUrl,
                 updatedAt: new Date(),
             };
 
@@ -95,7 +116,7 @@ export default function SunneEditProfilePage() {
 
                     <button 
                         onClick={handleSave}
-                        disabled={loading}
+                        disabled={loading || uploading}
                         className="h-10 px-5 bg-indigo-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-indigo-200 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
                     >
                         {loading ? (
@@ -117,17 +138,28 @@ export default function SunneEditProfilePage() {
                     <div className="absolute -bottom-8 left-8 flex items-end gap-5">
                         <div className="relative group">
                             <div className="w-24 h-24 md:w-32 md:h-32 rounded-[2rem] border-4 border-white bg-white shadow-2xl overflow-hidden flex items-center justify-center">
-                                {user?.avatarUrl ? (
-                                    <img src={user.avatarUrl} alt="P" className="w-full h-full object-cover" />
+                                {uploading ? (
+                                    <div className="w-full h-full bg-slate-50 flex items-center justify-center">
+                                        <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                                    </div>
+                                ) : formData.avatarUrl ? (
+                                    <img src={formData.avatarUrl} alt="P" className="w-full h-full object-cover" />
                                 ) : (
                                     <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-300">
                                         <User size={48} strokeWidth={1} />
                                     </div>
                                 )}
                             </div>
-                            <button className="absolute -bottom-2 -right-2 w-10 h-10 bg-white text-slate-900 rounded-2xl flex items-center justify-center border border-slate-100 shadow-xl hover:scale-110 transition-transform">
+                            <label className="absolute -bottom-2 -right-2 w-10 h-10 bg-white text-slate-900 rounded-2xl flex items-center justify-center border border-slate-100 shadow-xl hover:scale-110 transition-transform cursor-pointer">
                                 <Camera size={18} />
-                            </button>
+                                <input 
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={handleAvatarUpload}
+                                    disabled={uploading}
+                                />
+                            </label>
                         </div>
                     </div>
                 </div>
@@ -183,7 +215,7 @@ export default function SunneEditProfilePage() {
                                 <button
                                     key={g.id}
                                     disabled={user?.isGenderLocked}
-                                    onClick={() => setFormData({...formData, gender: g.id as any})}
+                                    onClick={() => setFormData({...formData, gender: g.id as Gender})}
                                     className={`h-14 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${
                                         formData.gender === g.id 
                                         ? 'bg-slate-900 text-white shadow-xl scale-[1.02]' 
@@ -227,4 +259,3 @@ export default function SunneEditProfilePage() {
         </div>
     );
 }
-

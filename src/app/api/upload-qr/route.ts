@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const IMGBB_API_KEY = process.env.IMGBB_API_KEY || '5d09e5ee9352ef1356e409b302061099';
+const IMGBB_API_KEY = process.env.IMGBB_API_KEY || process.env.NEXT_PUBLIC_IMGBB_API_KEY || '7d9a915aa083baaff80ad8484186bc7d';
 
 export async function POST(req: NextRequest) {
   try {
@@ -30,8 +30,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ url: data.data.url });
     }
     
-    return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
+    console.error('ImgBB API Error:', data.error);
+    return NextResponse.json({ 
+      error: data.error?.message || 'Upload failed' 
+    }, { status: 500 });
   } catch (err: any) {
+    console.error('Upload Route Exception:', err);
     return NextResponse.json({ error: err.message || 'Server error' }, { status: 500 });
   }
 }
