@@ -105,10 +105,15 @@ export interface BigSunoUser {
   isVerified: boolean;
   isBlocked: boolean;
   isGenderLocked: boolean;
+  isProvider?: boolean;
   verificationStatus: VerificationStatus;
   isOnHoliday: boolean;
+  onboardingCompleted?: boolean;
+  providerCategories?: string[];
+  languages?: string[];
   registeredAt: Date;
   lastActive: Date;
+  providerStartedAt?: any;
   phoneVerified: boolean;
   fcmToken: string;
   username: string;
