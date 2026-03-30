@@ -7,7 +7,7 @@ import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/stores/auth-store';
 import { SPECIALTY_LABELS, PROVIDER_TYPE_LABELS } from '@/types';
 import type { BigSunoUser, Plan, ProviderType, Specialty } from '@/types';
-import { Phone, Star, ChevronDown, ShieldCheck, Heart, Zap, Sparkles, MessageCircle, AlertCircle, X, ArrowRight, TrendingUp, Wallet, ChevronLeft, Clock, Users } from 'lucide-react';
+import { Phone, Star, Check, ChevronDown, ShieldCheck, Heart, Zap, Sparkles, MessageCircle, AlertCircle, X, ArrowRight, TrendingUp, Wallet, ChevronLeft, Clock, Users } from 'lucide-react';
 
 export default function ProfessionalProfilePage() {
     const params = useParams();
