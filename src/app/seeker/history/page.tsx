@@ -146,7 +146,7 @@ export default function SeekerHistoryPage() {
 const StatSmall = ({ label, value, color, icon }: { label: string, value: string, color: 'slate' | 'indigo', icon: React.ReactNode }) => (
   <div className="bg-white/80 backdrop-blur-md p-6 rounded-[2rem] border border-white shadow-sm text-center relative overflow-hidden group">
     <div className={`absolute -right-4 -bottom-4 opacity-5 transition-transform group-hover:scale-150 duration-700 ${color === 'indigo' ? 'text-indigo-600' : 'text-slate-800'}`}>
-        {React.cloneElement(icon as React.ReactElement, { size: 64 })}
+        {React.cloneElement(icon as React.ReactElement<any>, { size: 64 })}
     </div>
     <p className={`text-4xl font-black tracking-tighter italic ${color === 'indigo' ? 'text-indigo-700' : 'text-slate-900'}`}>{value}</p>
     <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">{label}</p>
