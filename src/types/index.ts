@@ -4,7 +4,7 @@ export type Role = 'seeker' | 'provider' | 'admin';
 
 export type VerificationStatus = 'pending' | 'verified' | 'rejected';
 
-export type SessionStatus = 'waiting' | 'ringing' | 'active' | 'completed' | 'missed' | 'refunded';
+export type SessionStatus = 'waiting' | 'ringing' | 'active' | 'completed' | 'missed' | 'refunded' | 'timeout' | 'rejected' | 'cancelled_by_listener';
 
 export type PaymentType = 'credit_reload' | 'direct_session';
 
