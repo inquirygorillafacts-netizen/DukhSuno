@@ -87,38 +87,35 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (verifying || isLoading) return;
 
-    const safePublicPaths = ['/login', '/', '/select-role'];
+    // ⚡ CRITICAL: Do not intercept Next.js internal requests or static assets
+    if (pathname.startsWith('/_next') || pathname.includes('.')) return;
+
+    const safePublicPaths = ['/login', '/', '/select-role', '/_not-found', '/favicon.ico'];
     const isPublicProfilePath = pathname.startsWith('/p/');
     const isSafe = safePublicPaths.includes(pathname) || pathname.includes('onboarding') || isPublicProfilePath;
 
     if (!user) {
-      // Not logged in — redirect to login if on protected page
       if (!isSafe) {
-        router.push('/login');
+        router.replace('/login');
       }
       return;
     }
 
-    // ⚡ REAL-TIME BLOCK ENFORCEMENT
-    // If user gets blocked, instantly redirect to /blocked
     if (user.isBlocked && pathname !== '/blocked') {
-      router.push('/blocked');
+      router.replace('/blocked');
       return;
     }
 
-    // ⚡ REAL-TIME UNBLOCK — auto-redirect away from /blocked page
     if (!user.isBlocked && pathname === '/blocked') {
       redirectToDashboard(user);
       return;
     }
 
-    // Redirect from login/root to dashboard
     if (pathname === '/login' || pathname === '/') {
       redirectToDashboard(user);
       return;
     }
 
-    // Path-based Role Enforcement
     if (!canAccessPath(user, pathname)) {
       redirectToDashboard(user);
       return;
@@ -126,35 +123,21 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   }, [user, pathname, verifying, isLoading, router]);
 
   const canAccessPath = (u: BigSunoUser, path: string) => {
+    // ⚡ ALWAYS allow seeker/home and profile pages for any logged in user
+    if (path === '/seeker/home' || path.startsWith('/seeker/listener/')) return true;
+    
     const roles = u.roles || [];
-    
-    // Public profile pages are always accessible
     if (path.startsWith('/p/')) return true;
-    
-    // Auto-allow seeker content if roles are missing or empty
     if (roles.length === 0 && path.startsWith('/seeker')) return true;
-
-    // Admin Check
     if (path.startsWith('/admin') && !roles.includes('admin')) return false;
-    
-    // Provider Check
     if (path.startsWith('/provider') && !roles.includes('provider')) return false;
-    
-    // Seeker Check - ALWAYS allow access to seeker/home as the base landing zone to prevent loops
-    if (path === '/seeker/home') return true;
     if (path.startsWith('/seeker') && !roles.includes('seeker')) return false;
-    
-    // Role Selection Check
-    const isInternalPanel = path.startsWith('/seeker') || path.startsWith('/provider');
-    if (isInternalPanel && roles.length === 0 && !path.startsWith('/seeker')) return false;
 
     return true;
   };
 
   const redirectToDashboard = (u: BigSunoUser) => {
-    // Default Landing is ALWAYS Seeker Panel as per user request.
-    // Users can switch to Provider/Admin via the header/PanelSwitcher.
-    router.push('/seeker/home');
+    router.replace('/seeker/home');
   };
 
   // SILENT AUTH OPTIMIZATION:

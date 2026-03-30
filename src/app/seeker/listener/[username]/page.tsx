@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { collection, query, where, getDocs, limit, doc, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, getDocs, limit, doc, onSnapshot, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/stores/auth-store';
 import { SPECIALTY_LABELS, PROVIDER_TYPE_LABELS } from '@/types';
@@ -30,22 +30,27 @@ export default function ProfessionalProfilePage() {
             try {
                 const id = params.username as string;
                 
-                // Step 1: Find the document (by uid or username)
-                let q = query(collection(db, 'users'), where('uid', '==', id), limit(1));
-                let snap = await getDocs(q);
+                // ⚡ OPTIMIZED: Try direct getDoc first (fastest for UIDs)
+                const directRef = doc(db, 'users', id);
+                const directSnap = await getDoc(directRef);
                 
-                if (snap.empty) {
-                    q = query(collection(db, 'users'), where('username', '==', id), limit(1));
-                    snap = await getDocs(q);
+                let targetDocId = '';
+                if (directSnap.exists()) {
+                    targetDocId = directSnap.id;
+                } else {
+                    // Fallback to username query
+                    const q = query(collection(db, 'users'), where('username', '==', id), limit(1));
+                    const usernameSnap = await getDocs(q);
+                    if (!usernameSnap.empty) {
+                        targetDocId = usernameSnap.docs[0].id;
+                    }
                 }
 
-                if (!snap.empty) {
-                    const docId = snap.docs[0].id;
-                    unsubscribe = onSnapshot(doc(db, 'users', docId), (docSnap) => {
+                if (targetDocId) {
+                    unsubscribe = onSnapshot(doc(db, 'users', targetDocId), (docSnap) => {
                         if (docSnap.exists()) {
-                            const data = { ...docSnap.data(), uid: docId } as BigSunoUser;
+                            const data = { ...docSnap.data(), uid: targetDocId } as BigSunoUser;
                             setListener(data);
-                            // Auto-select the first plan if none selected
                             if (!selectedPlan && data.plans && data.plans.length > 0) {
                                 setSelectedPlan(data.plans[0]);
                             }
