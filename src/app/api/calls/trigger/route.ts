@@ -52,12 +52,9 @@ export async function POST(req: Request) {
     const presenceSnap = await adminRtdb.ref(`presence/${recipientId}`).once('value');
     const presenceData = presenceSnap.val();
     
+    // If the provider is currently connected to RTDB, we consider them online for signaling.
     const isOnline = presenceData?.online === true;
-    const lastSeenStr = presenceData?.lastSeen || '';
-    const lastSeenTime = lastSeenStr ? new Date(lastSeenStr).getTime() : 0;
-    
-    const nowTime = Date.now();
-    const isRecentlyActive = isOnline && (nowTime - lastSeenTime) < 120000; // 2 minutes
+    const isRecentlyActive = isOnline; 
 
     // Multi-Cross Decision Logic
     if (isOnline && isRecentlyActive) {

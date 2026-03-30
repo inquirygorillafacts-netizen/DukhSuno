@@ -107,11 +107,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Database write error: ' + dbError.message }, { status: 500 });
     }
 
-    // 9. Background: Voice Alert for typical calls (Async, won't block response)
-    // For 'all_admins', the frontend handles calling the generic Twilio TTS alert directly.
-    if (listenerId !== 'all_admins' && listenerData?.phoneNumber) {
-      triggerVoiceAlert(listenerData.phoneNumber).catch(e => console.error('IVR failed:', e));
-    }
+    console.log('✅ Session created successfully:', sessionId);
 
     console.log('✅ Session created successfully:', sessionId);
     return NextResponse.json({ sessionId });

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect, use, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { CallingScreen } from '@/components/call/CallingScreen';
 import { ActiveCallScreen } from '@/components/call/ActiveCallScreen';
@@ -25,6 +25,7 @@ export default function CallPage({ params }: { params: Promise<{ sessionId: stri
   const [listener, setListener] = useState<BigSunoUser | null>(null);
   const [showRating, setShowRating] = useState(false);
   const [loading, setLoading] = useState(true);
+  const initializeRef = useRef(false);
 
   // 1. Fetch Session & Listener
   useEffect(() => {
@@ -75,15 +76,18 @@ export default function CallPage({ params }: { params: Promise<{ sessionId: stri
   useEffect(() => {
     if (!user || !activeRole || !sessionId || !session) return;
     if (callState !== 'idle') return;
+    if (initializeRef.current) return;
+    initializeRef.current = true;
 
     const initialize = async () => {
       try {
+        console.log("🚀 Initializing call for session:", sessionId);
         setCallState('ringing');
 
         // ─── 40s TIMEOUT LOGIC ───
         const timeoutId = setTimeout(async () => {
           if (useCallStore.getState().callState === 'ringing' || useCallStore.getState().callState === 'connecting') {
-            console.log("Call timed out after 40s.");
+            console.log("⏳ Call timed out after 40s.");
             
             // 1. Update status in Firestore directly to trigger remote hangup
             await updateDoc(doc(db, 'sessions', sessionId), {
@@ -103,7 +107,6 @@ export default function CallPage({ params }: { params: Promise<{ sessionId: stri
           clearTimeout(timeoutId); // Stop timeout on connection
           setCallState('active');
           
-          // ... rest of existing onConnected logic ...
           try {
             const { runTransaction, doc, collection, serverTimestamp } = await import('firebase/firestore');
             const { db } = await import('@/lib/firebase');
@@ -162,12 +165,12 @@ export default function CallPage({ params }: { params: Promise<{ sessionId: stri
             startTimer();
           } catch (err) {
             console.error("Deduction failed:", err);
-            // Even if deduction fails, we might want to allow the call but log the error
           }
         };
 
         let handler;
         if (activeRole === 'seeker') {
+          console.log("📞 Starting outgoing call...");
           handler = await startCall(sessionId, onEmoji, onConnected);
 
           // Trigger Multi-Cross Calling Logic
@@ -193,6 +196,7 @@ export default function CallPage({ params }: { params: Promise<{ sessionId: stri
             return;
           }
         } else {
+          console.log("📞 Answering incoming call...");
           handler = await answerCall(sessionId, onEmoji, onConnected);
         }
 
