@@ -151,19 +151,9 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   };
 
   const redirectToDashboard = (u: BigSunoUser) => {
-    const roles = u.roles || [];
-    let activeRole = u.activeRole;
-    
-    if (!activeRole) {
-      if (roles.includes('seeker')) activeRole = 'seeker';
-      else if (roles.includes('provider')) activeRole = 'provider';
-      else if (roles.includes('admin')) activeRole = 'admin';
-      else activeRole = 'seeker';
-    }
-    
-    if (activeRole === 'admin') router.push('/admin/dashboard');
-    else if (activeRole === 'provider') router.push('/provider/dashboard');
-    else router.push('/seeker/home');
+    // Default Landing is ALWAYS Seeker Panel as per user request.
+    // Users can switch to Provider/Admin via the header/PanelSwitcher.
+    router.push('/seeker/home');
   };
 
   // SILENT AUTH OPTIMIZATION:
@@ -189,16 +179,10 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
   // ⚡ CRITICAL FIX: ACCESS ENFORCEMENT ⚡
   // Prevent children from mounting if the path is not accessible for the current user.
-  // This stops "Provider" sidebars/headers from appearing on Seeker pages during a redirect.
+  // Instead of a hanging spinner, we redirect immediately.
   if (user && !canAccessPath(user, pathname)) {
-    return (
-      <div className="fixed inset-0 bg-white z-[9999] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-           <Spinner size="md" />
-           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Redirecting to your dashboard...</p>
-        </div>
-      </div>
-    );
+    redirectToDashboard(user);
+    return null;
   }
 
   return <>{children}</>;
