@@ -187,6 +187,20 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     );
   }
 
+  // ⚡ CRITICAL FIX: ACCESS ENFORCEMENT ⚡
+  // Prevent children from mounting if the path is not accessible for the current user.
+  // This stops "Provider" sidebars/headers from appearing on Seeker pages during a redirect.
+  if (user && !canAccessPath(user, pathname)) {
+    return (
+      <div className="fixed inset-0 bg-white z-[9999] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+           <Spinner size="md" />
+           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Redirecting to your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
   return <>{children}</>;
 }
 

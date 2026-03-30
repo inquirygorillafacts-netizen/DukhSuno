@@ -25,6 +25,7 @@ export const viewport = {
 import { PresenceProvider } from "@/components/PresenceProvider";
 import { MainLayout } from "@/components/MainLayout";
 import { AuthGuard } from "@/components/auth/AuthGuard";
+import { PWAInitializer } from "@/components/shared/PWAInitializer";
 
 export default function RootLayout({
   children,
@@ -35,6 +36,7 @@ export default function RootLayout({
     <html lang="hi" className="light" suppressHydrationWarning>
       <body className="antialiased selection:bg-rose-100 selection:text-rose-900" suppressHydrationWarning>
         <AuthGuard>
+          <PWAInitializer />
           <PresenceProvider>
             <MainLayout>
               {children}

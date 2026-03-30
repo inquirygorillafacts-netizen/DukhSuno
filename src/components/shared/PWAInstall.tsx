@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Download, Sparkles, Zap, Bell, Shield, Smartphone, X, ArrowRight, Star } from 'lucide-react';
-import { usePWAStatus } from '@/hooks/usePWAStatus';
+import { Download, Zap, Bell, Shield, Smartphone, X, ArrowRight, Star } from 'lucide-react';
+import { usePWAStore } from '@/stores/pwa-store';
 
 interface Props {
   onInstallStarted?: () => void;
@@ -11,26 +11,9 @@ interface Props {
 }
 
 export default function PWAInstall({ renderTrigger }: Props) {
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  // Use global PWA state
+  const { deferredPrompt, isStandalone, isInstalled, setInstalled, clearPrompt } = usePWAStore();
   const [showSheet, setShowSheet] = useState(false);
-  const [isInstalled, setIsInstalled] = useState(false);
-  const { isStandalone } = usePWAStatus();
-
-  useEffect(() => {
-    // Check if already installed
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-      setIsInstalled(true);
-    }
-
-    const handler = (e: any) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-    };
-
-    window.addEventListener('beforeinstallprompt', handler);
-
-    return () => window.removeEventListener('beforeinstallprompt', handler);
-  }, []);
 
   const handleInstallClick = async () => {
     if (!deferredPrompt) return;
@@ -38,13 +21,17 @@ export default function PWAInstall({ renderTrigger }: Props) {
     // Hide our benefit sheet
     setShowSheet(false);
     
-    // Show the browser's install prompt
-    deferredPrompt.prompt();
-    
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
-      setIsInstalled(true);
-      setDeferredPrompt(null);
+    try {
+        // Show the browser's install prompt
+        deferredPrompt.prompt();
+        
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          setInstalled(true);
+          clearPrompt();
+        }
+    } catch (err) {
+        console.error('PWA Install Error:', err);
     }
   };
 
@@ -71,23 +58,24 @@ export default function PWAInstall({ renderTrigger }: Props) {
     }
   ];
 
-  if (isInstalled || isStandalone) return null;
+  // FIX: Instead of early return null, handle visibility in the return JSX
+  // This keeps the hook count stable and prevents "Rendered more hooks" errors.
+  const isPWAVisible = !(isInstalled || isStandalone);
 
   return (
     <>
       {/* Dynamic Trigger */}
-      {renderTrigger && renderTrigger(() => {
+      {isPWAVisible && renderTrigger && renderTrigger(() => {
         if (deferredPrompt) {
-          // Directly trigger browser install prompt
           handleInstallClick();
         } else {
           setShowSheet(true);
         }
-      }, isInstalled ? false : !!deferredPrompt)}
+      }, !!deferredPrompt)}
 
       {/* Benefits Slide-up Sheet */}
       <AnimatePresence>
-        {showSheet && (
+        {isPWAVisible && showSheet && (
           <div className="fixed inset-0 z-[5000] flex items-end md:items-center justify-center p-0 md:p-6 overflow-hidden">
             {/* Backdrop */}
             <motion.div 
@@ -170,9 +158,10 @@ export default function PWAInstall({ renderTrigger }: Props) {
                  <div className="space-y-4">
                     <button
                        onClick={handleInstallClick}
-                       className="w-full h-20 bg-slate-900 text-white rounded-[2.5rem] font-black text-[18px] shadow-2xl shadow-indigo-100 flex items-center justify-center gap-4 transition-all active:scale-95 group hover:bg-black uppercase tracking-[0.2em]"
+                       disabled={!deferredPrompt}
+                       className="w-full h-20 bg-slate-900 text-white rounded-[2.5rem] font-black text-[18px] shadow-2xl shadow-indigo-100 flex items-center justify-center gap-4 transition-all active:scale-95 group hover:bg-black uppercase tracking-[0.2em] disabled:opacity-50"
                     >
-                       <span>Install Now</span>
+                       <span>{deferredPrompt ? 'Install Now' : 'Browser Support Required'}</span>
                        <ArrowRight size={24} className="group-hover:translate-x-1 transition-transform" />
                     </button>
                     

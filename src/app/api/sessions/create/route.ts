@@ -79,7 +79,7 @@ export async function POST(req: Request) {
       planMinutes: Number(planMinutes) || 0,
       planPrice: finalPrice,
       creditsUsed: finalPrice,
-      status: 'waiting',
+      status: 'ringing',
       transactionId: null,
       createdAt: FieldValue.serverTimestamp(),
       connectedAt: null,

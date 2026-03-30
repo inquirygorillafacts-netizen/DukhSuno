@@ -85,9 +85,10 @@ export default function CallPage({ params }: { params: Promise<{ sessionId: stri
           if (useCallStore.getState().callState === 'ringing' || useCallStore.getState().callState === 'connecting') {
             console.log("Call timed out after 40s.");
             
-            // 1. Update status in Firestore
+            // 1. Update status in Firestore directly to trigger remote hangup
             await updateDoc(doc(db, 'sessions', sessionId), {
-              status: 'timeout',
+              status: 'missed',
+              missedBy: 'timeout',
               endedAt: serverTimestamp()
             });
 
@@ -316,16 +317,25 @@ export default function CallPage({ params }: { params: Promise<{ sessionId: stri
           // 3. Update Listener Balance & Status
           const listenerSnap = await transaction.get(listenerRef);
           if (listenerSnap.exists()) {
-            const currentBalance = listenerSnap.data().availableBalance || 0;
-            const currentTotal = listenerSnap.data().totalEarnings || 0;
+            const listenerData = listenerSnap.data();
+            const currentBalance = listenerData.availableBalance || 0;
+            const currentTotal = listenerData.totalEarnings || 0;
             
+            // --- RATING AGGREGATION ---
+            const prevAvg = listenerData.ratingAvg || 0;
+            const prevCount = listenerData.ratingCount || 0;
+            const newCount = prevCount + 1;
+            const newAvg = (prevAvg * prevCount + rating) / newCount;
+
             // Calculate net from the session record
             const net = session.listenerEarned || 0;
             
             transaction.update(listenerRef, {
               inCall: false,
               availableBalance: currentBalance + net,
-              totalEarnings: currentTotal + net
+              totalEarnings: currentTotal + net,
+              ratingAvg: Number(newAvg.toFixed(2)),
+              ratingCount: newCount
             });
           }
         });

@@ -8,15 +8,23 @@ export function CallingScreen({ listener }: { listener: any }) {
   const { endCall } = useCallStore();
 
   useEffect(() => {
-    const audio = new Audio('/ringtone.mp3');
-    audio.loop = true;
-    audio.play().catch(e => console.log('Audio autoplay blocked or failed:', e));
+    // Only play Ringtone if this is an incoming call (we are the provider)
+    const isIncoming = listener?.displayName === 'Seeker';
+    
+    let audio: HTMLAudioElement | null = null;
+    if (isIncoming) {
+      audio = new Audio('/ringtone.mp3');
+      audio.loop = true;
+      audio.play().catch(e => console.log('Audio autoplay blocked or failed:', e));
+    }
     
     return () => {
-      audio.pause();
-      audio.currentTime = 0;
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
+      }
     };
-  }, []);
+  }, [listener]);
 
   const getAvatarDisplay = (url: string) => {
     if (url?.startsWith('emoji:')) return url.split(':')[1];

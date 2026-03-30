@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from "react";
-
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -10,13 +9,13 @@ import {
     ShieldCheck, 
     Headphones, 
     MessageCircle, 
-    Sparkles,
     Zap
 } from "lucide-react";
 import { useAuthStore } from "@/stores/auth-store";
 
 const PANELS = [
     { 
+        id: 'admin',
         name: "Admin Portal", 
         href: "/admin/dashboard", 
         icon: ShieldCheck, 
@@ -25,6 +24,7 @@ const PANELS = [
         description: "Global system administration"
     },
     { 
+        id: 'provider',
         name: "Provider Dashboard", 
         href: "/provider/dashboard", 
         icon: Headphones, 
@@ -33,6 +33,7 @@ const PANELS = [
         description: "Professional consultant portal"
     },
     { 
+        id: 'seeker',
         name: "Client Space", 
         href: "/seeker/home", 
         icon: MessageCircle, 
@@ -49,32 +50,41 @@ export default function PanelSwitcher() {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
-    // Filter panels based on user roles
-    const availablePanels = PANELS.filter(panel => {
-        if (panel.name === "Owner Portal") return user?.owner === true;
-        if (panel.name === "Admin Portal") return hasRole('admin');
-        if (panel.name === "Provider Dashboard") return hasRole('provider');
-        if (panel.name === "Client Space") return hasRole('seeker');
-        return true;
-    });
+    // FIX: Calculate available panels more robustly
+    const availablePanels = useMemo(() => {
+        return PANELS.filter(panel => {
+            // Seeker (Client Space) is always available to everyone
+            if (panel.id === 'seeker') return true;
+            if (panel.id === 'admin') return hasRole('admin');
+            if (panel.id === 'provider') return hasRole('provider');
+            return false;
+        });
+    }, [user?.roles, hasRole]);
 
-    // Identify current panel
-    const currentPanel = availablePanels.find(p => {
-        const segment = p.href.split('/')[1];
-        return pathname.startsWith(`/${segment}`);
-    }) || availablePanels[0] || PANELS[2];
+    // Identify current panel based on PATHNAME, not activeRole
+    const currentPanel = useMemo(() => {
+        const found = availablePanels.find(p => {
+            const segment = p.href.split('/')[1];
+            return pathname.startsWith(`/${segment}`);
+        });
+        // Important: If we are on a seeker page but it doesn't match precisely, 
+        // default to "Client Space" if path indicates seeker.
+        if (!found && pathname.includes('/seeker')) {
+            return PANELS.find(p => p.id === 'seeker') || PANELS[2];
+        }
+        return found || availablePanels[0] || PANELS[2];
+    }, [availablePanels, pathname]);
 
     // If only one panel is available, show a static label (no dropdown)
     if (availablePanels.length <= 1) {
-        const singlePanel = availablePanels[0] || PANELS[2]; // Default to Client Space
         return (
             <div className="flex items-center gap-3 px-4 py-2 bg-white border border-slate-200 rounded-2xl shadow-sm">
-                <div className={`w-8 h-8 rounded-xl ${singlePanel.bg} flex items-center justify-center ${singlePanel.color} border border-white shadow-sm shrink-0`}>
-                    <singlePanel.icon size={18} strokeWidth={2.5} />
+                <div className={`w-8 h-8 rounded-xl ${currentPanel.bg} flex items-center justify-center ${currentPanel.color} border border-white shadow-sm shrink-0`}>
+                    <currentPanel.icon size={18} strokeWidth={2.5} />
                 </div>
                 <div className="text-left">
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Context</p>
-                    <p className="text-xs font-black text-slate-900 tracking-tight leading-none uppercase">{singlePanel.name.split(' ')[0]}</p>
+                    <p className="text-xs font-black text-slate-900 tracking-tight leading-none uppercase">{currentPanel.name.split(' ')[0]}</p>
                 </div>
             </div>
         );
@@ -165,4 +175,3 @@ export default function PanelSwitcher() {
         </div>
     );
 }
-
