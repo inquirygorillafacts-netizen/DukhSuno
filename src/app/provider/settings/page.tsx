@@ -12,7 +12,8 @@ import {
   ChevronRight, 
   LogOut,
   Moon,
-  Shield
+  Shield,
+  QrCode
 } from 'lucide-react';
 import React from 'react';
 
@@ -37,6 +38,11 @@ export default function SunneSettingsPage() {
         <SectionHeader title="अकाउंट और सुरक्षा" />
         <SettingsLink icon={<Lock size={18} />} label="पासवर्ड बदलें" />
         <SettingsLink icon={<Shield size={18} />} label="टू-फैक्टर ऑथेंटिकेशन" badge="जरूरी" />
+        <SettingsLink 
+           icon={<QrCode size={18} />} 
+           label="पेमेंट सेटिंग्स (Payout Setup)" 
+           onClick={() => router.push('/provider/settings/payment')}
+        />
       </div>
 
       <div className="space-y-4">
@@ -78,9 +84,11 @@ function SectionHeader({ title }: { title: string }) {
   );
 }
 
-function SettingsLink({ icon, label, badge }: { icon: any, label: string, badge?: string }) {
+function SettingsLink({ icon, label, badge, onClick }: { icon: any, label: string, badge?: string, onClick?: () => void }) {
   return (
-    <button className="w-full flex items-center justify-between p-5 rounded-2xl bg-white border border-slate-100 shadow-sm group hover:border-indigo-100 transition-all active:scale-[0.98]">
+    <button 
+      onClick={onClick}
+      className="w-full flex items-center justify-between p-5 rounded-2xl bg-white border border-slate-100 shadow-sm group hover:border-indigo-100 transition-all active:scale-[0.98]">
       <div className="flex items-center gap-4">
         <div className="p-2.5 bg-slate-50 rounded-xl text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors">{icon}</div>
         <span className="font-bold text-sm text-slate-700">{label}</span>

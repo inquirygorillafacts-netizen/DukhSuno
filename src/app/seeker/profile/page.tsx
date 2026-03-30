@@ -122,14 +122,39 @@ export default function SunaneProfilePage() {
         </div>
       </section>
 
+      {/* Provider Switch / Onboarding Section */}
+      <section className="pt-2 px-4">
+         {(!user?.isProvider && !user?.roles?.includes('provider')) ? (
+            <button 
+               onClick={() => router.push('/onboarding/provider')}
+               className="w-full glass bg-gradient-to-br from-indigo-500 to-indigo-700 p-6 rounded-[2rem] border border-indigo-400/50 flex flex-col items-center justify-center gap-2 group hover:shadow-2xl hover:shadow-indigo-500/30 transition-all active:scale-95 relative overflow-hidden"
+            >
+               <div className="absolute -right-10 -top-10 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-1000" />
+               <Sparkles className="text-white/80 w-8 h-8 mb-1 animate-pulse" />
+               <h3 className="text-lg font-black text-white uppercase tracking-tighter italic">प्रोवाइडर बनें और पैसे कमाएं</h3>
+               <p className="text-[10px] text-indigo-100 font-bold tracking-widest uppercase">Start earning today • Join BigSuno</p>
+            </button>
+         ) : (
+            <button 
+               onClick={() => router.push('/provider/dashboard')}
+               className="w-full glass bg-gradient-to-br from-emerald-500 to-teal-700 p-6 rounded-[2rem] border border-emerald-400/50 flex flex-col items-center justify-center gap-2 group hover:shadow-2xl hover:shadow-emerald-500/30 transition-all active:scale-95 relative overflow-hidden"
+            >
+               <div className="absolute -left-10 -bottom-10 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-1000" />
+               <User className="text-white/80 w-8 h-8 mb-1" />
+               <h3 className="text-lg font-black text-white uppercase tracking-tighter italic">Provider Panel</h3>
+               <p className="text-[10px] text-emerald-100 font-bold tracking-widest uppercase">Switch to your expert dashboard</p>
+            </button>
+         )}
+      </section>
+
       {/* Version Card & Logout */}
       <div className="pt-8 space-y-8 flex flex-col items-center">
         <button 
            onClick={handleLogout} 
-           className="h-16 px-10 bg-slate-900 text-white rounded-[2rem] text-xs font-black uppercase tracking-[0.3em] flex items-center gap-4 shadow-2xl shadow-slate-200 hover:bg-black active:scale-95 transition-all group"
+           className="inline-flex items-center gap-3 text-[#ff4d6d] font-black uppercase tracking-[0.3em] text-xs hover:scale-105 transition-transform active:scale-95 group"
         >
-          <LogOut size={18} className="text-rose-400 group-hover:-translate-x-1 transition-transform" />
-          <span>Security Logout</span>
+          <LogOut size={18} strokeWidth={3} className="group-hover:-translate-x-1 transition-transform" />
+          <span>Logout Session</span>
         </button>
 
         <div className="flex flex-col items-center gap-2">

@@ -200,7 +200,7 @@ export default function ProfessionalProfilePage() {
                           <p className="text-sm font-black text-white italic flex items-center gap-1"><Star size={10} className="fill-amber-400 text-amber-400" /> {listener.ratingAvg?.toFixed(1) || "0.0"}</p>
                        </div>
                        <div className="bg-white/10 backdrop-blur-md border border-white/20 px-3 py-2 rounded-xl">
-                          <p className="text-[8px] font-black text-indigo-300 uppercase tracking-widest leading-none mb-0.5">Sessions</p>
+                          <p className="text-[8px] font-black text-indigo-300 uppercase tracking-widest leading-none mb-0.5">Helps</p>
                           <p className="text-sm font-black text-white italic">{listener.totalSessions || 0}+</p>
                        </div>
                     </div>
@@ -239,7 +239,7 @@ export default function ProfessionalProfilePage() {
                         {listener.displayName}
                     </h1>
                     {listener.isVerified && (
-                        <div className="bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-full flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest border border-indigo-100">
+                        <div className="bg-emerald-50 text-emerald-600 px-2.5 py-1 rounded-full flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest border border-emerald-100 shadow-sm shadow-emerald-100/50">
                           <ShieldCheck size={12} className="fill-current" /> Verified
                         </div>
                     )}
@@ -247,10 +247,10 @@ export default function ProfessionalProfilePage() {
                 <p className="text-indigo-600 font-bold italic text-sm mb-3 leading-tight">
                     {listener.headline || "Professional Expert Consultant 💙"}
                 </p>
-                <div className="flex flex-wrap items-center gap-4 text-slate-400 text-xs font-black uppercase tracking-widest">
-                    <span className="flex items-center gap-1 text-amber-500">★ {listener.ratingAvg?.toFixed(1) || '0.0'}</span>
-                    <span>• {listener.totalSessions || 0} sessions</span>
-                    <span>• {listener.ratingCount || 0} reviews</span>
+                <div className="flex flex-wrap items-center gap-3 text-slate-400 text-xs font-black uppercase tracking-widest">
+                    <span className="flex items-center gap-1 text-amber-500 bg-amber-50 px-2 py-0.5 rounded-md">★ {listener.ratingAvg?.toFixed(1) || '0.0'}</span>
+                    <span className="bg-indigo-50 text-indigo-500 px-2 py-0.5 rounded-md italic tracking-widest">GENDER = {listener.gender || 'Any'}</span>
+                    <span className="bg-slate-50 text-slate-500 px-2 py-0.5 rounded-md">• {listener.totalSessions || 0} helps</span>
                 </div>
             </div>
 
@@ -298,25 +298,36 @@ export default function ProfessionalProfilePage() {
                         <button 
                             key={plan.id || `plan-${idx}`}
                             onClick={() => setSelectedPlan(plan)}
-                            className={`w-full p-5 rounded-[2rem] border-2 text-left transition-all relative group ${
+                            className={`w-full p-4 rounded-3xl border text-left transition-all relative overflow-hidden group ${
                                 selectedPlan?.id === plan.id 
-                                ? 'border-indigo-600 bg-indigo-50' 
-                                : 'border-slate-50 bg-slate-50/50 hover:border-indigo-200'
+                                ? 'border-rose-400 bg-gradient-to-r from-rose-50 to-white shadow-lg shadow-rose-100/50' 
+                                : 'border-slate-100 bg-white hover:border-rose-200 hover:shadow-md'
                             }`}
                         >
-                            <div className="flex justify-between items-center mb-1">
-                                <p className={`text-xs font-black uppercase tracking-widest ${selectedPlan?.id === plan.id ? 'text-indigo-600' : 'text-slate-400'}`}>
-                                    {plan.minutes} Minutes
-                                </p>
-                                {selectedPlan?.id === plan.id && <Sparkles size={14} className="text-indigo-600 animate-spin-slow" />}
-                            </div>
-                            <div className="flex items-baseline gap-1">
-                                <span className="text-2xl font-black tracking-tighter text-slate-900">₹{plan.price}</span>
-                                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Rate</span>
-                            </div>
                             {selectedPlan?.id === plan.id && (
-                                <p className="text-[10px] text-indigo-500 mt-2 italic font-medium">"{plan.heading || 'One-on-One Session'}"</p>
+                                <div className="absolute top-0 right-0 bg-rose-400 text-white px-3 py-1 rounded-bl-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-1 shadow-sm">
+                                    <Check size={10} strokeWidth={4} /> Selected
+                                </div>
                             )}
+                            <div className="flex justify-between items-center">
+                                <div>
+                                    <h4 className={`text-sm md:text-base font-black italic tracking-tighter ${selectedPlan?.id === plan.id ? 'text-rose-600' : 'text-slate-800'}`}>
+                                        {plan.heading || `Consultation Package ${idx + 1}`}
+                                    </h4>
+                                    <div className="flex items-center gap-1.5 mt-1">
+                                        <Clock size={12} className={selectedPlan?.id === plan.id ? 'text-rose-400' : 'text-slate-400'} />
+                                        <p className={`text-[10px] md:text-xs font-bold uppercase tracking-widest ${selectedPlan?.id === plan.id ? 'text-rose-500' : 'text-slate-500'}`}>
+                                            {plan.minutes} Minutes Talk Time
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="text-right pl-4 border-l border-slate-100">
+                                    <span className="text-[9px] text-slate-400 font-bold uppercase tracking-widest block mb-0.5">Price</span>
+                                    <span className={`text-2xl md:text-3xl font-black tracking-tighter leading-none ${selectedPlan?.id === plan.id ? 'text-rose-600' : 'text-slate-900'}`}>
+                                        ₹{plan.price}
+                                    </span>
+                                </div>
+                            </div>
                         </button>
                     ))}
                 </div>

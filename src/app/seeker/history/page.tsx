@@ -57,7 +57,7 @@ export default function SeekerHistoryPage() {
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex justify-between items-start mb-1">
-            <h4 className="font-black truncate text-base text-slate-800 uppercase tracking-tighter">Session #{session.sessionId.slice(-4).toUpperCase()}</h4>
+            <h4 className="font-black truncate text-base text-slate-800 uppercase tracking-tighter">Talk #{session.sessionId.slice(-4).toUpperCase()}</h4>
             <p className="font-black text-base text-slate-900">-₹{session.creditsUsed || 0}</p>
           </div>
           <div className="flex items-center gap-3">
@@ -111,7 +111,7 @@ export default function SeekerHistoryPage() {
             <div className="p-20 text-center bg-white/40 backdrop-blur-sm rounded-[2.5rem] border-dashed border-2 border-slate-100">
               <Activity className="mx-auto mb-4 text-slate-200" size={48} strokeWidth={1.5} />
               <p className="text-slate-500 font-bold text-sm tracking-tight">No consultations found yet.</p>
-              <p className="text-slate-400 text-xs mt-1">Your past sessions will appear here.</p>
+              <p className="text-slate-400 text-xs mt-1">Your past calls will appear here.</p>
             </div>
           )}
         </div>

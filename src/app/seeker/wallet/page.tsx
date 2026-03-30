@@ -160,20 +160,6 @@ export default function WalletPage() {
         </div>
       </section>
 
-      {/* Custom Amount / Info */}
-      <div className="p-6 md:p-10 glass bg-white rounded-3xl border border-slate-100 shadow-sm relative group overflow-hidden">
-         <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-indigo-500/5 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000" />
-         <div className="relative z-10 flex flex-col md:flex-row items-center gap-6">
-            <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center shadow-inner border border-slate-200/50">
-               <Wallet className="text-slate-900 w-8 h-8" />
-            </div>
-            <div className="flex-1 text-center md:text-left">
-               <h4 className="text-lg md:text-xl font-black leading-none mb-1 uppercase tracking-tighter italic">Financial Security</h4>
-               <p className="text-[9px] md:text-sm text-slate-500 font-medium leading-relaxed">Your credits are secure, anonymous, and never expire.</p>
-            </div>
-         </div>
-      </div>
-
       {/* Transaction History — ADD MONEY ONLY */}
       <section className="space-y-6">
          <div className="flex items-center justify-between px-2">

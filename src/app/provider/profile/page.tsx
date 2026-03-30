@@ -125,7 +125,7 @@ export default function SunneProfilePage() {
         </p>
         <div className="flex flex-wrap items-center gap-4 text-slate-400 text-xs font-black uppercase tracking-widest">
           <span className="flex items-center gap-1 text-amber-500">★ {user?.ratingAvg?.toFixed(1) || '0.0'}</span>
-          <span>• {user?.totalSessions || 0} sessions</span>
+          <span>• {user?.totalSessions || 0} helps</span>
           <span>• Female</span>
         </div>
       </div>
@@ -249,7 +249,7 @@ export default function SunneProfilePage() {
       {/* Logout */}
       <div className="text-center pt-8">
         <button onClick={handleLogout} className="inline-flex items-center gap-3 text-[#ff4d6d] font-black uppercase tracking-[0.3em] text-xs hover:scale-105 transition-transform active:scale-95">
-          <LogOut size={18} strokeWidth={3} /> Logout Session
+          <LogOut size={18} strokeWidth={3} /> Log Out
         </button>
         <div className="mt-8 flex items-center justify-center gap-2 text-[10px] font-black text-slate-300 uppercase tracking-[0.5em]">
            <Zap size={10} className="fill-current text-[#ff4d6d]/40" /> BIGSUNO v3.0

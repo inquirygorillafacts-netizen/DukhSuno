@@ -13,7 +13,8 @@ import {
     Monitor,
     ArrowLeft,
     Percent,
-    CreditCard
+    CreditCard,
+    MessageCircle
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
@@ -24,7 +25,8 @@ export default function OwnerSettingsPage() {
     const [saving, setSaving] = useState(false);
     const [platformConfig, setPlatformConfig] = useState<any>({
         defaultCommissionRate: 0.02,
-        minWithdrawalAmount: 99
+        minWithdrawalAmount: 99,
+        socialGroupLink: ''
     });
 
     useEffect(() => {
@@ -161,6 +163,45 @@ export default function OwnerSettingsPage() {
                                     </button>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </SettingsSection>
+
+                <SettingsSection
+                    title="Community & Social"
+                    icon={<MessageCircle className="text-emerald-500" />}
+                    description="Manage social group links visible to seekers."
+                >
+                    <div className="p-8 space-y-6">
+                        <div className="space-y-2">
+                            <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest px-1">Social Group Link (WhatsApp / Telegram)</label>
+                            <p className="text-[9px] text-slate-400 font-medium px-1 mb-2">यहाँ अपने ग्रुप का लिंक डालें। जब तक लिंक नहीं होगा, सीकर होम पर बटन disabled रहेगा।</p>
+                            <div className="flex items-center gap-3">
+                                <input 
+                                    type="url" 
+                                    placeholder="https://chat.whatsapp.com/..."
+                                    value={platformConfig.socialGroupLink || ''}
+                                    className="w-full h-14 px-5 rounded-2xl bg-slate-50 border border-slate-100 focus:ring-4 focus:ring-emerald-500/10 outline-none font-bold text-sm"
+                                    onChange={(e) => {
+                                        const newConfig = { ...platformConfig, socialGroupLink: e.target.value };
+                                        setPlatformConfig(newConfig);
+                                        (window as any)._platformConfig = newConfig;
+                                    }}
+                                />
+                                <button 
+                                    onClick={saveConfig}
+                                    disabled={saving}
+                                    className="h-14 px-6 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-600 transition-all disabled:opacity-30 shrink-0"
+                                >
+                                    Save
+                                </button>
+                            </div>
+                            {platformConfig.socialGroupLink && (
+                                <div className="mt-3 flex items-center gap-2 px-1">
+                                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                                    <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Link Active — Visible to Seekers</span>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </SettingsSection>

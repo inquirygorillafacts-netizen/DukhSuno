@@ -245,7 +245,7 @@ export default function SunneDashboardPage() {
           color="rose"
         />
         <StatBox
-          label="Total Calls"
+          label="Total Helps"
           value={totalCalls}
           icon={<PhoneIncoming />}
           color="slate"
@@ -257,7 +257,7 @@ export default function SunneDashboardPage() {
         <div className="flex items-center justify-between px-2">
           <div className="flex items-center gap-2">
             <History size={16} className="text-slate-400" />
-            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">Recent Sessions</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">Recent Helps</span>
           </div>
           <Link href="/provider/calls" className="text-[10px] font-black text-emerald-600 uppercase tracking-widest hover:underline">
             View All
@@ -291,7 +291,7 @@ export default function SunneDashboardPage() {
                   </div>
                   <div>
                     <div className="flex items-center gap-2 mb-0.5">
-                      <p className="text-[11px] font-black text-slate-800 uppercase tracking-tighter">Session #{session.sessionId.slice(-4).toUpperCase()}</p>
+                      <p className="text-[11px] font-black text-slate-800 uppercase tracking-tighter">Call #{session.sessionId.slice(-4).toUpperCase()}</p>
                       <span className={`px-2 py-0.5 rounded-md text-[7px] font-black uppercase tracking-widest ${statusColor}`}>{status}</span>
                     </div>
                     <div className="flex items-center gap-2">

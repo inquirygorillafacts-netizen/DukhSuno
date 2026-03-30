@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
-import { adminDb, adminRtdb } from '@/lib/firebase-admin';
+import { adminDb, adminRtdb, FieldValue } from '@/lib/firebase-admin';
 import { triggerVoiceAlert } from '@/lib/twilio';
-import * as admin from 'firebase-admin';
 
 export async function POST(req: Request) {
   try {
@@ -82,7 +81,7 @@ export async function POST(req: Request) {
       creditsUsed: finalPrice,
       status: 'waiting',
       transactionId: null,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      createdAt: FieldValue.serverTimestamp(),
       connectedAt: null,
       endedAt: null,
       durationSeconds: 0,
@@ -120,8 +119,8 @@ export async function POST(req: Request) {
   } catch (error: any) {
     console.error('❌ Critical Session Error:', error);
     return NextResponse.json({ 
-      error: 'Internal Server Error', 
-      details: error.message 
+      error: error.message || 'Internal Server Error', 
+      details: error.message || 'Unknown error occurred'
     }, { status: 500 });
   }
 }

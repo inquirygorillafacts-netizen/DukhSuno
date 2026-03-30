@@ -86,8 +86,8 @@ export default function LoginPage() {
       </div>
 
       <div className="w-full max-w-[420px] glass bg-white/70 rounded-[3.5rem] p-12 shadow-2xl text-center relative z-10 animate-in fade-in zoom-in duration-500">
-        <div className="w-16 h-16 bg-slate-900 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-md border border-slate-50 p-3">
-          <img src="/icons/image.png" alt="BigSuno" className="w-full h-full object-contain" />
+        <div className="w-24 h-24 mx-auto mb-6 flex items-center justify-center">
+          <img src="/favicon.png" alt="BigSuno Logo" className="w-full h-full object-contain" />
         </div>
         
         <h1 className="text-4xl font-black tracking-tighter mb-2">
@@ -103,10 +103,13 @@ export default function LoginPage() {
           <button 
             onClick={handleGoogleLogin}
             disabled={loading}
-            className="w-full h-14 bg-slate-900 border border-transparent text-white rounded-2xl font-bold flex items-center justify-center gap-4 hover:bg-slate-800 active:scale-95 transition-all text-xs uppercase tracking-widest shadow-sm disabled:opacity-50 group"
+            className="w-full h-14 bg-slate-900 border border-transparent text-white rounded-2xl font-bold flex items-center justify-center gap-4 hover:bg-slate-800 active:scale-95 transition-all text-sm tracking-wide shadow-sm disabled:opacity-80 group relative overflow-hidden"
           >
             {loading ? (
-              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              <div className="flex items-center justify-center gap-3">
+                <div className="w-5 h-5 border-[3px] border-white/30 border-t-white rounded-full animate-spin" />
+                <span className="animate-pulse">Securely redirecting...</span>
+              </div>
             ) : (
               <>
                 <div className="w-8 h-8 bg-white rounded-lg shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform">

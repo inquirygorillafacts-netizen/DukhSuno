@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { collection, query, where, limit, onSnapshot, orderBy, getDocs } from 'firebase/firestore';
+import { collection, query, where, limit, onSnapshot, orderBy, getDocs, doc, getDoc } from 'firebase/firestore';
 import { ref, onValue } from 'firebase/database';
 import { db, rtdb } from '@/lib/firebase';
 import { APP_CONFIG } from '@/lib/constants';
@@ -52,7 +52,7 @@ function ProviderCard({ provider }: { provider: any }) {
                 <Star size={10} className="fill-current" />
                 <span>{provider.ratingAvg?.toFixed(1) || '0.0'}</span>
              </div>
-             <p className="text-[7px] text-slate-400 font-black uppercase tracking-widest mt-0.5 italic">{provider.ratingCount || 0} reviews</p>
+             <p className="text-[7px] text-slate-400 font-black uppercase tracking-widest mt-0.5 italic">{provider.ratingCount || 0} helps</p>
           </div>
         </div>
 
@@ -117,19 +117,37 @@ export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [socialGroupLink, setSocialGroupLink] = useState<string>('');
 
   const categories = [
     { id: 'all', label: 'All', icon: <Sparkles size={14} /> },
-    { id: 'listener', label: 'Listener', icon: <Zap size={14} /> },
+    { id: 'listener', label: 'Listener', icon: <Heart size={14} /> },
     { id: 'influencer', label: 'Influencer', icon: <TrendingUp size={14} /> },
     { id: 'mentor', label: 'Mentor', icon: <Star size={14} /> },
-    { id: 'coach', label: 'Coach', icon: <ShieldCheck size={14} /> },
-    { id: 'expert', label: 'Expert', icon: <Sparkles size={14} /> },
-    { id: 'consultant', label: 'Consultant', icon: <Users size={14} /> },
-    { id: 'counselor', label: 'Counselor', icon: <Heart size={14} /> },
+    { id: 'sex-health', label: 'Sex Health', icon: <ShieldCheck size={14} /> },
+    { id: 'gm-expert', label: 'GM Expert', icon: <Zap size={14} /> },
+    { id: 'romantic', label: 'Romantic', icon: <Sparkles size={14} /> },
+    { id: 'other', label: 'Other', icon: <Users size={14} /> },
   ];
 
   const [isCallingAdmin, setIsCallingAdmin] = useState(false);
+  const [showUrgentConfirm, setShowUrgentConfirm] = useState(false);
+  const [urgentCallState, setUrgentCallState] = useState<'idle' | 'calling' | 'busy'>('idle');
+  const [urgentTimer, setUrgentTimer] = useState(30);
+
+  // Urgent Call — 30 second timer countdown
+  useEffect(() => {
+    if (urgentCallState !== 'calling') return;
+    if (urgentTimer <= 0) {
+      setUrgentCallState('busy');
+      setIsCallingAdmin(false);
+      return;
+    }
+    const interval = setInterval(() => {
+      setUrgentTimer(prev => prev - 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [urgentCallState, urgentTimer]);
 
   const handleUrgentCall = async () => {
     if (!user) {
@@ -137,10 +155,20 @@ export default function HomePage() {
       return;
     }
 
+    // Validation: Admin can't make urgent calls
+    if (user.roles?.includes('admin') || user.activeRole === 'admin') {
+      setShowUrgentConfirm(false);
+      alert('Admin अर्जेंट कॉल नहीं कर सकता। 🛑');
+      return;
+    }
+
+    setShowUrgentConfirm(false);
     setIsCallingAdmin(true);
+    setUrgentCallState('calling');
+    setUrgentTimer(30);
 
     try {
-      // 1. Trigger Twilio Voice Alert First (Don't await it to avoid blocking UI transition)
+      // 1. Trigger Twilio Voice Alert
       fetch('/api/twilio/urgent-alert', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -153,7 +181,7 @@ export default function HomePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userId: user.uid,
-          listenerId: 'all_admins', // Broadcast to all admins
+          listenerId: 'all_admins',
           planId: 'urgent_help',
           planMinutes: 10,
           planPrice: 0,
@@ -164,13 +192,15 @@ export default function HomePage() {
       const { sessionId, error } = await resp.json();
       if (error) throw new Error(error);
 
-      // 3. Redirect to Call Page
+      // 3. Redirect to Call Page (admin picked up)
       router.push(`/call/${sessionId}`);
     } catch (err) {
       console.error('Urgent call failed:', err);
-      alert('Attempt failed. Please try again later.');
-    } finally {
-      setIsCallingAdmin(false);
+      // Timer will handle showing "busy" state
+      if (urgentCallState === 'calling') {
+        setUrgentCallState('busy');
+        setIsCallingAdmin(false);
+      }
     }
   };
 
@@ -224,6 +254,7 @@ export default function HomePage() {
           username: data.username,
           isBlocked: data.isBlocked || false,
           providerType: data.providerType,
+          providerCategories: data.providerCategories || [data.providerType].filter(Boolean),
         };
       });
 
@@ -239,13 +270,26 @@ export default function HomePage() {
     return () => unsubscribe();
   }, []); // ← Single listener, never re-attached
 
+  // ⚡ Fetch Social Group Link from admin settings
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, 'settings', 'platform'), (snap) => {
+      if (snap.exists()) {
+        setSocialGroupLink(snap.data().socialGroupLink || '');
+      }
+    });
+    return () => unsub();
+  }, []);
+
   // ⚡ CLIENT-SIDE FILTERING — Zero Firestore cost for category/search changes
   const providers = useMemo(() => {
     let filtered = allProviders;
 
-    // Category filter
+    // Category filter — check providerType AND providerCategories array
     if (selectedCategory !== 'all') {
-      filtered = filtered.filter(p => p.providerType === selectedCategory);
+      filtered = filtered.filter(p => 
+        p.providerType === selectedCategory || 
+        (p.providerCategories && p.providerCategories.includes(selectedCategory))
+      );
     }
 
     // Search filter
@@ -266,14 +310,14 @@ export default function HomePage() {
     <div className="space-y-8 animate-in fade-in duration-700 slide-in-from-bottom-2 pb-32" suppressHydrationWarning>
       
       {/* Search Header */}
-      <section className="relative group max-w-2xl mx-auto w-full">
-         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors" size={18} />
+      <section className="relative group max-w-2xl mx-auto w-full px-2">
+         <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-rose-300 group-focus-within:text-[#ff4d6d] transition-colors" size={18} />
          <input 
            type="text" 
            placeholder="Search by name..."
            value={searchQuery}
            onChange={(e) => setSearchQuery(e.target.value)}
-           className="w-full h-14 glass bg-white/70 border-2 border-white rounded-3xl px-12 text-sm font-black shadow-xl shadow-slate-200/50 focus:outline-none focus:ring-4 focus:ring-indigo-600/10 transition-all placeholder:text-slate-300 tracking-tight"
+           className="w-full h-14 glass bg-gradient-to-r from-[#ff4d6d]/5 to-white/50 border-2 border-[#ff4d6d]/20 rounded-3xl pl-12 pr-12 text-sm font-black shadow-xl shadow-rose-100 focus:outline-none focus:border-[#ff4d6d]/50 focus:ring-4 focus:ring-[#ff4d6d]/20 transition-all placeholder:text-rose-300 text-slate-800 tracking-tight"
          />
          {isSearchMode && (
            <button 
@@ -300,7 +344,7 @@ export default function HomePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-2">
               {/* Urgent Help Banner */}
               <button 
-                onClick={handleUrgentCall}
+                onClick={() => setShowUrgentConfirm(true)}
                 disabled={isCallingAdmin}
                 className="p-5 glass border-slate-200 bg-gradient-to-br from-[#ff4d6d]/10 to-transparent rounded-3xl border relative overflow-hidden group block w-full text-left transition-transform hover:scale-[1.02] active:scale-95 disabled:opacity-70 shadow-sm"
               >
@@ -326,26 +370,43 @@ export default function HomePage() {
                  </div>
               </button>
 
-              {/* WhatsApp Group Banner */}
-              <a 
-                href={APP_CONFIG.whatsappGroup}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-5 glass border-slate-200 bg-gradient-to-br from-emerald-500/10 to-transparent rounded-3xl border relative overflow-hidden group block shadow-sm hover:scale-[1.02] transition-transform"
-              >
-                 <div className="relative z-10 flex items-center gap-4">
-                    <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg group-hover:-rotate-6 transition-transform border border-slate-50">
-                       <MessageCircle className="text-emerald-500 w-6 h-6" />
-                    </div>
-                    <div className="flex-1">
-                       <h4 className="text-sm font-black leading-none mb-1 uppercase tracking-tighter italic text-slate-900">Social Group</h4>
-                       <p className="text-[9px] text-slate-500 font-medium tracking-tight">Join our community and connect with others.</p>
-                    </div>
-                    <div className="bg-emerald-500 text-white p-2.5 rounded-xl shadow-lg shadow-emerald-200 group-hover:scale-110 transition-transform">
-                       <Plus size={16} />
-                    </div>
-                 </div>
-              </a>
+              {/* WhatsApp Group Banner — Dynamic from Admin */}
+              {socialGroupLink ? (
+                <a 
+                  href={socialGroupLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-5 glass border-slate-200 bg-gradient-to-br from-emerald-500/10 to-transparent rounded-3xl border relative overflow-hidden group block shadow-sm hover:scale-[1.02] transition-transform"
+                >
+                   <div className="relative z-10 flex items-center gap-4">
+                      <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg group-hover:-rotate-6 transition-transform border border-slate-50">
+                         <MessageCircle className="text-emerald-500 w-6 h-6" />
+                      </div>
+                      <div className="flex-1">
+                         <h4 className="text-sm font-black leading-none mb-1 uppercase tracking-tighter italic text-slate-900">Social Group</h4>
+                         <p className="text-[9px] text-slate-500 font-medium tracking-tight">Join our community and connect with others.</p>
+                      </div>
+                      <div className="bg-emerald-500 text-white p-2.5 rounded-xl shadow-lg shadow-emerald-200 group-hover:scale-110 transition-transform">
+                         <Plus size={16} />
+                      </div>
+                   </div>
+                </a>
+              ) : (
+                <div className="p-5 glass border-slate-200 bg-gradient-to-br from-slate-100/50 to-transparent rounded-3xl border relative overflow-hidden block shadow-sm opacity-50 cursor-not-allowed">
+                   <div className="relative z-10 flex items-center gap-4">
+                      <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg border border-slate-50">
+                         <MessageCircle className="text-slate-300 w-6 h-6" />
+                      </div>
+                      <div className="flex-1">
+                         <h4 className="text-sm font-black leading-none mb-1 uppercase tracking-tighter italic text-slate-400">Social Group</h4>
+                         <p className="text-[9px] text-slate-400 font-medium tracking-tight">Coming Soon...</p>
+                      </div>
+                      <div className="bg-slate-200 text-white p-2.5 rounded-xl">
+                         <Plus size={16} />
+                      </div>
+                   </div>
+                </div>
+              )}
             </div>
           </section>
 
@@ -432,6 +493,90 @@ export default function HomePage() {
             )}
          </div>
       </section>
+
+      {/* ═══ URGENT CALL POPUPS ═══ */}
+
+      {/* 1. Confirmation Popup */}
+      {showUrgentConfirm && (
+        <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-slate-900/50 backdrop-blur-xl p-6 animate-in fade-in duration-300">
+          <div className="w-full max-w-[380px] bg-white rounded-[3rem] p-10 space-y-8 animate-in zoom-in-95 duration-500 text-center shadow-2xl">
+            <div className="w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center mx-auto shadow-inner">
+              <Phone className="text-[#ff4d6d] w-10 h-10" />
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-2xl font-black text-slate-900 tracking-tighter">Urgent Call?</h2>
+              <p className="text-sm text-slate-400 font-medium italic">क्या आप अर्जेंट कॉल करने के लिए तैयार हैं?</p>
+            </div>
+            <div className="space-y-3">
+              <button 
+                onClick={handleUrgentCall}
+                className="w-full h-14 bg-[#ff4d6d] text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-rose-200 active:scale-95 transition-all flex items-center justify-center gap-3"
+              >
+                <Phone size={18} fill="currentColor" /> Yes, Connect Now
+              </button>
+              <button 
+                onClick={() => setShowUrgentConfirm(false)}
+                className="w-full h-14 bg-slate-100 text-slate-500 rounded-2xl font-black text-sm uppercase tracking-widest active:scale-95 transition-all"
+              >
+                No, Go Back
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 2. Calling / Timer Screen */}
+      {urgentCallState === 'calling' && (
+        <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-gradient-to-b from-slate-900 to-indigo-950 p-6 animate-in fade-in duration-500">
+          <div className="text-center space-y-10 animate-in zoom-in-95 duration-700">
+            {/* Pulsing ring */}
+            <div className="relative mx-auto w-40 h-40">
+              <div className="absolute inset-0 rounded-full bg-[#ff4d6d]/20 animate-ping" />
+              <div className="absolute inset-4 rounded-full bg-[#ff4d6d]/30 animate-pulse" />
+              <div className="absolute inset-8 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center">
+                <Phone size={40} className="text-white animate-bounce" />
+              </div>
+            </div>
+            <div className="space-y-3">
+              <h2 className="text-3xl font-black text-white tracking-tighter">Calling Admin...</h2>
+              <p className="text-indigo-300 font-medium italic text-sm">कृपया प्रतीक्षा करें — कनेक्ट हो रहा है</p>
+            </div>
+            {/* Timer */}
+            <div className="inline-flex items-center gap-3 px-8 py-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-full">
+              <div className="w-3 h-3 bg-emerald-400 rounded-full animate-pulse" />
+              <span className="text-2xl font-black text-white tabular-nums">{urgentTimer}s</span>
+              <span className="text-[10px] font-black text-indigo-300 uppercase tracking-widest">Remaining</span>
+            </div>
+            <button 
+              onClick={() => { setUrgentCallState('idle'); setIsCallingAdmin(false); }}
+              className="px-10 py-4 bg-white/10 backdrop-blur-md border border-white/20 text-white rounded-2xl font-black text-[11px] uppercase tracking-widest hover:bg-white/20 transition-all active:scale-95"
+            >
+              Cancel Call
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 3. Admin Busy Popup */}
+      {urgentCallState === 'busy' && (
+        <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-slate-900/50 backdrop-blur-xl p-6 animate-in fade-in duration-300">
+          <div className="w-full max-w-[380px] bg-white rounded-[3rem] p-10 space-y-8 animate-in zoom-in-95 duration-500 text-center shadow-2xl">
+            <div className="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center mx-auto shadow-inner">
+              <AlertCircle className="text-amber-500 w-10 h-10" />
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-2xl font-black text-slate-900 tracking-tighter">Admin Busy 😔</h2>
+              <p className="text-sm text-slate-400 font-medium italic leading-relaxed">अभी Admin व्यस्त हैं।<br />कृपया कुछ देर बाद दोबारा try करें।</p>
+            </div>
+            <button 
+              onClick={() => setUrgentCallState('idle')}
+              className="w-full h-14 bg-slate-900 text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl active:scale-95 transition-all"
+            >
+              Okay, Got It
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

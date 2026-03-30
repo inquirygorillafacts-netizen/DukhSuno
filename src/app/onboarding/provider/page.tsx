@@ -74,6 +74,31 @@ export default function SmartEarningOnboarding() {
   // Total steps: 3 slides + name/avatar + categories + gender/age + plans + phone = 8
   const TOTAL_STEPS = 8;
 
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    setLoading(true);
+    try {
+        const _formData = new FormData();
+        _formData.append('image', file);
+        const res = await fetch('/api/upload-qr', {
+            method: 'POST',
+            body: _formData
+        });
+        const data = await res.json();
+        if (data.url) {
+            setFormData({ ...formData, avatarUrl: data.url });
+        } else {
+            alert('Upload failed: ' + (data.error || 'Unknown error'));
+        }
+    } catch (err) {
+        console.error('Error uploading photo:', err);
+        alert('Failed to upload photo. Please try again.');
+    } finally {
+        setLoading(false);
+    }
+  };
+
   const isStepValid = (currentStep: number) => {
     switch (currentStep) {
       case 1: case 2: case 3: return true; // 3 Intro slides
@@ -203,6 +228,31 @@ export default function SmartEarningOnboarding() {
                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Choose your avatar & name</p>
               </div>
               <div className="space-y-5">
+                 {/* Custom Photo Upload */}
+                 <div className="flex flex-col items-center gap-3">
+                    <div className="relative group w-20 h-20 rounded-full border-4 border-slate-50 bg-slate-100 shadow-xl overflow-hidden flex items-center justify-center">
+                       <input 
+                          type="file" 
+                          accept="image/*"
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                          title="Upload Custom Photo"
+                          onChange={handlePhotoUpload}
+                          disabled={loading}
+                       />
+                       {loading ? (
+                          <div className="w-5 h-5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+                       ) : formData.avatarUrl?.startsWith('http') ? (
+                          <img src={formData.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                       ) : (
+                          <div className="flex flex-col items-center justify-center text-slate-400 group-hover:text-indigo-600 transition-colors">
+                             <Upload size={20} className="mb-0.5" />
+                             <span className="text-[7px] font-black uppercase tracking-widest text-center">My Photo</span>
+                          </div>
+                       )}
+                    </div>
+                    <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">- OR CHOOSE AVATAR -</span>
+                 </div>
+
                  {/* Avatar Grid */}
                  <div className="grid grid-cols-6 gap-2 justify-items-center">
                     {AVATAR_OPTIONS.slice(0, 12).map((av, idx) => (

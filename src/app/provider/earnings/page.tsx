@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { 
   IndianRupee, TrendingUp, ArrowUpRight, Sparkles, 
   Upload, X, CheckCircle2, History as HistoryIcon, 
-  AlertCircle, XCircle, Clock
+  AlertCircle, XCircle, Clock, Wallet
 } from 'lucide-react';
 import { 
   query, collection, where, orderBy, limit, onSnapshot, 
@@ -14,17 +14,6 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
-async function uploadToImgBB(file: File): Promise<string> {
-   const formData = new FormData();
-   formData.append('image', file);
-   const res = await fetch('/api/upload-qr', {
-      method: 'POST',
-      body: formData,
-   });
-   const data = await res.json();
-   if (data.url) return data.url;
-   throw new Error(data.error || 'Upload failed');
-}
 
 export default function SunneEarningsPage() {
   const { user } = useAuthStore();
@@ -38,20 +27,17 @@ export default function SunneEarningsPage() {
   const [minWithdrawalAmount, setMinWithdrawalAmount] = useState(99);
 
   // States
-  const [showSetup, setShowSetup] = useState(false);
   const [showWithdraw, setShowWithdraw] = useState(false);
-  const [qrFile, setQrFile] = useState<File | null>(null);
-  const [qrPreview, setQrPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   // Lock body scroll
   useEffect(() => {
-     if (showSetup || showWithdraw) document.body.style.overflow = 'hidden';
+     if (showWithdraw) document.body.style.overflow = 'hidden';
      else document.body.style.overflow = 'unset';
      return () => { document.body.style.overflow = 'unset'; };
-  }, [showSetup, showWithdraw]);
+  }, [showWithdraw]);
 
   useEffect(() => {
     if (!user) return;
@@ -95,25 +81,10 @@ export default function SunneEarningsPage() {
     };
   }, [user?.uid]);
 
-  const handleQrUpload = async () => {
-      if (!qrFile || !user) return;
-      setUploading(true);
-      try {
-         const url = await uploadToImgBB(qrFile);
-         await updateDoc(doc(db, 'users', user.uid), { paymentQrUrl: url });
-         setShowSetup(false);
-         setQrFile(null);
-         setQrPreview(null);
-      } catch (err) {
-         setErrorMsg('QR upload failed. Please try again.');
-      } finally {
-         setUploading(false);
-      }
-   };
 
    const handleWithdrawClick = () => {
      if (!user?.paymentQrUrl) {
-       setShowSetup(true);
+       router.push('/provider/settings/payment');
      } else {
        setShowWithdraw(true);
      }
@@ -180,7 +151,7 @@ export default function SunneEarningsPage() {
       {/* ─── BALANCE CARD ─── */}
       <div className="glass bg-white p-6 md:p-10 rounded-3xl text-center relative overflow-hidden border border-white shadow-2xl">
         <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#ff4d6d] to-rose-300"></div>
-        <p className="text-[9px] md:text-xs font-black text-slate-400 uppercase tracking-[0.4em] mb-3 mt-3">Available Balance</p>
+        <p className="text-[9px] md:text-xs font-black text-slate-400 uppercase tracking-[0.4em] mb-3 mt-3">Withdrawable Balance</p>
         <h3 className="text-3xl md:text-5xl font-black text-slate-900 mb-8 tracking-tighter leading-none inline-flex items-center justify-center">
           <IndianRupee className="w-8 h-8 md:w-12 md:h-12 text-[#ff4d6d]/20 -mr-1 md:-mr-2" strokeWidth={3} />
           <span>{user?.availableBalance || 0}</span>
@@ -195,9 +166,19 @@ export default function SunneEarningsPage() {
         <div className="flex items-center justify-between text-[9px] mt-6 font-bold uppercase tracking-widest text-slate-400">
            <span>Min withdrawal: ₹{minWithdrawalAmount}</span>
            {user?.paymentQrUrl ? (
-             <span className="text-emerald-500 flex items-center gap-1"><CheckCircle2 size={10} /> UPI Setup Done</span>
+             <button 
+               onClick={() => router.push('/provider/settings/payment')}
+               className="text-emerald-500 hover:text-emerald-600 flex items-center gap-1 transition-colors"
+             >
+               <CheckCircle2 size={10} /> UPI Setup Done (Edit)
+             </button>
            ) : (
-             <span className="text-rose-500 flex items-center gap-1"><AlertCircle size={10} /> Action Required</span>
+             <button 
+               onClick={() => router.push('/provider/settings/payment')}
+               className="text-rose-500 hover:text-rose-600 flex items-center gap-1 transition-colors animate-pulse"
+             >
+               <AlertCircle size={10} /> Action Required: Setup QR
+             </button>
            )}
         </div>
       </div>
@@ -214,6 +195,29 @@ export default function SunneEarningsPage() {
         </div>
       </div>
 
+      {/* ─── SEEKER CREDITS (POCKET MONEY) ─── */}
+      <div className="glass bg-white p-6 rounded-3xl border border-white flex items-center justify-between shadow-sm hover:shadow-xl transition-all group overflow-hidden relative">
+         <div className="absolute -right-8 -bottom-8 w-24 h-24 bg-indigo-500/5 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-1000" />
+         <div className="flex items-center gap-4 relative z-10">
+            <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-500 flex items-center justify-center group-hover:rotate-6 transition-transform shadow-inner">
+               <Wallet size={20} strokeWidth={2.5} />
+            </div>
+            <div>
+               <h4 className="font-black text-sm uppercase tracking-tighter text-slate-900 leading-none mb-1">Seeker Wallet</h4>
+               <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest leading-none">Credits to call others</p>
+            </div>
+         </div>
+         <div className="text-right relative z-10">
+            <p className="text-2xl font-black text-indigo-600 tracking-tighter italic leading-none">₹{user?.creditBalance || 0}</p>
+            <button 
+              onClick={() => router.push('/seeker/wallet')} 
+              className="text-[9px] text-indigo-500 font-black uppercase tracking-widest hover:underline mt-2 flex items-center justify-end gap-1"
+            >
+              Add Money <ArrowUpRight size={10} />
+            </button>
+         </div>
+      </div>
+
       {/* ─── TABS & HISTORY ─── */}
       <div className="space-y-4 pt-2">
         <div className="flex items-center gap-2 p-1 bg-slate-100/50 rounded-xl">
@@ -221,7 +225,7 @@ export default function SunneEarningsPage() {
             onClick={() => setActiveTab('sessions')}
             className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${activeTab === 'sessions' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-400'}`}
           >
-            Sessions Earnings
+            Helps Earnings
           </button>
           <button 
             onClick={() => setActiveTab('withdrawals')}
@@ -315,7 +319,7 @@ export default function SunneEarningsPage() {
           {!loading && activeTab === 'sessions' && sessions.length === 0 && (
             <div className="p-10 text-center glass rounded-[3rem] bg-slate-50 border border-slate-100 border-dashed">
               <Sparkles className="w-8 h-8 text-indigo-300 mx-auto mb-3" />
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">No sessions yet ✨</p>
+              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">No helps yet ✨</p>
             </div>
           )}
           
@@ -372,61 +376,6 @@ export default function SunneEarningsPage() {
          </div>
       )}
 
-      {/* ─── MODAL: QR SETUP ─── */}
-      {showSetup && (
-         <div className="fixed inset-0 z-[100] flex items-end md:items-center justify-center p-0 md:p-6 pb-0 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="w-full max-w-sm bg-white rounded-t-[3rem] md:rounded-[2.5rem] p-8 pb-12 shadow-2xl animate-in slide-in-from-bottom-10">
-               <div className="flex items-center justify-between mb-8">
-                  <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 shrink-0">
-                     <CheckCircle2 size={24} />
-                  </div>
-                  <button onClick={() => { setShowSetup(false); setQrFile(null); setQrPreview(null); }} className="w-10 h-10 bg-slate-50 hover:bg-slate-100 rounded-full flex items-center justify-center text-slate-400 transition-colors">
-                     <X size={20} />
-                  </button>
-               </div>
-               
-               <h3 className="text-2xl font-black text-slate-900 tracking-tighter italic">Setup UPI</h3>
-               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1 mb-8">Upload QR Code to receive payments</p>
-               
-               <div className="w-full aspect-square rounded-[2rem] bg-slate-50 border-2 border-dashed border-slate-200 flex flex-col items-center justify-center relative overflow-hidden group hover:border-emerald-400 hover:bg-emerald-50/30 transition-all cursor-pointer">
-                  {qrPreview ? (
-                     <img src={qrPreview} alt="QR Preview" className="w-full h-full object-contain p-4" />
-                  ) : (
-                     <>
-                        <Upload className="w-10 h-10 text-slate-300 group-hover:text-emerald-500 mb-3 transition-colors" />
-                        <span className="text-[10px] uppercase font-black tracking-widest text-slate-400 group-hover:text-emerald-600">Tap to Upload</span>
-                     </>
-                  )}
-                  <input
-                     type="file"
-                     accept="image/*"
-                     onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                           setQrFile(file);
-                           setQrPreview(URL.createObjectURL(file));
-                        }
-                     }}
-                     className="absolute inset-0 opacity-0 cursor-pointer"
-                  />
-               </div>
-
-               {errorMsg && <p className="text-rose-500 text-[10px] font-black uppercase tracking-widest text-center mt-6 p-2 bg-rose-50 rounded-lg">{errorMsg}</p>}
-
-               <button
-                  onClick={handleQrUpload}
-                  disabled={uploading || !qrFile}
-                  className="w-full h-14 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white rounded-[1.25rem] font-bold text-xs uppercase tracking-widest shadow-lg shadow-emerald-200 flex items-center justify-center gap-3 transition-colors mt-8"
-               >
-                  {uploading ? (
-                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  ) : (
-                     <>Save QR Code <CheckCircle2 size={16} /></>
-                  )}
-               </button>
-            </div>
-         </div>
-      )}
     </div>
   );
 }

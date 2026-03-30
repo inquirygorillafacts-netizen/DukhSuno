@@ -93,7 +93,7 @@ export function PublicProfileView({ provider }: { provider: BigSunoUser }) {
 
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-6 text-slate-400 text-sm font-black uppercase tracking-widest">
                 <div className="flex items-center gap-2 text-amber-500 bg-amber-50 px-4 py-2 rounded-full border border-amber-100 shadow-sm">
-                  <Star size={16} fill="currentColor" /> {provider.ratingAvg?.toFixed(1) || '5.0'} ({provider.totalSessions || 0} reviews)
+                  <Star size={16} fill="currentColor" /> {provider.ratingAvg?.toFixed(1) || '5.0'} ({provider.totalSessions || 0} helps)
                 </div>
                 <div className="flex items-center gap-2">
                   <Clock size={16} /> Joined {new Date(provider.registeredAt as any).getFullYear() || '2024'}
