@@ -140,7 +140,8 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     // Provider Check
     if (path.startsWith('/provider') && !roles.includes('provider')) return false;
     
-    // Seeker Check
+    // Seeker Check - ALWAYS allow access to seeker/home as the base landing zone to prevent loops
+    if (path === '/seeker/home') return true;
     if (path.startsWith('/seeker') && !roles.includes('seeker')) return false;
     
     // Role Selection Check
